@@ -2,15 +2,14 @@
 #include <Arduino.h>
 #endif
 
-#ifndef DataStore_h
-#define DataStore_h
+#ifndef DataStore1_h
+#define DataStore1_h
 
 #define ROWS 8
 #define COLS 8
 #define LAYERS 8
 #define BAM 4
 
-#define DS_BYTES (((ROWS*COLS*3*2) / 8) + ((ROWS*COLS*3*2) % 8 > 0 ? 1 : 0))
 #define BYTES (((ROWS*COLS*3) / 8) + ((ROWS*COLS*3) % 8 > 0 ? 1 : 0))
 
 #define LAYER_1 0b00000001
@@ -25,19 +24,13 @@
 #define ALL_ON 0b11111111
 #define ALL_OFF 0b00000000
 
-enum RgbColor {
-    Red = 0,
-    Green = 1,
-    Blue = 2
-};
-
 /// @brief Data store holds the two states of the cube. The active state that 
 /// is shifted out and a modyfication state to prepare the next active state 
 /// of the cube.
-class DataStore {
+class DataStore1 {
     public:
-        DataStore();
-        ~DataStore();
+        DataStore1();
+        ~DataStore1();
 
         /// @brief Get the size of the rows.
         /// @return 
@@ -113,48 +106,14 @@ class DataStore {
 
     protected:
     private:
-        uint8_t layeredStore[LAYERS][BAM-1][BYTES];
-        uint8_t layeredStoreDirty[LAYERS][DS_BYTES];
+        uint8_t layeredStore[LAYERS][BAM][BYTES];
+        uint8_t layeredStoreDirty[LAYERS][BAM][BYTES];
         bool isDirty;
-
-        /// @brief Copy RGB value of a LED from dirty store to the active store. 
-        /// @param led Number of the LED in the cube. A value between 0 .. (ROWS * COLS * LAYERS) - 1
-        /// @param rgbValue the 6-Bit RGB value
-        void copy(int led, uint8_t rgbValue);
-
-        /// @brief Get the 6-Bit rgb value for the LED. 
-        /// @param led Number of the LED in the cube. A value between 0 .. (ROWS * COLS * LAYERS) - 1
-        /// @return the 6-Bit RGB value
-        uint8_t getRgbValue(int led);
 
         /// @brief Get the BAM index for tick in duty cycle. 
         /// @param tick the tick count 
         /// @return the BAM index
         int getBAM(int tick);
-
-        /// @brief Convert the 2-Bit color value to the 4-Bit BAM representation
-        /// @param colorValue the 2-Bit color value
-        /// @return the 4-Bit BAM value
-        uint8_t get4BitBam(uint8_t colorValue);
-
-        /// @brief Convert the 4-Bit BAM representation of color to the 2-Bit color value
-        /// @param bamValue the 4-Bit BAM value
-        /// @return the 2-Bit color value
-        uint8_t get2BitColorValue(uint8_t bamValue);
-
-        /// @brief Get a specific color value of a RGB color value.
-        /// @param color the color
-        /// @param rgbValue the 6-Bit RGB value 
-        /// @return the 2-Bit color value
-        uint8_t get2BitColorValue(RgbColor color, uint8_t rgbValue);
-
-        /// @brief Get the led value for the BAM index based on the 6-Bit rgb color information.
-        /// @param value the 6-Bit rgb color value of a LED
-        /// @param bamIndex the BAM index
-        /// @return 3-Bit rgb value, e.g. 0b011 means red: on, green: on, blue:off (from right to left)
-        uint8_t getValueForBamIndex(uint8_t rgbValue, int bamIndex);
-
-        bool isOn(uint8_t colorValue, int bamIndex);
 
         /// @brief Shift out an 8 Bit unsigned int value to Serial with it's leading zeros.
         /// @param value the value to shift out

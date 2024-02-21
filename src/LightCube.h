@@ -117,20 +117,23 @@ class LightCube {
     
     private:
         float frameRate;
-        Frame frame;
+        Frame * frame;
+        bool initialized;
 
         LightCube();
 
         LightCube(const LightCube&) = delete;
         LightCube& operator=(const LightCube&) = delete;
 
-        /**
-         * Transfer the prepared transfer byte to SPI and prepare for the next transfer byte.
-         * 
-         * @param shift current shift position
-         * @param transferByte current state of the transfer byte
-         */
-        void shiftToSPI(int *shift, uint8_t *transferByte);
+        bool isInitialized();
+
+        // /**
+        //  * Transfer the prepared transfer byte to SPI and prepare for the next transfer byte.
+        //  * 
+        //  * @param shift current shift position
+        //  * @param transferByte current state of the transfer byte
+        //  */
+        // void shiftToSPI(int *shift, uint8_t *transferByte);
     };
 
 #endif

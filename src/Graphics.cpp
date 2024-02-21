@@ -14,7 +14,7 @@ void Graphics::drawColumn(const int column, const Color color, const long millis
         int ledIndex = column + (LightCube::getInstance().getRowSize() * LightCube::getInstance().getColSize() * i);
         LightCube::getInstance().getFrame()->setPrepare();
         LightCube::getInstance().getFrame()->set(ledIndex, color.red, color.green, color.blue);
-        LightCube::getInstance().getFrame()->activate(10);
+        LightCube::getInstance().getFrame()->activate(2);
         // Serial.println("[Graphics] waiting for cube");
         while (LightCube::getInstance().isBusy()) { /* just wait till cube is ready to prepare next frame */ }
         // Serial.println("[Graphics] wake up");

@@ -7,7 +7,7 @@
 
 #define FRAME_DEBUG_MODE 0
 
-#include "DataStore.h"
+#include "DataStore1.h"
 
 enum FrameState {
     Idle = 0b0 << 0,
@@ -68,7 +68,7 @@ class Frame {
     protected:
     
     private:
-        DataStore ds;
+        DataStore1 * ds;
         FrameState state = FrameState::Idle;
         int dirtyLifetime = 0;
         int lifetime = 0;

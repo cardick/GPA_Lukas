@@ -19,11 +19,13 @@
 #include "CubeCheck.h"
 #include "Coloring.h"
 
-// must be 13 defined by SPI
+// must be 13 defined by SPI (SRCLK - Shift Register Clock)
 #define CLOCK_PIN 13
 // must be 11 defined by SPI
 #define DATA_PIN 11
+// RCLK (Register Clock or Latch)
 #define LATCH_PIN 2
+// OE - Output enable
 #define BLANK_PIN 4
 
 // The driver logic is based on rows and columns from the top view onto the cube.
@@ -100,7 +102,7 @@ void setup() {
   // colors between the layers
 
   // For a 8x8x8 cube OCR1A value of 30 -> ~60FPS, 19 -> ~100FPS, 16 -> ~120FPS  
-  OCR1A = 19;
+  OCR1A = 30;
 
   // TIMSK register is responsible for the usage of the timer in scope of the 
   // interrupts
@@ -130,13 +132,16 @@ uint8_t currentCorner = 0;
 */
 void loop() {
   // breakpoint();
-  //int memUsage = freeMemory();
   // Serial.println("Start");
-  delay(1000);
+  // // delay(2000);
+  // int memUsage = freeMemory();
+  // Serial.println("Mem: ");
+  // Serial.println(memUsage);
   CubeCheck::testCubeFunctionality();
-  //memUsage = freeMemory();
-  // Serial.println("End");
-  // while (true);
+  // memUsage = freeMemory();
+  // Serial.println("Mem: ");
+  // Serial.println(memUsage);
+  // Serial.println("End");  
 }
 
 /**
@@ -149,15 +154,18 @@ void loop() {
  * https://medium.com/@tiemenwaterreus/building-a-4x4x4-led-cube-part-ii-the-software-813a5207bca8
  */
 ISR(TIMER1_COMPA_vect) {
+
   // shift current layer for current BAM tick to the shift registers
   LightCube::getInstance().shiftLayerForTick(currentLayer, currentTick);
 
-  // set latch low than high to activate shift registers
+  // set OE to high disables outputs of shift registers
+//  PORTD |= 1 << BLANK_PIN;
+
+  // setting RCLK to HIGH than to LOW copies the state of the shift register clock to the register clock
   PORTD |= 1 << LATCH_PIN;
   PORTD &= ~(1 << LATCH_PIN);
 
-  // set blank pin low than high
-   PORTD |= 1 << BLANK_PIN;
+  // set OE to low enables outputs of shift registers
   PORTD &= ~(1 << BLANK_PIN);
   
   // reset current layer to the first one, when all layers have been shifted out

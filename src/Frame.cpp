@@ -1,11 +1,10 @@
 #include "Frame.h"
+#include "MemoryFree.h"
 
 Frame::Frame()
 {
-    this->ds = DataStore();
-    this->state=Invalid;
-    this->lifetime=0;
-    ds.setAllOff(true);
+    this->ds = new DataStore1();
+    this->reset();
 }
 
 Frame::~Frame()
@@ -19,38 +18,38 @@ const uint16_t Frame::size()
 
 uint16_t Frame::get(int led)
 {
-    return this->ds.get(led);
+    return this->ds->get(led);
 }
 
 void Frame::set(int led, uint8_t red, uint8_t green, uint8_t blue)
 {
-    this->ds.set(led, red, green, blue);
+    this->ds->set(led, red, green, blue);
 }
 
 void Frame::set(uint8_t x, uint8_t y, uint8_t z, uint8_t red, uint8_t green, uint8_t blue)
 {
-    this->ds.set(x, y, z, red, green, blue);
+    this->ds->set(x, y, z, red, green, blue);
 }
 
 void Frame::setAllOn()
 {
     this->setPrepare();
-    this->ds.setAllOn(false);
+    this->ds->setAllOn(false);
 }
 
 const uint8_t Frame::getRows()
 {
-    return this->ds.getRows();
+    return this->ds->getRows();
 }
 
 const uint8_t Frame::getCols()
 {
-    return this->ds.getCols();
+    return this->ds->getCols();
 }
 
 const uint8_t Frame::getLayers()
 {
-    return this->ds.getLayers();
+    return this->ds->getLayers();
 }
 
 const String Frame::getState()
@@ -72,7 +71,7 @@ const String Frame::getState()
 
 void Frame::reset()
 {
-    this->ds.setAllOff(true);
+    this->ds->setAllOff(true);
     this->lifetime = 0;
     this->state = Idle;
 }
@@ -84,7 +83,7 @@ const bool Frame::isIdle()
 
 const bool Frame::canPrepare()
 {
-    return this->isIdle() || (this->isActive() && !this->ds.changed());
+    return this->isIdle() || (this->isActive() && !this->ds->changed());
 }
 
 const bool Frame::isPrepare()
@@ -107,7 +106,7 @@ void Frame::setPrepare()
     if(canPrepare()) {
         this->state = Prepare;
     }
-    if(FRAME_DEBUG_MODE>0) {
+    if(FRAME_DEBUG_MODE > 0) {
         Serial.print("[Fame::setPrepare] State::");
         Serial.println(getState());
     }
@@ -120,7 +119,7 @@ void Frame::activate(long lifetime)
         this->state = Activate;
     }
 
-    if(FRAME_DEBUG_MODE>0) {
+    if(FRAME_DEBUG_MODE > 0) {
         Serial.print("[Fame::activate] State::");
         Serial.print(getState());
         Serial.print(", ");
@@ -144,11 +143,15 @@ void Frame::decrementLifeCycle()
             Serial.println(this->lifetime);
         }
 
-        if(this->lifetime <= 0 && !this->ds.changed()) {
+        if(this->lifetime <= 0 && !this->ds->changed()) {
             if(FRAME_DEBUG_MODE > 0) {
                 Serial.println("[Frame::decrement] reset datasource");
             }
+            // stop interrupt timer
+            //TCCR1B &= ~(1 << CS22);
             reset();
+            // restart interrupt timer
+            //TCCR1B = B00001011;
         }
     }
 
@@ -156,10 +159,16 @@ void Frame::decrementLifeCycle()
         if(FRAME_DEBUG_MODE > 0) {
             Serial.println("[Frame::decrement] synchronize datasource state");
         }
+        // stop interrupt timer
+        //TCCR1B &= ~(1 << CS22);
+
         this->lifetime = this->dirtyLifetime;
-        this->ds.synchronize();
+        this->ds->synchronize();
         this->state = Active;
         this->dirtyLifetime = 0;
+        
+        // restart interrupt timer
+        //TCCR1B = B00001011;
     }
 
     if(FRAME_DEBUG_MODE > 0) {
@@ -172,10 +181,10 @@ void Frame::shiftLayerForTick(const int layerIndex, const int tick)
 {
     switch (FRAME_DEBUG_MODE)
     {
-    case 1:
-        this->ds.shiftLayerForTickToSerial(layerIndex, tick);
+    case 2:
+        this->ds->shiftLayerForTickToSerial(layerIndex, tick);
     default:
-        this->ds.shiftLayerForTick(layerIndex, tick);
+        this->ds->shiftLayerForTick(layerIndex, tick);
         break;
     }
 }

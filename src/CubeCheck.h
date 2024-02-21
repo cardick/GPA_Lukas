@@ -10,6 +10,8 @@
 class CubeCheck {
     public:
         static void testCubeFunctionality();
+        static void allOff();
+        static void allOn();
 
     private:
         static bool waitTillEnd();

@@ -8,7 +8,7 @@
 
 void CubeCheck::testCubeFunctionality()
 {
-    uint8_t fadeInOut[] = {Low, Medium, High, Full, High, Medium, Low};
+    uint8_t fadeInOut[] = {Medium, High, Full, High, Medium, Off};
     Color _c =  Color(Off, Off, Off);
     long upperBound = (LightCube::getInstance().getColSize() * LightCube::getInstance().getRowSize()) - 1;
     long rndIndex = random(0, upperBound);
@@ -20,6 +20,16 @@ void CubeCheck::testCubeFunctionality()
         Graphics::drawColumn(rndIndex, _c, 500);
     }
 
+}
+
+void CubeCheck::allOff()
+{
+    LightCube::getInstance().getFrame()->reset();
+}
+
+void CubeCheck::allOn()
+{
+    LightCube::getInstance().getFrame()->setAllOn();
 }
 
 bool CubeCheck::waitTillEnd()
