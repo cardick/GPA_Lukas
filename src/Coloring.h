@@ -34,7 +34,16 @@ struct Color
 };
 
 class Coloring {
+    public:
+        virtual Color getColor() = 0;
+    protected:
 
+};
+
+class SolidColoring : public Coloring {
+
+    public:
+        Color getColor();
 };
 
 #endif

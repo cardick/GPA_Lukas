@@ -5,17 +5,18 @@
 #ifndef CubeCheck_h
 #define CubeCheck_h
 
-#include "Frame.h"
+#include "Animation.h"
 
-class CubeCheck {
+/// @brief Animation that checks the cube functionality
+class CubeCheck : public Animation {
     public:
-        static void testCubeFunctionality();
-        static void allOff();
-        static void allOn();
+        void run();
 
     private:
-        static bool waitTillEnd();
-        static bool wait();
+        void testCubeFunctionality();
+        void testBlockWise();
+        void testLayer();
+        void allOff();
 };
 
 #endif

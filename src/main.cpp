@@ -1,13 +1,10 @@
-/**
- * Control a common anode RGB LED cube or cuboid - inspired by the projects of 
- * Kevin Darrah and Tiemen Waterreus. 
- *
- * The driver methods use SPI to control the shift registers. 
- *
- * @see SPI Tutorial: https://core-electronics.com.au/guides/spi-arduino-tutorial/ 
- * @author Carsten Dick (carsten.dick@googlemail.com)
- */
-
+/// Control a common anode RGB LED cube or cuboid - inspired by the projects of 
+/// Kevin Darrah and Tiemen Waterreus. 
+///
+/// The driver methods use SPI to control the shift registers. 
+///
+/// @see SPI Tutorial: https://core-electronics.com.au/guides/spi-arduino-tutorial/ 
+/// @author Carsten Dick (carsten.dick@googlemail.com)
 #include <Arduino.h>
 #include <SPI.h>
 
@@ -125,34 +122,18 @@ void setup() {
   sei();
 }
 
-uint8_t currentCorner = 0;
-
-/**
-* Within the loop only the bytes should be manipulated that are written out in ISR method
-*/
+/// @brief Within the loop only the bytes should be manipulated that are written out in ISR method
 void loop() {
-  // breakpoint();
-  // Serial.println("Start");
-  // // delay(2000);
-  // int memUsage = freeMemory();
-  // Serial.println("Mem: ");
-  // Serial.println(memUsage);
-  CubeCheck::testCubeFunctionality();
-  // memUsage = freeMemory();
-  // Serial.println("Mem: ");
-  // Serial.println(memUsage);
-  // Serial.println("End");  
+  Animation* animation = new CubeCheck();
+  animation->run();
 }
 
-/**
- * ISR is the interrupt method executed by the arduino. Multiplexing and BAM is realized here.
- * 
- * @see 
- * Tutorial 1: https://www.simsso.de/?type=arduino/timer-interrupts 
- * Tutorial 2: https://electronoobs.com/eng_arduino_tut140.php 
- * https://medium.com/@tiemenwaterreus/4-bit-angle-modulating-16-leds-using-arduino-and-shift-registers-8b2b738d4ced
- * https://medium.com/@tiemenwaterreus/building-a-4x4x4-led-cube-part-ii-the-software-813a5207bca8
- */
+/// @brief ISR is the interrupt method executed by the arduino. Multiplexing and BAM is realized here.
+///
+/// Tutorial 1: https://www.simsso.de/?type=arduino/timer-interrupts
+/// Tutorial 2: https://electronoobs.com/eng_arduino_tut140.php 
+/// https://medium.com/@tiemenwaterreus/4-bit-angle-modulating-16-leds-using-arduino-and-shift-registers-8b2b738d4ced
+/// https://medium.com/@tiemenwaterreus/building-a-4x4x4-led-cube-part-ii-the-software-813a5207bca8
 ISR(TIMER1_COMPA_vect) {
 
   // shift current layer for current BAM tick to the shift registers
