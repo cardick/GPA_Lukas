@@ -12,9 +12,12 @@
 // #include "app_api.h"
 
 #include "LightCube.h"
-#include "MemoryFree.h"
-#include "CubeCheck.h"
 #include "Coloring.h"
+#include "MemoryFree.h"
+
+// includes for animations
+#include "CubeCheck.h"
+#include "GPA_Animation.h"
 
 // must be 13 defined by SPI (SRCLK - Shift Register Clock)
 #define CLOCK_PIN 13
@@ -124,8 +127,13 @@ void setup() {
 
 /// @brief Within the loop only the bytes should be manipulated that are written out in ISR method
 void loop() {
-  Animation* animation = new CubeCheck();
+  //Animation* animation = new CubeCheck();
+  //animation->run();
+
+  // put your animation here
+  Animation* animation = new GpaAnimation();
   animation->run();
+
 }
 
 /// @brief ISR is the interrupt method executed by the arduino. Multiplexing and BAM is realized here.
