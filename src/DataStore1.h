@@ -72,8 +72,8 @@ class DataStore1 {
         void set(uint16_t led, uint8_t red, uint8_t green, uint8_t blue);
 
         /// @brief Set the 4-Bit RGB values for the LED with the given coordinates in the cube.
-        /// @param x X-Axis coordinate (column in cube). A value between 0 and COLS-1.
-        /// @param y Y-Axis coordinate (row in cube). A value between 0 and ROWS-1.
+        /// @param x X-Axis coordinate (row in cube). A value between 0 and ROWS-1.
+        /// @param y Y-Axis coordinate (column in cube). A value between 0 and COLS-1.
         /// @param z Z-Axis coordinate (layer in cube). A value between 0 and LAYERS-1.
         /// @param red 4-Bit BAM value for the red cathode.
         /// @param green 4-Bit BAM value for the green cathode.
@@ -81,8 +81,8 @@ class DataStore1 {
         void set(uint8_t x, uint8_t y, uint8_t z, uint8_t red, uint8_t green, uint8_t blue);
 
         /// @brief Evaluate the LED number for the LED with the given coordinates in the cube.
-        /// @param x X-Axis coordinate (column in cube). A value between 0 and COLS-1.
-        /// @param y Y-Axis coordinate (row in cube). A value between 0 and ROWS-1.
+        /// @param x X-Axis coordinate (row in cube). A value between 0 and ROWS-1.
+        /// @param y Y-Axis coordinate (column in cube). A value between 0 and COLS-1.
         /// @param z Z-Axis coordinate (layer in cube). A value between 0 and LAYERS-1.
         /// @return the uniuqe LED number in the cube or MAX uint16_t if a coordinate is out of range.
         const uint16_t getLedNumber(uint8_t x, uint8_t y, uint8_t z);

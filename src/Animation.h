@@ -26,8 +26,8 @@ class Animation {
         /// @param millis the milli seconds
         /// @return amount of frame repeats
         int getFrameCount(long millis) {
-            int frameRate = LightCube::getInstance().getFrameRate();
-            float frameCount = frameRate/millis * 1000;
+            float frameRate = LightCube::getInstance().getFrameRate();
+            float frameCount = frameRate * millis / 1000;
             return (int) max(round(frameCount), 1);
         }
 };

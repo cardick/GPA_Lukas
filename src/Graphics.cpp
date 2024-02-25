@@ -1,6 +1,7 @@
 #include "Graphics.h"
 #include "Vector.h"
 #include "LightCube.h"
+#include "MemoryFree.h"
 
 void Graphics::drawColumn(const int column, const Color color)
 {
@@ -55,41 +56,45 @@ void Graphics::drawLine(Point3D point, Vector3D direction, Coloring& coloring, l
 {
 }
 
-void Graphics::drawRectangle(Point3D point, Direction a, Direction b, int lengthA, int lengthB, Coloring * coloring)
+void Graphics::drawRectangle(const Point3D * point, Direction a, Direction b, const int lengthA, const int lengthB, Coloring& coloring)
 {
-    Vector3D *aDir = new Vector3D((int)0, (int)0, (int)0);
-    Vector.setDirection(aDir, a);
-    Vector3D *bDir = new Vector3D((int)0, (int)0, (int)0);
-    Vector.setDirection(bDir, b);
+    // Serial.println("[Graphics] drawRectangle");
 
-    Color color = coloring->getColor();
+    Vector3D aDir = {0,0,0};
+    Vector::setDirection(&aDir, b);
+    Vector3D bDir = {0, 0, 0};
+    Vector::setDirection(&bDir, b);
+
+    Color color = coloring.getColor();
 
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < lengthA; j++)
         {
             LightCube::getInstance().getFrame()->set(
-                point.x + (aDir->x * j) + (i * bDir->x + (lengthB-1)), 
-                point.y + (aDir->y * j) + (i * bDir->y + (lengthB-1)),
-                point.z + (aDir->z * j) + (i * bDir->z + (lengthB-1)),
+                point->x + (aDir.vx * j) + (bDir.vx * i * (lengthB - 1)), 
+                point->y + (aDir.vy * j) + (bDir.vy * i * (lengthB - 1)),
+                point->z + (aDir.vz * j) + (bDir.vz * i * (lengthB - 1)),
                 color.red, 
                 color.green, 
                 color.blue );
         }
     }
+
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < lengthB; j++)
         {
             LightCube::getInstance().getFrame()->set(
-                point.x + (bDir->x * j) + (i * aDir->x + (lengthA-1)), 
-                point.y + (bDir->y * j) + (i * aDir->y + (lengthA-1)),
-                point.z + (bDir->z * j) + (i * aDir->z + (lengthA-1)),
+                point->x + (bDir.vx * j) + (aDir.vx * i * (lengthA - 1)), 
+                point->y + (bDir.vy * j) + (aDir.vy * i * (lengthA - 1)),
+                point->z + (bDir.vz * j) + (aDir.vz * i * (lengthA - 1)),
                 color.red, 
                 color.green, 
                 color.blue );
         }
     }
+    // Serial.println(freeMemory());
 }
 
 void Graphics::fillRectangle(Point3D point, Direction a, Direction b, int lengthA, int lenghtB, Coloring *coloring)
