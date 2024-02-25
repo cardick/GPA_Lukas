@@ -25,6 +25,11 @@ struct Color
     Brightness red;
     Brightness green;
     Brightness blue;
+    Color() {
+        this->red = Off;
+        this->green = Off;
+        this->blue = Off;
+    }
 
     Color(Brightness red, Brightness green, Brightness blue) {
         this->red = red;

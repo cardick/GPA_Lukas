@@ -9,11 +9,9 @@
 void GpaAnimation::run()
 {
     // start coding here
-    Serial.println("Hello Animation");
-    Graphics::drawColumn(8, Color(High, Low, High), 500);
-
+    
     // was möchte ich, das der Würfel tut
-    Point3D punkt = {0,6,4};
+    
 
    // Die hinterste Matrix bekommt einen aussen rahmen der dann nach zeit(x) um eine Matrix nach vorne rückt. 
 
@@ -30,6 +28,18 @@ void GpaAnimation::run()
    // dann geht der äussere rahmen aus und der zweite rahmen geht an die erste matrix und 
    // das ganze geht dann so bis die ganz enge Matrix ganz vorne ist 
    // dann könnte die erste Matrix komplett weiß werden und die ganze animation fängt von vorne an.
+   Point3D start = {0,0,0};
+   SolidColoring *coloring = new SolidColoring();
+   coloring->setColor(Color(High,High,High));
+
+   LightCube::getInstance().getFrame()->setPrepare();
+
+   
+        Graphics::drawRectangle(start, Up, Left, 8, 8, coloring);
+        LightCube::getInstance().getFrame()->activate(getFrameCount(500));
+        wait();
+        
+        
     
 }
 
