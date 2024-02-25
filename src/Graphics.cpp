@@ -55,8 +55,40 @@ void Graphics::drawLine(Point3D point, Vector3D direction, Coloring& coloring, l
 {
 }
 
-void Graphics::drawRectangle(Point3D point, Direction a, Direction b, int lengthA, int lenghtB, Coloring * coloring)
+void Graphics::drawRectangle(Point3D point, Direction a, Direction b, int lengthA, int lengthB, Coloring * coloring)
 {
+    Vector3D *aDir, *bDir;
+    Vector.setDirection(aDir, a);
+    Vector.setDirection(bDir, b);
+
+    Color color = coloring->getColor();
+
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < lengthA; j++)
+        {
+            LightCube::getInstance().getFrame()->set(
+                point.x + (aDir->x * j) + (i * bDir->x + (lengthB-1)), 
+                point.y + (aDir->y * j) + (i * bDir->y + (lengthB-1)),
+                point.z + (aDir->z * j) + (i * bDir->z + (lengthB-1)),
+                color.red, 
+                color.green, 
+                color.blue );
+        }
+    }
+    for (int i = 0; i < 2; i++)
+    {
+        for (int j = 0; j < lengthB; j++)
+        {
+            LightCube::getInstance().getFrame()->set(
+                point.x + (bDir->x * j) + (i * aDir->x + (lengthA-1)), 
+                point.y + (bDir->y * j) + (i * aDir->y + (lengthA-1)),
+                point.z + (bDir->z * j) + (i * aDir->z + (lengthA-1)),
+                color.red, 
+                color.green, 
+                color.blue );
+        }
+    }
 }
 
 void Graphics::fillRectangle(Point3D point, Direction a, Direction b, int lengthA, int lenghtB, Coloring *coloring)
@@ -65,4 +97,5 @@ void Graphics::fillRectangle(Point3D point, Direction a, Direction b, int length
 
 void Graphics::erase()
 {
+    LightCube::getInstance().getFrame()->setAllOff();
 }

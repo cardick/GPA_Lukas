@@ -33,6 +33,8 @@ class Frame {
 
         void setAllOn();
 
+        void setAllOff();
+
         const uint8_t getRows();
 
         const uint8_t getCols();
