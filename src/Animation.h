@@ -21,6 +21,13 @@ class Animation {
                 // do nothing, just wait
             }
         };
+
+        /// @brief Get the number of frames to be displayed for the given millis
+        /// @param millis the milli seconds
+        /// @return amount of frame repeats
+        int getFrameCount(long millis) {
+
+        }
 };
 
 #endif

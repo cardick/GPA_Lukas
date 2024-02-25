@@ -37,13 +37,16 @@ class Coloring {
     public:
         virtual Color getColor() = 0;
     protected:
-
+        Color _c;
 };
 
 class SolidColoring : public Coloring {
 
     public:
+        void setColor(Color c);
+
         Color getColor();
+
 };
 
 #endif

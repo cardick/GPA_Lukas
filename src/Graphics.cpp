@@ -54,3 +54,15 @@ void Graphics::drawLine(Point3D point, Vector3D direction, Coloring &coloring)
 void Graphics::drawLine(Point3D point, Vector3D direction, Coloring& coloring, long millis)
 {
 }
+
+void Graphics::drawRectangle(Point3D point, Direction a, Direction b, int lengthA, int lenghtB, Coloring * coloring)
+{
+}
+
+void Graphics::fillRectangle(Point3D point, Direction a, Direction b, int lengthA, int lenghtB, Coloring *coloring)
+{
+}
+
+void Graphics::erase()
+{
+}

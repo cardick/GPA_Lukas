@@ -1,6 +1,11 @@
 #include "Coloring.h"
 
+void SolidColoring::setColor(Color c)
+{
+    this->_c = c;
+}
+
 Color SolidColoring::getColor()
 {
-    return Color(High, Medium, Off);
+    return this->_c;
 }
