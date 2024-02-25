@@ -57,8 +57,9 @@ void Graphics::drawLine(Point3D point, Vector3D direction, Coloring& coloring, l
 
 void Graphics::drawRectangle(Point3D point, Direction a, Direction b, int lengthA, int lengthB, Coloring * coloring)
 {
-    Vector3D *aDir, *bDir;
+    Vector3D *aDir = new Vector3D((int)0, (int)0, (int)0);
     Vector.setDirection(aDir, a);
+    Vector3D *bDir = new Vector3D((int)0, (int)0, (int)0);
     Vector.setDirection(bDir, b);
 
     Color color = coloring->getColor();

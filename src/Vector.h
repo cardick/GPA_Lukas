@@ -20,12 +20,19 @@ enum Direction
 /**
  * Structure for a vector in a cubes or cuboid space.
  */
-typedef struct
+struct Vector3D
 {
+  public:
+  Vector3D(int x, int y, int z){
+    this->x = x;
+    this->y = y;
+    this->z = z;
+  };
+
   int x;
   int y;
   int z;
-} Vector3D;
+};
 
 /**
  * Structure for point in a cube or cuboid space.
