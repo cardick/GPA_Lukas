@@ -33,8 +33,16 @@ void Frame::set(uint8_t x, uint8_t y, uint8_t z, uint8_t red, uint8_t green, uin
 
 void Frame::setAllOn()
 {
-    this->setPrepare();
+    if(!this->isPrepare())
+        this->setPrepare();
     this->ds->setAllOn(false);
+}
+
+void Frame::setAllOff()
+{
+    if(!this->isPrepare())
+        this->setPrepare();
+    this->ds->setAllOff(false);
 }
 
 const uint8_t Frame::getRows()
