@@ -58,23 +58,28 @@ void Graphics::drawLine(Point3D point, Vector3D direction, Coloring& coloring, l
 
 void Graphics::drawRectangle(const Point3D * point, Direction a, Direction b, const int lengthA, const int lengthB, Coloring& coloring)
 {
-    // Serial.println("[Graphics] drawRectangle");
+    Serial.println("[Graphics] drawRectangle");
 
     Vector3D aDir = {0,0,0};
-    Vector::setDirection(&aDir, b);
+    Vector::setDirection(&aDir, a);
     Vector3D bDir = {0, 0, 0};
     Vector::setDirection(&bDir, b);
 
     Color color = coloring.getColor();
+    Point3D p = {0,0,0};
 
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < lengthA; j++)
         {
+            p.x = point->x + (aDir.vx * j) + (bDir.vx * i * (lengthB - 1));
+            p.y = point->y + (aDir.vy * j) + (bDir.vy * i * (lengthB - 1));
+            p.z = point->z + (aDir.vz * j) + (bDir.vz * i * (lengthB - 1));
+
             LightCube::getInstance().getFrame()->set(
-                point->x + (aDir.vx * j) + (bDir.vx * i * (lengthB - 1)), 
-                point->y + (aDir.vy * j) + (bDir.vy * i * (lengthB - 1)),
-                point->z + (aDir.vz * j) + (bDir.vz * i * (lengthB - 1)),
+                p.x, 
+                p.y,
+                p.z,
                 color.red, 
                 color.green, 
                 color.blue );
@@ -94,7 +99,6 @@ void Graphics::drawRectangle(const Point3D * point, Direction a, Direction b, co
                 color.blue );
         }
     }
-    // Serial.println(freeMemory());
 }
 
 void Graphics::fillRectangle(Point3D point, Direction a, Direction b, int lengthA, int lenghtB, Coloring *coloring)

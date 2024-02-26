@@ -141,7 +141,11 @@ void loop() {
   // put your animation here
   Animation* animation = new GpaAnimation();
   animation->run();
-  delay(1000);
+  while (true)
+  {
+    /* code */
+  }
+  
 }
 
 /// @brief ISR is the interrupt method executed by the arduino. Multiplexing and BAM is realized here.

@@ -1,7 +1,7 @@
 #ifndef Vector_h
 #define Vector_h
 
-#include <stdint.h>
+//#include <stdint.h>
 
 /// @brief Direction flags for the base directions.
 enum Direction
@@ -14,16 +14,38 @@ enum Direction
   Right = 1 << 4,
   Down = 1 << 5
 };
+
 /// @brief Structure for point in a cube or cuboid space.
 struct Point3D
 {
-  uint8_t x, y, z;
+  public:
+    uint8_t x, y, z;
+
+    void toSerial() {
+      Serial.print("[Point3D] { x: ");
+      Serial.print(x);
+      Serial.print(", y: ");
+      Serial.print(y);
+      Serial.print(", z: ");
+      Serial.print(z);
+      Serial.println("}");
+    };
 };
 
 /// @brief for a vector in a cubes or cuboid space.
 struct Vector3D
 {
-  int vx, vy, vz;
+  public:
+    int vx, vy, vz;
+    void toSerial() {
+      Serial.print("[Vector3D] { x: ");
+      Serial.print(vx);
+      Serial.print(", y: ");
+      Serial.print(vy);
+      Serial.print(", z: ");
+      Serial.print(vz);
+      Serial.println("}");
+    };
 };
 
 /// @brief Vector class defines statis methods to work with vectors.
