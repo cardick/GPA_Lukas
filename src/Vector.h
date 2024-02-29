@@ -1,8 +1,6 @@
 #ifndef Vector_h
 #define Vector_h
 
-//#include <stdint.h>
-
 /// @brief Direction flags for the base directions.
 enum Direction
 {
@@ -15,30 +13,28 @@ enum Direction
   Down = 1 << 5
 };
 
-/// @brief Structure for point in a cube or cuboid space.
-struct Point3D
-{
-  public:
-    uint8_t x, y, z;
-
-    void toSerial() {
-      Serial.print("[Point3D] { x: ");
-      Serial.print(x);
-      Serial.print(", y: ");
-      Serial.print(y);
-      Serial.print(", z: ");
-      Serial.print(z);
-      Serial.println("}");
-    };
-};
-
-/// @brief for a vector in a cubes or cuboid space.
+/// @brief vector in a cubes or cuboid space.
 struct Vector3D
 {
   public:
     int vx, vy, vz;
+
+    Vector3D() 
+    {
+      this->vx = 0;
+      this->vy = 0;
+      this->vz = 0;
+    }
+
+    Vector3D(int x, int y, int z) 
+    {
+      this->vx = x;
+      this->vy = y;
+      this->vz = z;
+    }
+
     void toSerial() {
-      Serial.print("[Vector3D] { x: ");
+      Serial.print("[Vector3D] {x: ");
       Serial.print(vx);
       Serial.print(", y: ");
       Serial.print(vy);
@@ -46,6 +42,75 @@ struct Vector3D
       Serial.print(vz);
       Serial.println("}");
     };
+
+    Vector3D operator+(const Vector3D a) const {
+      return Vector3D(vx + a.vx, vy + a.vy, vz + a.vz);
+    }
+    
+    Vector3D operator-(const Vector3D a) const {
+      return Vector3D(vx - a.vx, vy - a.vy, vz - a.vz);
+    }
+
+    Vector3D& operator-=(const Vector3D& a) {
+      vx -= a.vx;
+      vy -= a.vy;
+      vz -= a.vz;
+      return *this;
+    }
+
+    Vector3D operator*(const int a) const {
+      return Vector3D(vx * a, vy * a, vz * a);
+    }
+};
+
+/// @brief point in a cube or cuboid space.
+struct Point3D
+{
+  public:
+    uint8_t x, y, z;
+    Point3D() {
+      this->x = 0;
+      this->y = 0;
+      this->z = 0;
+    }
+
+    Point3D(uint8_t x, uint8_t y, uint8_t z) 
+    {
+      this->x = x;
+      this->y = y;
+      this->z = z;
+    }
+
+    void toSerial() {
+      Serial.print("[Point3D] {x: ");
+      Serial.print(x);
+      Serial.print(", y: ");
+      Serial.print(y);
+      Serial.print(", z: ");
+      Serial.print(z);
+      Serial.println("}");
+    };
+
+    Point3D operator+(const Vector3D a) const 
+    {
+      return Point3D(x + a.vx, y + a.vy, z + a.vz);
+    }
+
+    Point3D& operator += (const Vector3D& a)
+    {
+      x += a.vx; 
+      y += a.vy;
+      z += a.vz;
+      return *this;
+    }
+
+    Point3D operator*(const Vector3D a) const {
+      return Point3D(x * a.vx, y * a.vy, z * a.vz);
+    }
+
+    Point3D operator*(const int a) const {
+      return Point3D(x * a, y * a, z * a);
+    }
 };
 
 /// @brief Vector class defines statis methods to work with vectors.
@@ -109,6 +174,11 @@ public:
   /// @param vector 
   /// @return 
   static bool isZeroVector(const Vector3D *vector);
+
+  /// @brief Indicates whether the given vector is a direction vector
+  /// @param vector 
+  /// @return 
+  static bool isDirectionVector(const Vector3D *vector);
   
   /// @brief Checks whether vector a is equal to vector b
   /// @param vectorA 

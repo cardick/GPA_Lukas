@@ -7,7 +7,6 @@ void Graphics::drawColumn(const int column, const Color color)
 {
     // ensure column is in range
     if(0 > column || column >= (LightCube::getInstance().getRowSize() * LightCube::getInstance().getColSize())) { return; }
-    // Serial.println("[Graphics] begin drawing");
 
     // get the point for the column index
     for (int i = 0; i < LightCube::getInstance().getLayerSize(); i++)
@@ -33,7 +32,6 @@ void Graphics::drawColumn(const int column, const Color color, const long millis
 {
     // ensure column is in range
     if(0 > column || column >= (LightCube::getInstance().getRowSize() * LightCube::getInstance().getColSize())) { return; }
-    // Serial.println("[Graphics] begin drawing");
 
     // get the point for the column index
     for (int i = 0; i < LightCube::getInstance().getLayerSize(); i++)
@@ -42,9 +40,7 @@ void Graphics::drawColumn(const int column, const Color color, const long millis
         LightCube::getInstance().getFrame()->setPrepare();
         LightCube::getInstance().getFrame()->set(ledIndex, color.red, color.green, color.blue);
         LightCube::getInstance().getFrame()->activate(2);
-        // Serial.println("[Graphics] waiting for cube");
         while (LightCube::getInstance().isBusy()) { /* just wait till cube is ready to prepare next frame */ }
-        // Serial.println("[Graphics] wake up");
     }
 }
 
@@ -58,8 +54,6 @@ void Graphics::drawLine(Point3D point, Vector3D direction, Coloring& coloring, l
 
 void Graphics::drawRectangle(const Point3D * point, Direction a, Direction b, const int lengthA, const int lengthB, Coloring& coloring)
 {
-    Serial.println("[Graphics] drawRectangle");
-
     Vector3D aDir = {0,0,0};
     Vector::setDirection(&aDir, a);
     Vector3D bDir = {0, 0, 0};

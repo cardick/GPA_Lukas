@@ -101,6 +101,11 @@ bool Vector::isZeroVector(const Vector3D *vec)
     return vec->vx == 0 && vec->vy == 0 && vec->vz == 0;
 }
 
+bool Vector::isDirectionVector(const Vector3D *vector)
+{
+    return (vector->vx <= 1 || vector->vx >= -1) && (vector->vy <= 1 || vector->vy >= -1) && (vector->vz <= 1 || vector->vz >= -1);
+}
+
 bool Vector::equals(const Vector3D *vectorA, const Vector3D *vectorB)
 {
     return (vectorA->vx == vectorB->vx) && (vectorA->vy == vectorB->vy) && (vectorA->vz == vectorB->vz);

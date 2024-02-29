@@ -151,7 +151,6 @@ void Frame::decrementLifeCycle()
     if(this->state != Prepare) {
         this->lifetime -= 1;
 
-        Serial.print(".");
         if(FRAME_DEBUG_MODE > 0) {
             Serial.print("[Frame::decrement] decrement lifetime ");
             Serial.println(this->lifetime);
@@ -176,14 +175,14 @@ void Frame::decrementLifeCycle()
         // stop interrupt timer
         TCCR1B &= ~(1 << CS22);
         
-        Serial.println();
         this->lifetime = this->dirtyLifetime;
         this->ds->synchronize();
         this->state = Active;
         this->dirtyLifetime = 0;
-        Serial.print("[Frame] activate with lifetime ");
-        Serial.println(this->lifetime);
-
+        if(FRAME_DEBUG_MODE > 0) {
+            Serial.print("[Frame::decrement] activate with lifetime ");
+            Serial.println(this->lifetime);
+        }
         // restart interrupt timer
         TCCR1B = B00001011;
     }

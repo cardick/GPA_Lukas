@@ -106,6 +106,7 @@ class DataStore1 {
 
     protected:
     private:
+        const uint8_t gammaCorrect[3] = {0b00100100, 0b10010010, 0b01001001};
         uint8_t layeredStore[LAYERS][BAM][BYTES];
         uint8_t layeredStoreDirty[LAYERS][BAM][BYTES];
         bool isDirty;

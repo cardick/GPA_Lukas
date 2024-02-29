@@ -18,6 +18,7 @@
 // includes for animations
 #include "CubeCheck.h"
 #include "GpaAnimation.h"
+#include "SinusAnimation.h"
 
 // must be 13 defined by SPI (SRCLK - Shift Register Clock)
 #define CLOCK_PIN 13
@@ -141,6 +142,15 @@ void loop() {
   // put your animation here
   Animation* animation = new GpaAnimation();
   animation->run();
+  animation = new SinusAnimation();
+  delay(200);
+  ((SinusAnimation*)animation)->run(0, 1250);
+  ((SinusAnimation*)animation)->run(1, 750);
+  
+  // animation = new SinusAnimation();
+  
+  // animation = new GpaAnimation();
+  // animation->run();
   while (true)
   {
     /* code */

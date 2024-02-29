@@ -179,8 +179,21 @@ void DataStore1::shiftLayerForTick(int layerIndex, int tick)
 
     for (int i = BYTES-1; i >= 0; i--)
     {
+        // gamma correcture for red
+        // switch (tick)
+        // {
+        //     case 7:
+        //     case 14:
+        //     case 15:
+        //         SPI.transfer(layeredStore[layerIndex][bamIndex][i] & gammaCorrect[i%3]);
+        //         break;
+        //     default:
+        //         SPI.transfer(layeredStore[layerIndex][bamIndex][i]);
+        //         break;
+        // }
         SPI.transfer(layeredStore[layerIndex][bamIndex][i]);
     }
+
     switch (layerIndex)
     {
         case 0:
@@ -291,7 +304,6 @@ void DataStore1::synchronize()
         
     }
     this->isDirty = false;
-    Serial.println("[DS] next frame");
 }
 
 int DataStore1::getBAM(int tick)
