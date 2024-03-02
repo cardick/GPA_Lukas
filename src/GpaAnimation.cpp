@@ -9,8 +9,11 @@
 
 void GpaAnimation::run()
 {
-    moveTunnel(LightCube::getInstance().getFrame());
-    moveTunnelBack(LightCube::getInstance().getFrame());
+    LightCube::getInstance().reset();
+    wait();
+    // moveTunnel(LightCube::getInstance().getFrame());
+    // moveTunnelBack(LightCube::getInstance().getFrame());
+    snake(5);
 }
 
 void GpaAnimation::moveTunnel(Frame *frame)
@@ -183,4 +186,80 @@ void GpaAnimation::moveTunnelBack(Frame *frame)
         }
         wait();
     }
+}
+
+void GpaAnimation::snake(long millis)
+{
+
+    Point3D p = Point3D(random(0, 7), random(0, 7), random(0, 7));
+    Vector3D vec = Vector3D(1, 1, 1);
+
+    wait();
+    Frame *f = LightCube::getInstance().getFrame();
+
+    for (int i = 0; i < 10; i++)
+    {
+        int mycase = random(0, 45);
+        switch (0) // mycase%3)
+        {
+        case 0:
+            Serial.print("Moving: ");
+            Serial.println(mycase%8);
+            moveForward(p, vec, mycase % 8, f);
+            break;
+        case 1:
+            changeDir(p, Up, 0, f);
+            break;
+        default:
+            makeLoop(p, f);
+            break;
+        }
+    }
+}
+
+void GpaAnimation::changeDir(Point3D p, Direction dir, int steps, Frame *frame)
+{
+}
+
+void GpaAnimation::moveForward(Point3D p, Vector3D v, int steps, Frame *frame)
+{
+    Point3D tmp;
+
+    for (int i = 0; i < steps; i++)
+    {
+        p += v;
+        p.toSerial();
+        LightCube::getInstance().getFrame()->setPrepare();
+        Serial.println(LightCube::getInstance().getFrame()->getState());
+        if (isInBoundary(p))
+        {
+            tmp = p;
+            LightCube::getInstance().getFrame()->set(p.x, p.y, p.z, Full, Off, Full);
+            LightCube::getInstance().getFrame()->set(tmp.x, tmp.y, tmp.z, Off, Off, Off);
+        }
+       // if(LightCube::getInstance().getFrame()->isPrepare()) {
+            LightCube::getInstance().getFrame()->activate(getFrameCount(200));
+        // }
+        wait();
+    }
+}
+
+void GpaAnimation::makeLoop(Point3D p, Frame *frame)
+{
+}
+
+bool GpaAnimation::isPossibleDirection(Vector3D vec)
+{
+    return false;
+}
+
+bool GpaAnimation::isInBoundary(Point3D p)
+{
+    if (p.x < 0 || p.x > 8)
+        return false;
+    if (p.y < 0 || p.y > 8)
+        return false;
+    if (p.z < 0 || p.z > 8)
+        return false;
+    return false;
 }

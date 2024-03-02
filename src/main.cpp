@@ -141,10 +141,10 @@ void loop() {
 
   // put your animation here
   Animation* animation = new GpaAnimation();
-  for (int i = 0; i < 20; i++)
-  {
     animation->run();
-  }
+  // for (int i = 0; i < 20; i++)
+  // {
+  // }
   
   // animation = new SinusAnimation();
   // delay(200);

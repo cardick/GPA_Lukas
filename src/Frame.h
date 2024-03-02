@@ -41,7 +41,7 @@ class Frame {
 
         const uint8_t getLayers();
 
-        const String getState();
+        const char* getState();
 
         void reset();
 

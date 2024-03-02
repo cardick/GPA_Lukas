@@ -62,7 +62,7 @@ const uint8_t Frame::getLayers()
     return this->ds->getLayers();
 }
 
-const String Frame::getState()
+const char* Frame::getState()
 {
     switch (this->state)
     {
