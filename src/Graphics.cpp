@@ -1,12 +1,13 @@
 #include "Graphics.h"
 #include "Vector.h"
 #include "LightCube.h"
+#include "Frame.h"
+#include "MemoryFree.h"
 
 void Graphics::drawColumn(const int column, const Color color)
 {
     // ensure column is in range
     if(0 > column || column >= (LightCube::getInstance().getRowSize() * LightCube::getInstance().getColSize())) { return; }
-    // Serial.println("[Graphics] begin drawing");
 
     // get the point for the column index
     for (int i = 0; i < LightCube::getInstance().getLayerSize(); i++)
@@ -32,7 +33,6 @@ void Graphics::drawColumn(const int column, const Color color, const long millis
 {
     // ensure column is in range
     if(0 > column || column >= (LightCube::getInstance().getRowSize() * LightCube::getInstance().getColSize())) { return; }
-    // Serial.println("[Graphics] begin drawing");
 
     // get the point for the column index
     for (int i = 0; i < LightCube::getInstance().getLayerSize(); i++)
@@ -41,9 +41,7 @@ void Graphics::drawColumn(const int column, const Color color, const long millis
         LightCube::getInstance().getFrame()->setPrepare();
         LightCube::getInstance().getFrame()->set(ledIndex, color.red, color.green, color.blue);
         LightCube::getInstance().getFrame()->activate(2);
-        // Serial.println("[Graphics] waiting for cube");
         while (LightCube::getInstance().isBusy()) { /* just wait till cube is ready to prepare next frame */ }
-        // Serial.println("[Graphics] wake up");
     }
 }
 
@@ -55,36 +53,84 @@ void Graphics::drawLine(Point3D point, Vector3D direction, Coloring& coloring, l
 {
 }
 
-void Graphics::drawRectangle(Point3D point, Direction a, Direction b, int lengthA, int lengthB, Coloring * coloring)
+void Graphics::drawSphere(float size, Coloring& coloring, Frame *frame)
 {
-    Vector3D *aDir = new Vector3D((int)0, (int)0, (int)0);
-    Vector.setDirection(aDir, a);
-    Vector3D *bDir = new Vector3D((int)0, (int)0, (int)0);
-    Vector.setDirection(bDir, b);
+    // start with blank screen
+    frame->setAllOff();
+    drawSphere(size > 7 ? 7 : size, 3.5, 3.5, 3.5, coloring, frame);
+}
 
-    Color color = coloring->getColor();
+void Graphics::drawSphere(float size, float mx, float my, float mz, Coloring& coloring, Frame *frame)
+{
+    // size of cube represents the radius max 3.5
+    float r = (double)size/(double)2;
+
+    // in the 8x8x8 cube the perimeter of the cube is 4x8 - 4 voxels
+    int total = 28;
+    Point3D p = Point3D();
+
+    for (int i = 0; i < total; i++)
+    {
+        // map i to PI range to get the lon value
+        float lon = projToRad(i, 0, total, -M_PI_2, M_PI_2);
+
+        for (int j = 0; j < total; j++)
+        {
+            // map j to PI range to get the lat value
+            float lat = projToRad(j, 0, total, -M_PI, M_PI);
+
+            // calculate the offsets from center point M and add them to M's coordinates
+            float x = round(mx + (r * sin(lon) * cos(lat)));
+            float y = round(my + (r * sin(lon) * sin(lat)));
+            float z = round(mz + (r * cos(lon)));
+
+            // avoid duplicate setting of voxels
+            if(p.x != x || p.y != y || p.z != z) {
+                frame->set(x, y, z, coloring.getColor().red, coloring.getColor().green, coloring.getColor().blue);
+                p.x = x;
+                p.y = y;
+                p.z = z;
+            }
+        }
+    }
+}
+
+void Graphics::drawRectangle(const Point3D * point, Direction a, Direction b, const int lengthA, const int lengthB, Coloring& coloring)
+{
+    Vector3D aDir = {0,0,0};
+    Vector::setDirection(&aDir, a);
+    Vector3D bDir = {0, 0, 0};
+    Vector::setDirection(&bDir, b);
+
+    Color color = coloring.getColor();
+    Point3D p = {0,0,0};
 
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < lengthA; j++)
         {
+            p.x = point->x + (aDir.vx * j) + (bDir.vx * i * (lengthB - 1));
+            p.y = point->y + (aDir.vy * j) + (bDir.vy * i * (lengthB - 1));
+            p.z = point->z + (aDir.vz * j) + (bDir.vz * i * (lengthB - 1));
+
             LightCube::getInstance().getFrame()->set(
-                point.x + (aDir->x * j) + (i * bDir->x + (lengthB-1)), 
-                point.y + (aDir->y * j) + (i * bDir->y + (lengthB-1)),
-                point.z + (aDir->z * j) + (i * bDir->z + (lengthB-1)),
+                p.x, 
+                p.y,
+                p.z,
                 color.red, 
                 color.green, 
                 color.blue );
         }
     }
+
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < lengthB; j++)
         {
             LightCube::getInstance().getFrame()->set(
-                point.x + (bDir->x * j) + (i * aDir->x + (lengthA-1)), 
-                point.y + (bDir->y * j) + (i * aDir->y + (lengthA-1)),
-                point.z + (bDir->z * j) + (i * aDir->z + (lengthA-1)),
+                point->x + (bDir.vx * j) + (aDir.vx * i * (lengthA - 1)), 
+                point->y + (bDir.vy * j) + (aDir.vy * i * (lengthA - 1)),
+                point->z + (bDir.vz * j) + (aDir.vz * i * (lengthA - 1)),
                 color.red, 
                 color.green, 
                 color.blue );

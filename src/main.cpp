@@ -17,7 +17,8 @@
 
 // includes for animations
 #include "CubeCheck.h"
-#include "GPA_Animation.h"
+#include "GpaAnimation.h"
+#include "SinusAnimation.h"
 
 // must be 13 defined by SPI (SRCLK - Shift Register Clock)
 #define CLOCK_PIN 13
@@ -82,9 +83,17 @@ void setup() {
 
   // set TCCR1B register B00001XXX for CTC-Mode
 
-  // TCCR1B = B00001010; // Prescale 8 -> 2.000.000 ticks/s
-  TCCR1B = B00001011; // Prescale 64 -> 250.000 ticks/s
-  // TCCR1B = B00001100; // Prescale 256 -> 62.500 ticks/s
+  // TCCR1B = B00001010; // Prescale 8 
+  TCCR1B = B00001011; // Prescale 64
+  // TCCR1B = B00001100; // Prescale 256 
+  
+  // TCCR1B = 0;
+  // TCCR1B |= (0 << CS12) | (0 << CS11) | (1 >> CS10); //kein Prescale 
+  // TCCR1B |= (0 << CS12) | (1 << CS11) | (0 >> CS10); //Prescale auf 8 -> 2.000.000 ticks/s
+  // TCCR1B |= (0 << CS12) | (1 << CS11) | (1 >> CS10); //Prescale auf 64 -> 250.000 ticks/s
+  // TCCR1B |= (1 << CS12) | (0 << CS11) | (0 >> CS10); //Prescale auf 256 -> 62.500 ticks/s
+  // TCCR1B |= (1 << CS12) | (0 << CS11) | (1 >> CS10); //Prescale auf 1024 
+
 
   // OCR1A is the comparative value for the prescaled ticks, when OCR1A is 
   // reached an interrupt is triggered
@@ -127,13 +136,26 @@ void setup() {
 
 /// @brief Within the loop only the bytes should be manipulated that are written out in ISR method
 void loop() {
-  // Animation* animation = new CubeCheck();
-  // animation->run();
-
-  // put your animation here
-  Animation* animation = new GpaAnimation();
+  Animation* animation = new CubeCheck();
   animation->run();
 
+  // put your animation here
+  // Animation* animation = new GpaAnimation();
+  // animation->run();
+  // animation = new SinusAnimation();
+  // delay(200);
+  // ((SinusAnimation*)animation)->run(0, 1250);
+  // ((SinusAnimation*)animation)->run(1, 750);
+  
+  // animation = new SinusAnimation();
+  
+  // animation = new GpaAnimation();
+  // animation->run();
+  while (true)
+  {
+    /* code */
+  }
+  
 }
 
 /// @brief ISR is the interrupt method executed by the arduino. Multiplexing and BAM is realized here.
@@ -148,7 +170,7 @@ ISR(TIMER1_COMPA_vect) {
   LightCube::getInstance().shiftLayerForTick(currentLayer, currentTick);
 
   // set OE to high disables outputs of shift registers
-//  PORTD |= 1 << BLANK_PIN;
+  PORTD |= 1 << BLANK_PIN;
 
   // setting RCLK to HIGH than to LOW copies the state of the shift register clock to the register clock
   PORTD |= 1 << LATCH_PIN;

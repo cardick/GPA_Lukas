@@ -2,8 +2,8 @@
 #include <Arduino.h>
 #endif
 
-#ifndef GPA_Animation_h
-#define GPA_Animation_h
+#ifndef GpaAnimation_h
+#define GpaAnimation_h
 
 #include "Animation.h"
 
@@ -11,6 +11,8 @@ class GpaAnimation : public Animation {
     public:
         void run();
     private:
+        void moveTunnel();
+        void moveFrontBack();
 };
 
 #endif

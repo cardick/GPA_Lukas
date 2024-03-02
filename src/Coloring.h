@@ -22,6 +22,7 @@ enum Brightness
  */
 struct Color
 {
+    public:
     Brightness red;
     Brightness green;
     Brightness blue;

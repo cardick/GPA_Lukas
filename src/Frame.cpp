@@ -33,15 +33,17 @@ void Frame::set(uint8_t x, uint8_t y, uint8_t z, uint8_t red, uint8_t green, uin
 
 void Frame::setAllOn()
 {
-    if(!this->isPrepare())
+    if(!this->isPrepare()) {
         this->setPrepare();
+    }
     this->ds->setAllOn(false);
 }
 
 void Frame::setAllOff()
 {
-    if(!this->isPrepare())
+    if(!this->isPrepare()) {
         this->setPrepare();
+    }
     this->ds->setAllOff(false);
 }
 
@@ -79,6 +81,8 @@ const String Frame::getState()
 
 void Frame::reset()
 {
+    if(isActivate() || isPrepare() || this->lifetime > 0) { return; }
+
     this->ds->setAllOff(true);
     this->lifetime = 0;
     this->state = Idle;
@@ -145,7 +149,8 @@ void Frame::decrementLifeCycle()
     }
 
     if(this->state != Prepare) {
-        this->lifetime = this->lifetime - 1;
+        this->lifetime -= 1;
+
         if(FRAME_DEBUG_MODE > 0) {
             Serial.print("[Frame::decrement] decrement lifetime ");
             Serial.println(this->lifetime);
@@ -168,15 +173,18 @@ void Frame::decrementLifeCycle()
             Serial.println("[Frame::decrement] synchronize datasource state");
         }
         // stop interrupt timer
-        //TCCR1B &= ~(1 << CS22);
-
+        TCCR1B &= ~(1 << CS22);
+        
         this->lifetime = this->dirtyLifetime;
         this->ds->synchronize();
         this->state = Active;
         this->dirtyLifetime = 0;
-        
+        if(FRAME_DEBUG_MODE > 0) {
+            Serial.print("[Frame::decrement] activate with lifetime ");
+            Serial.println(this->lifetime);
+        }
         // restart interrupt timer
-        //TCCR1B = B00001011;
+        TCCR1B = B00001011;
     }
 
     if(FRAME_DEBUG_MODE > 0) {

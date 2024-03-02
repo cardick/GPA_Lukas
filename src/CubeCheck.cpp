@@ -8,9 +8,10 @@
 
 void CubeCheck::run()
 {
-    this->testBlockWise();
-    this->testLayer();
-    this->allOff();
+    // this->testBlockWise();
+    // this->testLayer();
+    // this->allOff();
+    this->testSphere();
 }
 
 void CubeCheck::testCubeFunctionality()
@@ -62,6 +63,25 @@ void CubeCheck::testLayer()
         LightCube::getInstance().getFrame()->activate(20);
         wait();
     }   
+}
+
+void CubeCheck::testSphere()
+{
+    SolidColoring c = SolidColoring();
+    c.setColor(Color(High, Medium, Off));
+
+    Frame *frame = LightCube::getInstance().getFrame();
+
+    for(float i=1.45; i<8; i+=2) {
+        frame->setPrepare();
+        Graphics::drawSphere(i, c, frame);
+        if(i>7) {
+            frame->activate(getFrameCount(10000));
+        } else {
+            frame->activate(getFrameCount(10));
+        }
+        wait();
+    }
 }
 
 void CubeCheck::allOff()

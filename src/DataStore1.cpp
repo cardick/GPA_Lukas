@@ -156,18 +156,19 @@ void DataStore1::set(uint16_t led, uint8_t red, uint8_t green, uint8_t blue)
 
 void DataStore1::set(uint8_t x, uint8_t y, uint8_t z, uint8_t red, uint8_t green, uint8_t blue)
 {
-    set(getLedNumber(x,y,z), red, green, blue);
+    uint16_t ledNumber = getLedNumber(x,y,z);
+    set(ledNumber, red, green, blue);
 }
 
 const uint16_t DataStore1::getLedNumber(uint8_t x, uint8_t y, uint8_t z)
 {
-    if(x >= COLS) return -1;
-    if(y >= ROWS) return -1;
+    if(x >= ROWS) return -1;
+    if(y >= COLS) return -1;
     if(z >= LAYERS) return -1;
 
-    int ledNumber = ((z == 0) ? 0 : (z - 1) * (ROWS * COLS));
-    ledNumber += (y == 0 ? 0 : (y - 1) * ROWS);
-    ledNumber += x;
+    int ledNumber = z * ROWS * COLS;
+    ledNumber += x * ROWS;
+    ledNumber += y;
     return ledNumber;
 }
 
@@ -178,8 +179,21 @@ void DataStore1::shiftLayerForTick(int layerIndex, int tick)
 
     for (int i = BYTES-1; i >= 0; i--)
     {
+        // gamma correcture for red
+        // switch (tick)
+        // {
+        //     case 7:
+        //     case 14:
+        //     case 15:
+        //         SPI.transfer(layeredStore[layerIndex][bamIndex][i] & gammaCorrect[i%3]);
+        //         break;
+        //     default:
+        //         SPI.transfer(layeredStore[layerIndex][bamIndex][i]);
+        //         break;
+        // }
         SPI.transfer(layeredStore[layerIndex][bamIndex][i]);
     }
+
     switch (layerIndex)
     {
         case 0:
