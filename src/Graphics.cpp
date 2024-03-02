@@ -1,6 +1,7 @@
 #include "Graphics.h"
 #include "Vector.h"
 #include "LightCube.h"
+#include "Frame.h"
 #include "MemoryFree.h"
 
 void Graphics::drawColumn(const int column, const Color color)
@@ -50,6 +51,48 @@ void Graphics::drawLine(Point3D point, Vector3D direction, Coloring &coloring)
 
 void Graphics::drawLine(Point3D point, Vector3D direction, Coloring& coloring, long millis)
 {
+}
+
+void Graphics::drawSphere(float size, Coloring& coloring, Frame *frame)
+{
+    // start with blank screen
+    frame->setAllOff();
+    drawSphere(size > 7 ? 7 : size, 3.5, 3.5, 3.5, coloring, frame);
+}
+
+void Graphics::drawSphere(float size, float mx, float my, float mz, Coloring& coloring, Frame *frame)
+{
+    // size of cube represents the radius max 3.5
+    float r = (double)size/(double)2;
+
+    // in the 8x8x8 cube the perimeter of the cube is 4x8 - 4 voxels
+    int total = 28;
+    Point3D p = Point3D();
+
+    for (int i = 0; i < total; i++)
+    {
+        // map i to PI range to get the lon value
+        float lon = projToRad(i, 0, total, -M_PI_2, M_PI_2);
+
+        for (int j = 0; j < total; j++)
+        {
+            // map j to PI range to get the lat value
+            float lat = projToRad(j, 0, total, -M_PI, M_PI);
+
+            // calculate the offsets from center point M and add them to M's coordinates
+            float x = round(mx + (r * sin(lon) * cos(lat)));
+            float y = round(my + (r * sin(lon) * sin(lat)));
+            float z = round(mz + (r * cos(lon)));
+
+            // avoid duplicate setting of voxels
+            if(p.x != x || p.y != y || p.z != z) {
+                frame->set(x, y, z, coloring.getColor().red, coloring.getColor().green, coloring.getColor().blue);
+                p.x = x;
+                p.y = y;
+                p.z = z;
+            }
+        }
+    }
 }
 
 void Graphics::drawRectangle(const Point3D * point, Direction a, Direction b, const int lengthA, const int lengthB, Coloring& coloring)
