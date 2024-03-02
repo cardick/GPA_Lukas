@@ -17,6 +17,7 @@ class CubeCheck : public Animation {
         void testBlockWise();
         void testLayer();
         void testSphere();
+        void moveFrontBack();
         void allOff();
 };
 

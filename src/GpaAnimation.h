@@ -11,8 +11,8 @@ class GpaAnimation : public Animation {
     public:
         void run();
     private:
-        void moveTunnel();
-        void moveFrontBack();
+        void moveTunnel(Frame *frame);
+        void moveTunnelBack(Frame *frame);
 };
 
 #endif

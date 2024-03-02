@@ -9,11 +9,11 @@
 
 void GpaAnimation::run()
 {
-    moveFrontBack();
-    moveTunnel();
+    moveTunnel(LightCube::getInstance().getFrame());
+    moveTunnelBack(LightCube::getInstance().getFrame());
 }
 
-void GpaAnimation::moveTunnel() 
+void GpaAnimation::moveTunnel(Frame *frame)
 {
     // was möchte ich, das der Würfel tut
     // Die hinterste Matrix bekommt einen aussen rahmen der dann nach zeit(x) um eine Matrix nach vorne rückt.
@@ -22,28 +22,28 @@ void GpaAnimation::moveTunnel()
     // dann geht der äussere rahmen aus und der zweite rahmen geht an die erste matrix und
     // das ganze geht dann so bis die ganz enge Matrix ganz vorne ist
     // dann könnte die erste Matrix komplett weiß werden und die ganze animation fängt von vorne an.
-
-    Serial.println(freeMemory());
     Point3D start = {0, 0, 0};
     SolidColoring coloring = SolidColoring();
     coloring.setColor(Color(High, High, High));
 
-    Frame * f = LightCube::getInstance().getFrame();
-
     for (int i = 0; i < 15; i++)
     {
-        f->setPrepare();
+        // set prepare to indicate frame state will change
+        frame->setPrepare();
+
+        // clean up screen before modifying
         Graphics::erase();
 
         // begin frame logic
         start.x = i < 7 ? i : 7;
         start.y = 0;
         start.z = 0;
-        Graphics::drawRectangle( &start, Direction::Up, Direction::Left, 8, 8, coloring);
+        Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, coloring, frame);
 
         start.x -= 1;
-        if(i<=7 && start.x>=0) {
-            Graphics::drawRectangle( &start, Direction::Up, Direction::Left, 8, 8, coloring);
+        if (i <= 7 && start.x >= 0)
+        {
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, coloring, frame);
         }
 
         if (i >= 2)
@@ -51,10 +51,11 @@ void GpaAnimation::moveTunnel()
             start.x = (i - 2) < 7 ? (i - 2) : 7;
             start.y = 1;
             start.z = 1;
-            Graphics::drawRectangle(&start, Up, Left, 6, 6, coloring);
+            Graphics::drawRectangle(&start, Up, Left, 6, 6, coloring, frame);
             start.x -= 1;
-            if(i<=9 && start.x>=0) {
-                Graphics::drawRectangle( &start, Direction::Up, Direction::Left, 6, 6, coloring);
+            if (i <= 9 && start.x >= 0)
+            {
+                Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 6, 6, coloring, frame);
             }
         }
         if (i >= 4)
@@ -62,10 +63,11 @@ void GpaAnimation::moveTunnel()
             start.x = (i - 4) < 7 ? (i - 4) : 7;
             start.y = 2;
             start.z = 2;
-            Graphics::drawRectangle(&start, Up, Left, 4, 4, coloring);
+            Graphics::drawRectangle(&start, Up, Left, 4, 4, coloring, frame);
             start.x -= 1;
-            if(i<=11 && start.x>=0) {
-                Graphics::drawRectangle( &start, Direction::Up, Direction::Left, 4, 4, coloring);
+            if (i <= 11 && start.x >= 0)
+            {
+                Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 4, 4, coloring, frame);
             }
         }
         if (i >= 6)
@@ -73,117 +75,112 @@ void GpaAnimation::moveTunnel()
             start.x = (i - 6) < 7 ? (i - 6) : 7;
             start.y = 3;
             start.z = 3;
-            Graphics::drawRectangle(&start, Up, Left, 2, 2, coloring);
+            Graphics::drawRectangle(&start, Up, Left, 2, 2, coloring, frame);
             start.x -= 1;
-            if(i <= 13 && start.x>=0) {
-                Graphics::drawRectangle( &start, Direction::Up, Direction::Left, 2, 2, coloring);
+            if (i <= 13 && start.x >= 0)
+            {
+                Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 2, 2, coloring, frame);
             }
         }
 
         // end frame logic
-        if(i==0 || i==14) {
-            f->activate(getFrameCount(500));
-        } else {
-            f->activate(getFrameCount(150));
+        if (i == 0 || i == 14)
+        {
+            frame->activate(getFrameCount(250));
+        }
+        else
+        {
+            frame->activate(getFrameCount(100));
         }
 
         wait();
     }
-    f->reset();
 }
 
-void GpaAnimation::moveFrontBack()
+void GpaAnimation::moveTunnelBack(Frame *frame)
 {
+    // laufe zurück Umkehrfunktion zu moveTunnel
+    wait();
+
+    Point3D start = {0, 0, 0};
     SolidColoring coloring = SolidColoring();
-    coloring.setColor(Color(High,Off,Medium));
+    coloring.setColor(Color(High, High, High));
 
-    Frame * f = LightCube::getInstance().getFrame();
-    f->setPrepare();
-    Graphics::erase();
+    SolidColoring offColoring = SolidColoring();
+    offColoring.setColor(Color(Off, Off, Off));
 
-    for (int i = 0; i < 8; i++)
+    int offset = 8;
+
+    for (int i = 7 + offset; i >= 0; i--)
     {
-    
-        f->setPrepare();
-        Graphics::erase();
+        frame->setPrepare();
+        frame->setAllOff();
 
-        LightCube::getInstance().getFrame()->set(i,1,1,High,Medium,Off);
-        LightCube::getInstance().getFrame()->set(i,1,2,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,1,3,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,1,4,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,1,5,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,1,6,High,Medium,Off);
+        start.x = i <= offset ? 0 : i - offset;
+        start.y = 0;
+        start.z = 0;
 
-        LightCube::getInstance().getFrame()->set(i,2,1,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,3,1,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,4,1,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,5,1,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,6,1,High,Medium,Off);
+        if (i > offset - 3)
+        {
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, coloring, frame);
+        }
+        if (i > offset - 1)
+        {
+            start.x += 1;
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, coloring, frame);
+        }
 
-        LightCube::getInstance().getFrame()->set(i,6,2,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,6,3,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,6,4,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,6,5,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,6,6,High,Medium,Off);
+        start.x = i <= offset - 2 ? 0 : i <= offset + 5 ? i - offset + 2
+                                                        : 7;
+        start.y = 1;
+        start.z = 1;
+        if (i > offset - 5)
+        {
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 6, 6, coloring, frame);
+        }
+        if (i < offset + 6 && i > offset - 3)
+        {
+            start.x += 1;
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 6, 6, coloring, frame);
+        }
 
-        LightCube::getInstance().getFrame()->set(i,2,6,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,3,6,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,4,6,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,5,6,High,Off,Medium);
+        start.x = i <= offset - 4 ? 0 : i <= offset + 3 ? i - offset + 4
+                                                        : 7;
+        start.y = 2;
+        start.z = 2;
 
-        LightCube::getInstance().getFrame()->set(i,3,3,High,Medium,Medium);
-        LightCube::getInstance().getFrame()->set(i,3,4,High,Medium,Medium);
-        LightCube::getInstance().getFrame()->set(i,4,3,High,Medium,Medium);
-        LightCube::getInstance().getFrame()->set(i,4,4,High,Medium,Medium);
+        if (i > offset - 7)
+        {
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 4, 4, coloring, frame);
+        }
+        if (i < offset + 4 && i > offset - 5)
+        {
+            start.x += 1;
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 4, 4, coloring, frame);
+        }
 
-        if(i==0 || i==7) {
-            f->activate(getFrameCount(500));
-        } else {
-            f->activate(getFrameCount(100));
+        start.x = i <= offset - 6 ? 0 : i <= offset + 1 ? i - offset + 6
+                                                        : 7;
+        start.y = 3;
+        start.z = 3;
+        if (i > 0)
+        {
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 2, 2, coloring, frame);
+        }
+        if (i <= offset + 3 && i > offset - 7)
+        {
+            start.x += 1;
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 2, 2, coloring, frame);
+        }
+
+        if (i == 0)
+        {
+            frame->activate(getFrameCount(500));
+        }
+        else
+        {
+            frame->activate(getFrameCount(100));
         }
         wait();
     }
-    
-    for (int i = 6; i >= 0; i--)
-    {
-        f->setPrepare();
-        Graphics::erase();
-
-        LightCube::getInstance().getFrame()->set(i,1,1,High,Medium,Off);
-        LightCube::getInstance().getFrame()->set(i,1,2,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,1,3,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,1,4,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,1,5,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,1,6,High,Medium,Off);
-
-        LightCube::getInstance().getFrame()->set(i,2,1,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,3,1,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,4,1,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,5,1,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,6,1,High,Medium,Off);
-
-        LightCube::getInstance().getFrame()->set(i,6,2,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,6,3,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,6,4,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,6,5,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,6,6,High,Medium,Off);
-
-        LightCube::getInstance().getFrame()->set(i,2,6,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,3,6,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,4,6,High,Off,Medium);
-        LightCube::getInstance().getFrame()->set(i,5,6,High,Off,Medium);
-
-        LightCube::getInstance().getFrame()->set(i,3,3,High,Medium,Medium);
-        LightCube::getInstance().getFrame()->set(i,3,4,High,Medium,Medium);
-        LightCube::getInstance().getFrame()->set(i,4,3,High,Medium,Medium);
-        LightCube::getInstance().getFrame()->set(i,4,4,High,Medium,Medium);
-
-        if(i==0) {
-            f->activate(getFrameCount(500));
-        } else {
-            f->activate(getFrameCount(100));
-        }
-        wait();
-    }
-    f->reset();
 }

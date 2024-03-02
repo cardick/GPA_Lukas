@@ -129,6 +129,8 @@ void Frame::activate(long lifetime)
     if(isPrepare()) {
         this->dirtyLifetime = lifetime;
         this->state = Activate;
+    } else {
+        Serial.println("[Frame] Cannot activate, not prepared.");
     }
 
     if(FRAME_DEBUG_MODE > 0) {

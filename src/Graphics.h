@@ -45,7 +45,7 @@ class Graphics {
         /// @param lenghtA length of line a
         /// @param lenghtB length of line b
         /// @param coloring the coloring setting for the rectangle 
-        static void drawRectangle(const Point3D * point, Direction a, Direction b, const int lengthA, const int lengthB, Coloring& coloring);
+        static void drawRectangle(const Point3D * point, Direction a, Direction b, const int lengthA, const int lengthB, Coloring& coloring, Frame *frame);
 
         /// @brief Draws a filled rectangle anywhere in the cube
         /// @param point starting point

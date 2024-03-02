@@ -83,7 +83,107 @@ void CubeCheck::testSphere()
         wait();
     }
 }
+void CubeCheck::moveFrontBack()
+{
+    SolidColoring coloring = SolidColoring();
+    coloring.setColor(Color(High, Off, Medium));
 
+    Frame *f = LightCube::getInstance().getFrame();
+    f->setPrepare();
+    Graphics::erase();
+
+    for (int i = 0; i < 8; i++)
+    {
+
+        f->setPrepare();
+        Graphics::erase();
+
+        LightCube::getInstance().getFrame()->set(i, 1, 1, High, Medium, Off);
+        LightCube::getInstance().getFrame()->set(i, 1, 2, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 1, 3, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 1, 4, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 1, 5, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 1, 6, High, Medium, Off);
+
+        LightCube::getInstance().getFrame()->set(i, 2, 1, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 3, 1, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 4, 1, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 5, 1, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 6, 1, High, Medium, Off);
+
+        LightCube::getInstance().getFrame()->set(i, 6, 2, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 6, 3, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 6, 4, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 6, 5, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 6, 6, High, Medium, Off);
+
+        LightCube::getInstance().getFrame()->set(i, 2, 6, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 3, 6, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 4, 6, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 5, 6, High, Off, Medium);
+
+        LightCube::getInstance().getFrame()->set(i, 3, 3, High, Medium, Medium);
+        LightCube::getInstance().getFrame()->set(i, 3, 4, High, Medium, Medium);
+        LightCube::getInstance().getFrame()->set(i, 4, 3, High, Medium, Medium);
+        LightCube::getInstance().getFrame()->set(i, 4, 4, High, Medium, Medium);
+
+        if (i == 0 || i == 7)
+        {
+            f->activate(getFrameCount(500));
+        }
+        else
+        {
+            f->activate(getFrameCount(100));
+        }
+        wait();
+    }
+
+    for (int i = 6; i >= 0; i--)
+    {
+        f->setPrepare();
+        Graphics::erase();
+
+        LightCube::getInstance().getFrame()->set(i, 1, 1, High, Medium, Off);
+        LightCube::getInstance().getFrame()->set(i, 1, 2, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 1, 3, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 1, 4, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 1, 5, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 1, 6, High, Medium, Off);
+
+        LightCube::getInstance().getFrame()->set(i, 2, 1, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 3, 1, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 4, 1, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 5, 1, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 6, 1, High, Medium, Off);
+
+        LightCube::getInstance().getFrame()->set(i, 6, 2, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 6, 3, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 6, 4, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 6, 5, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 6, 6, High, Medium, Off);
+
+        LightCube::getInstance().getFrame()->set(i, 2, 6, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 3, 6, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 4, 6, High, Off, Medium);
+        LightCube::getInstance().getFrame()->set(i, 5, 6, High, Off, Medium);
+
+        LightCube::getInstance().getFrame()->set(i, 3, 3, High, Medium, Medium);
+        LightCube::getInstance().getFrame()->set(i, 3, 4, High, Medium, Medium);
+        LightCube::getInstance().getFrame()->set(i, 4, 3, High, Medium, Medium);
+        LightCube::getInstance().getFrame()->set(i, 4, 4, High, Medium, Medium);
+
+        if (i == 0)
+        {
+            f->activate(getFrameCount(500));
+        }
+        else
+        {
+            f->activate(getFrameCount(100));
+        }
+        wait();
+    }
+    f->reset();
+}
 void CubeCheck::allOff()
 {
     LightCube::getInstance().getFrame()->reset();

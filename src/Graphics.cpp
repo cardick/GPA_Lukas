@@ -95,7 +95,7 @@ void Graphics::drawSphere(float size, float mx, float my, float mz, Coloring& co
     }
 }
 
-void Graphics::drawRectangle(const Point3D * point, Direction a, Direction b, const int lengthA, const int lengthB, Coloring& coloring)
+void Graphics::drawRectangle(const Point3D * point, Direction a, Direction b, const int lengthA, const int lengthB, Coloring& coloring, Frame *frame)
 {
     Vector3D aDir = {0,0,0};
     Vector::setDirection(&aDir, a);
@@ -113,7 +113,7 @@ void Graphics::drawRectangle(const Point3D * point, Direction a, Direction b, co
             p.y = point->y + (aDir.vy * j) + (bDir.vy * i * (lengthB - 1));
             p.z = point->z + (aDir.vz * j) + (bDir.vz * i * (lengthB - 1));
 
-            LightCube::getInstance().getFrame()->set(
+            frame->set(
                 p.x, 
                 p.y,
                 p.z,
@@ -127,7 +127,7 @@ void Graphics::drawRectangle(const Point3D * point, Direction a, Direction b, co
     {
         for (int j = 0; j < lengthB; j++)
         {
-            LightCube::getInstance().getFrame()->set(
+            frame->set(
                 point->x + (bDir.vx * j) + (aDir.vx * i * (lengthA - 1)), 
                 point->y + (bDir.vy * j) + (aDir.vy * i * (lengthA - 1)),
                 point->z + (bDir.vz * j) + (aDir.vz * i * (lengthA - 1)),
