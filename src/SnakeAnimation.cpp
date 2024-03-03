@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "SnakeAnimation.h"
 #include "Coloring.h"
 #include "Vector.h"
@@ -9,20 +10,25 @@ void SnakeAnimation::run()
     wait();
 
     Point3D p = Point3D(random(100) % 8, random(100) % 8, random(100) % 8);
-
     Vector3D vec = Vector3D();
 
-    for (int i = 0; i < 50; i++)
+    for (int i = 0; i < 200; i++)
     {
-        Vector::setDirection(&vec, randomDirection());
-
+        uint8_t rndDir = randomDirection();
+        while (rndDir==0)
+        {
+            rndDir = randomDirection();
+        }
+        
+        Vector::setDirection(&vec, rndDir);
+        
         // @todo: get new directory as long as random direction is not possible
 
         // @todo: get random action for the snake
         switch (0)
         {
         case 0:
-            moveForward(&p, &vec, min(3, random(100) % 8));
+            moveForward(&p, &vec, max(3, random(100) % 8));
             break;
         case 1:
             changeDirAndMoveForward(&p, &vec, 0);
@@ -32,37 +38,42 @@ void SnakeAnimation::run()
             break;
         }
     }
+    Serial.println("snake finished.");
 }
 
-void SnakeAnimation::moveForward(Point3D *p, const Vector3D *v, int steps)
+void SnakeAnimation::moveForward(Point3D *p, Vector3D *v, int steps)
 {
-    Point3D tmp = Point3D();
+    uint8_t tmpX=p->x, tmpY=p->y, tmpZ=p->z;
+
+    Frame *f = LightCube::getInstance().getFrame();
+    f->setPrepare();
+    f->setAllOff();
+
     for (int i = 0; i < steps; i++)
     {
-        Frame *f = LightCube::getInstance().getFrame();
-        if (f->canPrepare())
+        if (f->canPrepare() && !f->isPrepare())
         {
             f->setPrepare();
         }
-        else
-        {
-            Serial.println("frame cannot prepare");
-        }
+        
         if (isInBoundary(p))
         {
             // set next voxel
             f->set(p->x, p->y, p->z, Full, High, Full);
-            // turn off last voxel
-            f->set(tmp.x, tmp.y, tmp.z, Off, Off, Off);
+
+            if((*p).x!=tmpX || (*p).y!=tmpY || (*p).z!=tmpZ) {
+                f->set(tmpX, tmpY, tmpZ, Off, Off, Off);
+            }
         }
         else
         {
             // let last voxel light
-            f->set(tmp.x, tmp.y, tmp.z, Full, High, Full);
+            f->set(tmpX, tmpY, tmpZ, Full, High, Full);
         }
+
         if (f->isPrepare())
         {
-            f->activate(getFrameCount(200));
+            f->activate(getFrameCount(100));
         }
         else
         {
@@ -71,13 +82,13 @@ void SnakeAnimation::moveForward(Point3D *p, const Vector3D *v, int steps)
 
         if (isInBoundary(p))
         {
-            tmp.x = p->x;
-            tmp.y = p->y;
-            tmp.z = p->z;
+            tmpX = (*p).x;
+            tmpY = (*p).y;
+            tmpZ = (*p).z;
         }
 
         // the last step mustn't change the position
-        if (i == steps - 1)
+        if (i <= (steps - 1))
         {
             *p += *v;
         }
@@ -87,21 +98,22 @@ void SnakeAnimation::moveForward(Point3D *p, const Vector3D *v, int steps)
     // reset p if last change let it move out of bounds
     if (!isInBoundary(p))
     {
-        p->x = tmp.x;
-        p->y = tmp.y;
-        p->z = tmp.z;
+        p->x = tmpX;
+        p->y = tmpY;
+        p->z = tmpZ;
     }
 }
 
 void SnakeAnimation::changeDirAndMoveForward(Point3D *p, Vector3D *v, const int steps)
 {
+  
 }
 
 void SnakeAnimation::makeLoop(Point3D *p)
 {
 }
 
-Direction SnakeAnimation::randomDirection()
+uint8_t SnakeAnimation::randomDirection()
 {
     uint8_t value = Direction::Zero;
     for (int i = 0; i < random(100) % 3; i++)
@@ -131,7 +143,7 @@ Direction SnakeAnimation::randomDirection()
             break;
         }
     }
-    return (Direction)value;
+    return value;
 }
 
 bool SnakeAnimation::isPossibleDirection(const Point3D *p, const Vector3D *vec)
@@ -141,11 +153,20 @@ bool SnakeAnimation::isPossibleDirection(const Point3D *p, const Vector3D *vec)
 
 bool SnakeAnimation::isInBoundary(const Point3D *p)
 {
-    if (p->x < 0 || p->x > 8)
+    if (p->x < 0 || p->x >= 8)
         return false;
-    if (p->y < 0 || p->y > 8)
+    if (p->y < 0 || p->y >= 8)
         return false;
-    if (p->z < 0 || p->z > 8)
+    if (p->z < 0 || p->z >= 8)
         return false;
     return true;
+}
+
+void SnakeAnimation::printVector(const Vector3D *vec){
+        Serial.print("dir vec ");
+        Serial.print(vec->vx);
+        Serial.print(" ");
+        Serial.print(vec->vy);
+        Serial.print(" ");
+        Serial.println(vec->vz);
 }

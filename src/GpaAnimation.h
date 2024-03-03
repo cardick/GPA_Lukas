@@ -11,6 +11,7 @@
 class GpaAnimation : public Animation {
     public:
         void run();
+        void run(long millis);
     private:
         void moveTunnel(Frame *frame);
         void moveTunnelBack(Frame *frame);
@@ -22,6 +23,7 @@ class GpaAnimation : public Animation {
 
         bool isPossibleDirection(const Vector3D *vec);
         bool isInBoundary(const Point3D *p);
+        unsigned long currentMillis();
 
 };
 
