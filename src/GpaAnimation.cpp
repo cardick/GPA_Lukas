@@ -12,7 +12,7 @@ void GpaAnimation::run()
     run(2000);
 }
 
-void GpaAnimation::run(long millis)
+void GpaAnimation::run(unsigned long millis)
 {
     LightCube::getInstance().reset();
     wait();

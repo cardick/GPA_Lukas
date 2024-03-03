@@ -10,7 +10,7 @@ void SnakeAnimation::run()
     wait();
 
     Snake snake = Snake(1);
-    snake.set(Point3D(random(100) % 8, random(100) % 8, random(100) % 8));
+    snake.set(random(100) % 8, random(100) % 8, random(100) % 8);
 
     Vector3D vec = Vector3D();
 
@@ -33,24 +33,32 @@ void SnakeAnimation::run()
             moveForward(&snake, &vec, max(3, random(100) % 8));
             break;
         case 1:
-            changeDirAndMoveForward(snake.getFirst(), &vec, 0);
+            changeDirAndMoveForward(&snake, &vec, 0);
             break;
         default:
-            makeLoop(snake.getFirst());
+            makeLoop(&snake);
             break;
         }
     }
     Serial.println("snake finished.");
 }
 
-void SnakeAnimation::moveForward(Snake *snake, Vector3D *v, int steps)
+void SnakeAnimation::moveForward(Snake *snake, const Vector3D *v, const int steps)
 {
-    // uint8_t tmpX=snake->p.x, tmpY=snake->p.y, tmpZ=snake->p.z;
-
+    Serial.println("move");
     Frame *f = LightCube::getInstance().getFrame();
     f->setPrepare();
     f->setAllOff();
 
+    // draw initial snake
+    for (int i = 0; i < snake->getLength(); i++)
+    {
+        if(isInBoundary(snake->get(i))) 
+        {
+            f->set(snake->get(i)->x, snake->get(i)->y, snake->get(i)->z, Full, High, Full);
+        }
+    }
+    
     for (int i = 0; i < steps; i++)
     {
         if (f->canPrepare() && !f->isPrepare())
@@ -58,22 +66,16 @@ void SnakeAnimation::moveForward(Snake *snake, Vector3D *v, int steps)
             f->setPrepare();
         }
 
-        if (isInBoundary(snake->getFirst()))
+        if (isInBoundary(snake->get()))
         {
             // set next voxel
-            f->set(snake->getFirst()->x, snake->getFirst()->y, snake->getFirst()->z, Full, High, Full);
+            f->set(snake->get()->x, snake->get()->y, snake->get()->z, Full, High, Full);
 
-            // todo: the rest of the points must also be set
-
-            if (snake->getLost() != nullptr)
+            // turn off the snakes ex last tail element
+            if (isInBoundary(snake->getDrop()))
             {
-                f->set(snake->getLost()->x, snake->getLost()->y, snake->getLost()->z, Off, Off, Off);
+                f->set(snake->getDrop()->x, snake->getDrop()->y, snake->getDrop()->z, Off, Off, Off);
             }
-        }
-        else
-        {
-            // let last voxel light
-            // f->set(tmpX, tmpY, tmpZ, Full, High, Full);
         }
 
         if (f->isPrepare())
@@ -85,40 +87,29 @@ void SnakeAnimation::moveForward(Snake *snake, Vector3D *v, int steps)
             memFree();
         }
 
-        //    ' 'if (isInBoundary(&(snake->p)))
-        //     {
-        //         tmpX = (*snake).p.x;
-        //         tmpY = (*snake).p.y;
-        //         tmpZ = (*snake).p.z;
-        //     }''
-
         // the last step mustn't change the position
         if (i <= (steps - 1))
         {
-            Point3D newPoint = *(snake->getFirst()) + *v;
+            Vector::printPoint(snake->get());
+            Vector::printVector(v);
+
+            Point3D newPoint = *(snake->get()) + *v;
             
             if (isInBoundary(&newPoint))
             {
                 snake->set(newPoint);
             }
+            Serial.println();
         }
         wait();
     }
-
-    // // reset p if last change let it move out of bounds
-    // if (!isInBoundary(&(snake->p)))
-    // {
-    //     snake->p.x = tmpX;
-    //     snake->p.y = tmpY;
-    //     snake->p.z = tmpZ;
-    // }
 }
 
-void SnakeAnimation::changeDirAndMoveForward(Point3D *p, Vector3D *v, const int steps)
+void SnakeAnimation::changeDirAndMoveForward(Snake *snake, Vector3D *v, const int steps)
 {
 }
 
-void SnakeAnimation::makeLoop(Point3D *p)
+void SnakeAnimation::makeLoop(Snake *snake)
 {
 }
 

@@ -150,9 +150,9 @@ void loop() {
   //   ((GpaAnimation*)animation)->run(120000);
   // }
   
-  Animation* animation = new SinusAnimation();
+  // Animation* animation = new SinusAnimation();
   // delay(200);
-  ((SinusAnimation*)animation)->run(0, 10000);
+  // ((SinusAnimation*)animation)->run(0, 10000);
   // ((SinusAnimation*)animation)->run(1, 5000);
     
   // animation = new GpaAnimation();
