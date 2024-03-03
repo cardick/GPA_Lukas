@@ -86,8 +86,8 @@ void Vector::inverse(Vector3D *vector)
 
 void Vector::crossProduct(Vector3D *cross, const Vector3D *vectorA, const Vector3D *vectorB)
 {
-    cross->vx = (vectorA->vy * vectorB->vz) - (vectorA->vz - vectorB->vy);
-    cross->vy = (vectorA->vz * vectorB->vx) - (vectorA->vx - vectorB->vz);
+    cross->vx = (vectorA->vy * vectorB->vz) - (vectorA->vz * vectorB->vy);
+    cross->vy = (vectorA->vz * vectorB->vx) - (vectorA->vx * vectorB->vz);
     cross->vz = (vectorA->vx * vectorB->vy) - (vectorA->vy * vectorB->vx);
 }
 

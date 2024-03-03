@@ -190,12 +190,8 @@ void GpaAnimation::moveTunnelBack(Frame *frame)
 
 void GpaAnimation::snake(long millis)
 {
-
     Point3D p = Point3D(random(0, 7), random(0, 7), random(0, 7));
     Vector3D vec = Vector3D(1, 1, 1);
-
-    wait();
-    Frame *f = LightCube::getInstance().getFrame();
 
     for (int i = 0; i < 10; i++)
     {
@@ -203,38 +199,36 @@ void GpaAnimation::snake(long millis)
         switch (0) // mycase%3)
         {
         case 0:
-            Serial.print("Moving: ");
-            Serial.println(mycase%8);
-            moveForward(p, vec, mycase % 8, f);
+            moveForward(&p, &vec, mycase % 8);
             break;
         case 1:
-            changeDir(p, Up, 0, f);
+            changeDir(&p, Up, 0);
             break;
         default:
-            makeLoop(p, f);
+            makeLoop(&p);
             break;
         }
     }
 }
 
-void GpaAnimation::changeDir(Point3D p, Direction dir, int steps, Frame *frame)
+void GpaAnimation::changeDir(Point3D *p, const Direction dir, const int steps)
 {
 }
 
-void GpaAnimation::moveForward(Point3D p, Vector3D v, int steps, Frame *frame)
+void GpaAnimation::moveForward(Point3D *p, const Vector3D *v, int steps)
 {
     Point3D tmp;
-
     for (int i = 0; i < steps; i++)
     {
-        p += v;
-        p.toSerial();
+        tmp.x = p->x;
+        tmp.y = p->y;
+        tmp.z = p->z;
+        *p += *v;
         LightCube::getInstance().getFrame()->setPrepare();
-        Serial.println(LightCube::getInstance().getFrame()->getState());
+        memFree();
         if (isInBoundary(p))
         {
-            tmp = p;
-            LightCube::getInstance().getFrame()->set(p.x, p.y, p.z, Full, Off, Full);
+            LightCube::getInstance().getFrame()->set(p->x, p->y, p->z, Full, Off, Full);
             LightCube::getInstance().getFrame()->set(tmp.x, tmp.y, tmp.z, Off, Off, Off);
         }
        // if(LightCube::getInstance().getFrame()->isPrepare()) {
@@ -244,22 +238,22 @@ void GpaAnimation::moveForward(Point3D p, Vector3D v, int steps, Frame *frame)
     }
 }
 
-void GpaAnimation::makeLoop(Point3D p, Frame *frame)
+void GpaAnimation::makeLoop(Point3D *p)
 {
 }
 
-bool GpaAnimation::isPossibleDirection(Vector3D vec)
+bool GpaAnimation::isPossibleDirection(const Vector3D *vec)
 {
     return false;
 }
 
-bool GpaAnimation::isInBoundary(Point3D p)
+bool GpaAnimation::isInBoundary(const Point3D *p)
 {
-    if (p.x < 0 || p.x > 8)
+    if (p->x < 0 || p->x > 8)
         return false;
-    if (p.y < 0 || p.y > 8)
+    if (p->y < 0 || p->y > 8)
         return false;
-    if (p.z < 0 || p.z > 8)
+    if (p->z < 0 || p->z > 8)
         return false;
     return false;
 }

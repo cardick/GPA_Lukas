@@ -56,6 +56,8 @@ class Graphics {
         /// @param color the coloring setting for the rectangle
         static void fillRectangle(Point3D point, Direction a, Direction b, int lengthA, int lenghtB, Coloring* coloring);
 
+        static void rotate(Vector3D plane, Vector3D direction);
+
         /// @brief Clear all settings in cube
         static void erase();
 

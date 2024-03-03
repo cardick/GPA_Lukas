@@ -83,7 +83,7 @@ void Frame::reset()
 {
     if(isActivate() || isPrepare() || this->lifetime > 0) { return; }
 
-    this->ds->setAllOff(true);
+    // this->ds->setAllOff(true);
     this->lifetime = 0;
     this->state = Idle;
 }
@@ -100,7 +100,7 @@ const bool Frame::canPrepare()
 
 const bool Frame::isPrepare()
 {
-    return (this->dirtyLifetime == 0) && (this->state == Prepare);
+    return this->state == Prepare; //(this->dirtyLifetime == 0) && (this->state == Prepare);
 }
 
 const bool Frame::isActivate()

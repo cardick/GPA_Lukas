@@ -16,12 +16,13 @@ class GpaAnimation : public Animation {
         void moveTunnelBack(Frame *frame);
         void snake(long millis);
 
-        void changeDir(Point3D p, Direction dir, int steps, Frame *frame);
-        void moveForward(Point3D p, Vector3D v, int steps, Frame *frame);
-        void makeLoop(Point3D p, Frame *frame);
+        void changeDir(Point3D *p, const Direction dir, const int steps);
+        void moveForward(Point3D *p, const Vector3D *v, int steps);
+        void makeLoop(Point3D *p);
 
-        bool isPossibleDirection(Vector3D vec);
-        bool isInBoundary(Point3D p);
+        bool isPossibleDirection(const Vector3D *vec);
+        bool isInBoundary(const Point3D *p);
+
 };
 
 #endif

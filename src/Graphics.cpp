@@ -142,6 +142,15 @@ void Graphics::fillRectangle(Point3D point, Direction a, Direction b, int length
 {
 }
 
+void Graphics::rotate(Vector3D fromPlane, Vector3D toPlane)
+{
+    // 14 Steps
+    Vector3D dir = toPlane - fromPlane;
+    // move to positive direction
+
+    // move to negative direction
+}
+
 void Graphics::erase()
 {
     LightCube::getInstance().getFrame()->setAllOff();

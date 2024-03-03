@@ -19,6 +19,7 @@
 #include "CubeCheck.h"
 #include "GpaAnimation.h"
 #include "SinusAnimation.h"
+#include "SnakeAnimation.h"
 
 // must be 13 defined by SPI (SRCLK - Shift Register Clock)
 #define CLOCK_PIN 13
@@ -136,23 +137,24 @@ void setup() {
 
 /// @brief Within the loop only the bytes should be manipulated that are written out in ISR method
 void loop() {
-  // Animation* animation = new CubeCheck();
+  Animation* animation = new CubeCheck();
+  animation->run();
+
+  // Animation* animation = new SnakeAnimation();
   // animation->run();
 
   // put your animation here
-  Animation* animation = new GpaAnimation();
-    animation->run();
+  // Animation* animation = new GpaAnimation();
   // for (int i = 0; i < 20; i++)
   // {
+  // animation->run();
   // }
   
-  // animation = new SinusAnimation();
+  // Animation* animation = new SinusAnimation();
   // delay(200);
-  // ((SinusAnimation*)animation)->run(0, 1250);
-  // ((SinusAnimation*)animation)->run(1, 750);
-  
-  // animation = new SinusAnimation();
-  
+  //((SinusAnimation*)animation)->run(0, 2500);
+  // ((SinusAnimation*)animation)->run(1, 5000);
+    
   // animation = new GpaAnimation();
   // animation->run();
   while (true)

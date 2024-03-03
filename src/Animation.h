@@ -6,6 +6,7 @@
 #define Animation_h
 
 #include "LightCube.h"
+#include "MemoryFree.h"
 
 /// @brief An animation that runs on the LED cube.
 class Animation {
@@ -29,6 +30,12 @@ class Animation {
             float frameRate = LightCube::getInstance().getFrameRate();
             float frameCount = frameRate * millis / 1000;
             return (int) max(round(frameCount), 1);
+        }
+
+        void memFree() {
+            Serial.print("mem free ");
+            Serial.print(freeMemory());
+            Serial.println(" bytes");
         }
 };
 

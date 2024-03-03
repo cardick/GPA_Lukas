@@ -15,7 +15,10 @@ class CubeCheck : public Animation {
     private:
         void testCubeFunctionality();
         void testBlockWise();
-        void testLayer();
+        void testColumns();
+        void testColumnPlanes(long millis);
+        void testRowPlanes(long millis);
+        void testLayer(long millis);
         void testSphere();
         void moveFrontBack();
         void allOff();
