@@ -9,11 +9,21 @@
 
 void GpaAnimation::run()
 {
+    run(2000);
+}
+
+void GpaAnimation::run(long millis)
+{
     LightCube::getInstance().reset();
     wait();
-    // moveTunnel(LightCube::getInstance().getFrame());
-    // moveTunnelBack(LightCube::getInstance().getFrame());
-    snake(5);
+
+    unsigned long current = currentMillis();
+    while (currentMillis()-current < millis )
+    {
+        moveTunnel(LightCube::getInstance().getFrame());
+        moveTunnelBack(LightCube::getInstance().getFrame());
+    }
+    
 }
 
 void GpaAnimation::moveTunnel(Frame *frame)
@@ -256,4 +266,9 @@ bool GpaAnimation::isInBoundary(const Point3D *p)
     if (p->z < 0 || p->z > 8)
         return false;
     return false;
+}
+
+unsigned long GpaAnimation::currentMillis()
+{
+    return millis();
 }

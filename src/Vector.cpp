@@ -110,3 +110,23 @@ bool Vector::equals(const Vector3D *vectorA, const Vector3D *vectorB)
 {
     return (vectorA->vx == vectorB->vx) && (vectorA->vy == vectorB->vy) && (vectorA->vz == vectorB->vz);
 }
+
+void Vector::printVector(const Vector3D *vec)
+{
+    Serial.print("vector x  ");
+    Serial.print(vec->vx);
+    Serial.print(" y  ");
+    Serial.print(vec->vy);
+    Serial.print(" z  ");
+    Serial.println(vec->vz);
+}
+
+void Vector::printPoint(const Point3D *point)
+{
+    Serial.print("point x ");
+    Serial.print(point->x);
+    Serial.print(" y ");
+    Serial.print(point->y);
+    Serial.print(" z ");
+    Serial.println(point->z);
+}

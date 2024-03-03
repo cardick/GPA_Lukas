@@ -140,14 +140,14 @@ void loop() {
   // Animation* animation = new CubeCheck();
   // animation->run();
 
-  // Animation* animation = new SnakeAnimation();
-  // animation->run();
+  Animation* animation = new SnakeAnimation();
+  animation->run();
 
   // put your animation here
   // Animation* animation = new GpaAnimation();
   // for (int i = 0; i < 20; i++)
   // {
-  // animation->run();
+  //   ((GpaAnimation*)animation)->run(120000);
   // }
   
   Animation* animation = new SinusAnimation();
