@@ -35,7 +35,7 @@ void GpaAnimation::moveTunnel(Frame *frame)
     // dann geht der äussere rahmen aus und der zweite rahmen geht an die erste matrix und
     // das ganze geht dann so bis die ganz enge Matrix ganz vorne ist
     // dann könnte die erste Matrix komplett weiß werden und die ganze animation fängt von vorne an.
-    Point3D start = {0, 0, 0};
+    Voxel start = Voxel();
     SolidColoring coloring = SolidColoring();
     coloring.setColor(Color(High, High, High));
 
@@ -115,7 +115,7 @@ void GpaAnimation::moveTunnelBack(Frame *frame)
     // laufe zurück Umkehrfunktion zu moveTunnel
     wait();
 
-    Point3D start = {0, 0, 0};
+    Voxel start = Voxel();
     SolidColoring coloring = SolidColoring();
     coloring.setColor(Color(High, High, High));
 
@@ -143,10 +143,10 @@ void GpaAnimation::moveTunnelBack(Frame *frame)
             Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, coloring, frame);
         }
 
-        start.x = i <= offset - 2 ? 0 : i <= offset + 5 ? i - offset + 2
-                                                        : 7;
+        start.x = i <= offset - 2 ? 0 : i <= offset + 5 ? i - offset + 2 : 7;
         start.y = 1;
         start.z = 1;
+
         if (i > offset - 5)
         {
             Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 6, 6, coloring, frame);
@@ -157,8 +157,7 @@ void GpaAnimation::moveTunnelBack(Frame *frame)
             Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 6, 6, coloring, frame);
         }
 
-        start.x = i <= offset - 4 ? 0 : i <= offset + 3 ? i - offset + 4
-                                                        : 7;
+        start.x = i <= offset - 4 ? 0 : i <= offset + 3 ? i - offset + 4 : 7;
         start.y = 2;
         start.z = 2;
 
@@ -172,10 +171,10 @@ void GpaAnimation::moveTunnelBack(Frame *frame)
             Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 4, 4, coloring, frame);
         }
 
-        start.x = i <= offset - 6 ? 0 : i <= offset + 1 ? i - offset + 6
-                                                        : 7;
+        start.x = i <= offset - 6 ? 0 : i <= offset + 1 ? i - offset + 6 : 7;
         start.y = 3;
         start.z = 3;
+        
         if (i > 0)
         {
             Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 2, 2, coloring, frame);
@@ -196,76 +195,6 @@ void GpaAnimation::moveTunnelBack(Frame *frame)
         }
         wait();
     }
-}
-
-void GpaAnimation::snake(long millis)
-{
-    Point3D p = Point3D(random(0, 7), random(0, 7), random(0, 7));
-    Vector3D vec = Vector3D(1, 1, 1);
-
-    for (int i = 0; i < 10; i++)
-    {
-        int mycase = random(0, 45);
-        switch (0) // mycase%3)
-        {
-        case 0:
-            moveForward(&p, &vec, mycase % 8);
-            break;
-        case 1:
-            changeDir(&p, Up, 0);
-            break;
-        default:
-            makeLoop(&p);
-            break;
-        }
-    }
-}
-
-void GpaAnimation::changeDir(Point3D *p, const Direction dir, const int steps)
-{
-}
-
-void GpaAnimation::moveForward(Point3D *p, const Vector3D *v, int steps)
-{
-    Point3D tmp;
-    for (int i = 0; i < steps; i++)
-    {
-        tmp.x = p->x;
-        tmp.y = p->y;
-        tmp.z = p->z;
-        *p += *v;
-        LightCube::getInstance().getFrame()->setPrepare();
-        memFree();
-        if (isInBoundary(p))
-        {
-            LightCube::getInstance().getFrame()->set(p->x, p->y, p->z, Full, Off, Full);
-            LightCube::getInstance().getFrame()->set(tmp.x, tmp.y, tmp.z, Off, Off, Off);
-        }
-       // if(LightCube::getInstance().getFrame()->isPrepare()) {
-            LightCube::getInstance().getFrame()->activate(getFrameCount(200));
-        // }
-        wait();
-    }
-}
-
-void GpaAnimation::makeLoop(Point3D *p)
-{
-}
-
-bool GpaAnimation::isPossibleDirection(const Vector3D *vec)
-{
-    return false;
-}
-
-bool GpaAnimation::isInBoundary(const Point3D *p)
-{
-    if (p->x < 0 || p->x > 8)
-        return false;
-    if (p->y < 0 || p->y > 8)
-        return false;
-    if (p->z < 0 || p->z > 8)
-        return false;
-    return false;
 }
 
 unsigned long GpaAnimation::currentMillis()

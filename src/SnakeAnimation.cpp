@@ -22,7 +22,7 @@ void SnakeAnimation::run()
             rndDir = randomDirection();
         }
 
-        Vector::setDirection(&vec, rndDir);
+        vec = Vector3D::getUnitVector(rndDir);
 
         // @todo: get new directory as long as random direction is not possible
 
@@ -30,20 +30,20 @@ void SnakeAnimation::run()
         switch (0)
         {
         case 0:
-            moveForward(&snake, &vec, max(3, random(100) % 8));
+            moveForward(snake, vec, max(3, random(100) % 8));
             break;
         case 1:
-            changeDirAndMoveForward(&snake, &vec, 0);
+            changeDirAndMoveForward(snake, vec, 0);
             break;
         default:
-            makeLoop(&snake);
+            makeLoop(snake);
             break;
         }
     }
     Serial.println("snake finished.");
 }
 
-void SnakeAnimation::moveForward(Snake *snake, const Vector3D *v, const int steps)
+void SnakeAnimation::moveForward(Snake &snake, const Vector3D &v, const int steps)
 {
     Serial.println("move");
     Frame *f = LightCube::getInstance().getFrame();
@@ -51,11 +51,11 @@ void SnakeAnimation::moveForward(Snake *snake, const Vector3D *v, const int step
     f->setAllOff();
 
     // draw initial snake
-    for (int i = 0; i < snake->getLength(); i++)
+    for (int i = 0; i < snake.getLength(); i++)
     {
-        if(isInBoundary(snake->get(i))) 
+        if(isInBoundary(snake.get(i))) 
         {
-            f->set(snake->get(i)->x, snake->get(i)->y, snake->get(i)->z, Full, High, Full);
+            f->set(snake.get(i).x, snake.get(i).y, snake.get(i).z, Full, High, Full);
         }
     }
     
@@ -66,15 +66,15 @@ void SnakeAnimation::moveForward(Snake *snake, const Vector3D *v, const int step
             f->setPrepare();
         }
 
-        if (isInBoundary(snake->get()))
+        if (isInBoundary(snake.get()))
         {
             // set next voxel
-            f->set(snake->get()->x, snake->get()->y, snake->get()->z, Full, High, Full);
+            f->set(snake.get().x, snake.get().y, snake.get().z, Full, High, Full);
 
             // turn off the snakes ex last tail element
-            if (isInBoundary(snake->getDrop()))
+            if (isInBoundary(snake.toDrop()))
             {
-                f->set(snake->getDrop()->x, snake->getDrop()->y, snake->getDrop()->z, Off, Off, Off);
+                f->set(snake.toDrop().x, snake.toDrop().y, snake.toDrop().z, Off, Off, Off);
             }
         }
 
@@ -90,14 +90,14 @@ void SnakeAnimation::moveForward(Snake *snake, const Vector3D *v, const int step
         // the last step mustn't change the position
         if (i <= (steps - 1))
         {
-            Vector::printPoint(snake->get());
-            Vector::printVector(v);
+            snake.get().print();
+            v.print();
 
-            Point3D newPoint = *(snake->get()) + *v;
+            Voxel next = snake.get() + v;
             
-            if (isInBoundary(&newPoint))
+            if (isInBoundary(next))
             {
-                snake->set(newPoint);
+                snake.set(next);
             }
             Serial.println();
         }
@@ -105,11 +105,11 @@ void SnakeAnimation::moveForward(Snake *snake, const Vector3D *v, const int step
     }
 }
 
-void SnakeAnimation::changeDirAndMoveForward(Snake *snake, Vector3D *v, const int steps)
+void SnakeAnimation::changeDirAndMoveForward(Snake &snake, Vector3D &v, const int steps)
 {
 }
 
-void SnakeAnimation::makeLoop(Snake *snake)
+void SnakeAnimation::makeLoop(Snake &snake)
 {
 }
 
@@ -146,28 +146,18 @@ uint8_t SnakeAnimation::randomDirection()
     return value;
 }
 
-bool SnakeAnimation::isPossibleDirection(const Point3D *p, const Vector3D *vec)
+bool SnakeAnimation::isPossibleDirection(const Voxel &vox, const Vector3D &vec)
 {
     return false;
 }
 
-bool SnakeAnimation::isInBoundary(const Point3D *p)
+bool SnakeAnimation::isInBoundary(const Voxel &vox)
 {
-    if (p->x < 0 || p->x >= 8)
+    if (vox.x < 0 || vox.x >= 8)
         return false;
-    if (p->y < 0 || p->y >= 8)
+    if (vox.y < 0 || vox.y >= 8)
         return false;
-    if (p->z < 0 || p->z >= 8)
+    if (vox.z < 0 || vox.z >= 8)
         return false;
     return true;
-}
-
-void SnakeAnimation::printVector(const Vector3D *vec)
-{
-    Serial.print("dir vec ");
-    Serial.print(vec->vx);
-    Serial.print(" ");
-    Serial.print(vec->vy);
-    Serial.print(" ");
-    Serial.println(vec->vz);
 }

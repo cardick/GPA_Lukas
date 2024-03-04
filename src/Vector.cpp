@@ -1,21 +1,136 @@
 #include <Arduino.h>
 #include "Vector.h"
 
-void Vector::setDirection(Vector3D *vector, const Direction direction)
+Vector3D::Vector3D() : x(0), y(0), z(0) {}
+Vector3D::Vector3D(float x, float y, float z) : x(x), y(y), z(z) {}
+Vector3D::Vector3D(const Vector3D &vec) : x(vec.x), y(vec.y), z(vec.z) {}
+
+Vector3D &Vector3D::operator=(const Vector3D &a)
 {
-    setDirection(vector, (uint8_t)direction);
+    x = a.x;
+    y = a.y;
+    z = a.z;
+    return *this;
 }
 
-void Vector::setDirection(Vector3D *vector, const uint8_t direction)
+Vector3D Vector3D::operator+(const Vector3D &a) const
 {
-    // zero vector - no direction
-    vector->vx = 0;
-    vector->vy = 0;
-    vector->vz = 0;
+    return Vector3D(x + a.x, y + a.y, z + a.z);
+}
 
-    if(direction>63) {
-        return;
+Vector3D Vector3D::operator-(const Vector3D &a) const
+{
+    return Vector3D(x - a.x, y - a.y, z - a.z);
+}
+
+void Vector3D::operator+=(const Vector3D &a)
+{
+    x += a.x;
+    y += a.y;
+    z += a.z;
+}
+
+void Vector3D::operator-=(const Vector3D &a)
+{
+    x -= a.x;
+    y -= a.y;
+    z -= a.z;
+}
+
+Vector3D Vector3D::operator*(const int a) const
+{
+    return Vector3D(x * a, y * a, z * a);
+}
+
+Vector3D Vector3D::operator/(const int a) const
+{
+    return Vector3D(round(x / a), round(y / a), round(z / a));
+}
+
+void Vector3D::operator*=(const int a)
+{
+    x *= a;
+    y *= a;
+    z *= a;
+}
+
+void Vector3D::operator/=(const int a)
+{
+    x = round(x / a);
+    y = round(y / a);
+    z = round(z / a);
+}
+
+bool Vector3D::operator==(const Vector3D &a) const
+{
+    return (x == a.x) && (y == a.y) && (z == a.z);
+}
+
+bool Vector3D::operator!=(const Vector3D &a) const
+{
+    return (x != a.x) || (y != a.y) || (z != a.z);
+}
+
+double Vector3D::magnitude() const
+{
+    return sqrt(sq(x) + sq(y) + sq(z));
+}
+
+Vector3D Vector3D::inverse() const
+{
+    return *this * (-1);
+}
+
+Vector3D Vector3D::crossProduct(const Vector3D &vec) const
+{
+    return Vector3D(
+        ((y * vec.z) - (z * vec.y)),
+        ((z * vec.x) - (x * vec.z)),
+        ((x * vec.y) - (y * vec.x)));
+}
+
+float Vector3D::dotProduct(const Vector3D &vec) const
+{
+    return (x * vec.x) + (y * vec.y) + (z * vec.z);
+}
+
+bool Vector3D::isZeroVector() const
+{
+    return x == 0 && y == 0 && z == 0;
+}
+
+bool Vector3D::isUnitVector() const
+{
+    return (x <= 1 || x >= -1) && (y <= 1 || y >= -1) && (z <= 1 || z >= -1);
+}
+
+void Vector3D::print() const
+{
+    Serial.print(F("vector (x="));
+    Serial.print(x);
+    Serial.print(F(", y="));
+    Serial.print(y);
+    Serial.print(F(",z="));
+    Serial.print(z);
+    Serial.println(F(")"));
+}
+
+Vector3D Vector3D::getUnitVector(const Direction direction)
+{
+    return getUnitVector((uint8_t)direction);
+}
+
+Vector3D Vector3D::getUnitVector(const uint8_t direction)
+{
+    if (direction > 63)
+    {
+        return Vector3D();
     }
+
+    // zero vector - no direction
+    float x = 0;
+    float y = 0;
+    float z = 0;
 
     // set directions to vector
     for (uint8_t i = 0; i < 6; i++)
@@ -23,110 +138,97 @@ void Vector::setDirection(Vector3D *vector, const uint8_t direction)
         switch (direction & (1 << i))
         {
         case Front:
-            vector->vx += 1;
+            x += 1;
             break;
         case Left:
-            vector->vy += 1;
+            y += 1;
             break;
         case Up:
-            vector->vz += 1;
+            z += 1;
             break;
         case Back:
-            vector->vx -= 1;
+            x -= 1;
             break;
         case Right:
-            vector->vy -= 1;
+            y -= 1;
             break;
         case Down:
-            vector->vz -= 1;
+            z -= 1;
             break;
         }
     }
+
+    return Vector3D(x, y, z);
 }
 
-void Vector::add(Vector3D *vectorA, const Vector3D *vectorB)
+Voxel::Voxel() : x(0), y(0), z(0) {}
+Voxel::Voxel(uint8_t x, uint8_t y, uint8_t z) : x(x), y(y), z(z) {}
+
+bool Voxel::operator==(const Voxel &a) const
 {
-    vectorA->vx += vectorB->vx;
-    vectorA->vy += vectorB->vy;
-    vectorA->vz += vectorB->vz;
+    return (x == a.x) && (y == a.y) && (z == a.z);
 }
 
-void Vector::add(Vector3D *product, const Vector3D *vectorA, const Vector3D *vectorB)
+bool Voxel::operator!=(const Voxel &a) const
 {
-    product->vx = vectorA->vx + vectorB->vx;
-    product->vy = vectorA->vy + vectorB->vy;
-    product->vz = vectorA->vz + vectorB->vz;
+    return (x != a.x) || (y != a.y) || (z != a.z);
 }
 
-void Vector::add(Vector3D *vector, int scalar)
+Voxel Voxel::operator+(const Vector3D &a) const
 {
-    vector->vx += scalar;
-    vector->vy += scalar;
-    vector->vz += scalar;
+    return Voxel(round(x + a.x), round(y + a.y), round(z + a.z));
 }
 
-void Vector::multiply(Vector3D *vector, int scalar)
+Voxel Voxel::operator-(const Vector3D &a) const
 {
-    vector->vx *= scalar;
-    vector->vy *= scalar;
-    vector->vz *= scalar;
+    return Voxel(round(x - a.x), round(y - a.y), round(z - a.z));
 }
 
-double Vector::magnitude(const Vector3D *vector)
+void Voxel::operator+=(const Vector3D &a)
 {
-    return sqrt(sq(vector->vx) + sq(vector->vy) + sq(vector->vz));
+    x += round(a.x);
+    y += round(a.y);
+    z += round(a.z);
 }
 
-void Vector::inverse(Vector3D *vector)
+void Voxel::operator-=(const Vector3D &a)
 {
-    vector->vx = vector->vx * (-1);
-    vector->vy = vector->vy * (-1);
-    vector->vz = vector->vz * (-1);
+    x -= round(a.x);
+    y -= round(a.y);
+    z -= round(a.z);
 }
 
-void Vector::crossProduct(Vector3D *cross, const Vector3D *vectorA, const Vector3D *vectorB)
+Voxel Voxel::operator*(const Vector3D &a) const
 {
-    cross->vx = (vectorA->vy * vectorB->vz) - (vectorA->vz * vectorB->vy);
-    cross->vy = (vectorA->vz * vectorB->vx) - (vectorA->vx * vectorB->vz);
-    cross->vz = (vectorA->vx * vectorB->vy) - (vectorA->vy * vectorB->vx);
+    return Voxel(round(x * a.x), round(y * a.y), round(z * a.z));
 }
 
-int Vector::getDotProduct(const Vector3D *vectorA, const Vector3D *vectorB)
+Voxel Voxel::operator*(const int a) const
 {
-    return (vectorA->vx * vectorB->vx) + (vectorA->vy * vectorB->vy) + (vectorA->vz * vectorB->vz);
+    return Voxel(x * a, y * a, z * a);
 }
 
-bool Vector::isZeroVector(const Vector3D *vec)
+void Voxel::operator*=(const Vector3D &a)
 {
-    return vec->vx == 0 && vec->vy == 0 && vec->vz == 0;
+    x = round(x * a.x);
+    y = round(y * a.y);
+    z = round(z * a.z);
+}
+void Voxel::operator*=(const int a)
+{
+    x = round(x * a);
+    y = round(y * a);
+    z = round(z * a);
 }
 
-bool Vector::isDirectionVector(const Vector3D *vector)
+void Voxel::print() const
 {
-    return (vector->vx <= 1 || vector->vx >= -1) && (vector->vy <= 1 || vector->vy >= -1) && (vector->vz <= 1 || vector->vz >= -1);
+    Serial.print(F("voxel (x="));
+    Serial.print(x);
+    Serial.print(F(", y="));
+    Serial.print(y);
+    Serial.print(F(",z="));
+    Serial.print(z);
+    Serial.println(F(")"));
 }
 
-bool Vector::equals(const Vector3D *vectorA, const Vector3D *vectorB)
-{
-    return (vectorA->vx == vectorB->vx) && (vectorA->vy == vectorB->vy) && (vectorA->vz == vectorB->vz);
-}
-
-void Vector::printVector(const Vector3D *vec)
-{
-    Serial.print("vector x  ");
-    Serial.print(vec->vx);
-    Serial.print(" y  ");
-    Serial.print(vec->vy);
-    Serial.print(" z  ");
-    Serial.println(vec->vz);
-}
-
-void Vector::printPoint(const Point3D *point)
-{
-    Serial.print("point x ");
-    Serial.print(point->x);
-    Serial.print(" y ");
-    Serial.print(point->y);
-    Serial.print(" z ");
-    Serial.println(point->z);
-}

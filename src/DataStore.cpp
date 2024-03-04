@@ -5,10 +5,6 @@ DataStore::DataStore()
 {
 }
 
-DataStore::~DataStore()
-{
-}
-
 const int DataStore::getRows()
 {
     return ROWS;
@@ -32,20 +28,26 @@ void DataStore::setAllOn(bool force)
 
     for (int i = 0; i < LAYERS; i++)
     {
-        for (int j = 0; j < DS_BYTES; j++)
+        for (int j = 0; j < BAM; j++)
         {
-            this->layeredStoreDirty[i][j] = ALL_ON;
+            for (int k = 0; k < BYTES; k++)
+            {
+                this->layeredStoreDirty[i][j][k] = ALL_ON;
+            }
+            
         }  
     }
 
     // correct the offset bits, that are not in use
-    int offset = (DS_BYTES) % 8;
+    int offset = (ROWS * COLS) % 8;
     if(offset > 0) { 
         for (int i = 0; i < LAYERS; i++)
         {
-            for (int j = (8-offset); j < 8; j++)
+            for (int j = 0; j < BAM; j++)
             {
-                bitWrite(layeredStoreDirty[i][DS_BYTES-1], j, 0);
+                for(int k = (8-offset); k < 8; k++) {
+                    bitWrite(layeredStoreDirty[i][j][BYTES-1], k, 0);
+                }
             }
         }
     }
@@ -61,9 +63,12 @@ void DataStore::setAllOff(bool force)
 
     for (int i = 0; i < LAYERS; i++)
     {
-        for (int j = 0; j < DS_BYTES; j++)
+        for (int j = 0; j < BAM; j++)
         {
-            this->layeredStoreDirty[i][j] = ALL_OFF;
+            for (int k = 0; k < BYTES; k++)
+            {
+                this->layeredStoreDirty[i][j][k] = ALL_OFF;
+            }
         }
     }
 
@@ -85,23 +90,23 @@ uint16_t DataStore::get(uint16_t led)
 
     // write bytes for red cathode
     bitWrite(tmp, 0, bitRead(layeredStore[layer][0][startIndex], startPos));
-    bitWrite(tmp, 1, bitRead(layeredStore[layer][0][startIndex], startPos));
-    bitWrite(tmp, 2, bitRead(layeredStore[layer][1][startIndex], startPos));
-    bitWrite(tmp, 3, bitRead(layeredStore[layer][2][startIndex], startPos));
+    bitWrite(tmp, 1, bitRead(layeredStore[layer][1][startIndex], startPos));
+    bitWrite(tmp, 2, bitRead(layeredStore[layer][2][startIndex], startPos));
+    bitWrite(tmp, 3, bitRead(layeredStore[layer][3][startIndex], startPos));
 
     // write bytes for green cathode
     int greenIndex = startPos == 7 ? endIndex : startIndex;
     int greenPos = startPos == 7 ? endPos - 1 : startPos + 1;
     bitWrite(tmp, 4, bitRead(layeredStore[layer][0][greenIndex], greenPos));
-    bitWrite(tmp, 5, bitRead(layeredStore[layer][0][greenIndex], greenPos));
-    bitWrite(tmp, 6, bitRead(layeredStore[layer][1][greenIndex], greenPos));
-    bitWrite(tmp, 7, bitRead(layeredStore[layer][2][greenIndex], greenPos));
+    bitWrite(tmp, 5, bitRead(layeredStore[layer][1][greenIndex], greenPos));
+    bitWrite(tmp, 6, bitRead(layeredStore[layer][2][greenIndex], greenPos));
+    bitWrite(tmp, 7, bitRead(layeredStore[layer][3][greenIndex], greenPos));
     
     // write bytes for blue cathode
     bitWrite(tmp, 8, bitRead(layeredStore[layer][0][endIndex], endPos));
-    bitWrite(tmp, 9, bitRead(layeredStore[layer][0][endIndex], endPos));
-    bitWrite(tmp, 10, bitRead(layeredStore[layer][1][endIndex], endPos));
-    bitWrite(tmp, 11, bitRead(layeredStore[layer][2][endIndex], endPos));
+    bitWrite(tmp, 9, bitRead(layeredStore[layer][1][endIndex], endPos));
+    bitWrite(tmp, 10, bitRead(layeredStore[layer][2][endIndex], endPos));
+    bitWrite(tmp, 11, bitRead(layeredStore[layer][3][endIndex], endPos));
 
     return tmp;
 }
@@ -118,56 +123,51 @@ void DataStore::set(uint16_t led, uint8_t red, uint8_t green, uint8_t blue)
     if(!this->isDirty) { this->isDirty = true; }
 
     int layer = led / (ROWS*COLS);
-    int index = (led % (ROWS*COLS)) * 6 / 8;
-    int pos = (led % (ROWS*COLS)) * 6 % 8;
+    int startIndex = (led % (ROWS*COLS)) * 3 / 8;
+    int startPos = (led % (ROWS*COLS)) * 3 % 8;
+    int endPos = startPos + 2;
+    int endIndex = endPos < 8 ? startIndex : startIndex + 1;
+    endPos = endPos < 8 ? endPos : endPos - 8;
+    
+    // write bytes for red cathode
+    bitWrite(layeredStoreDirty[layer][0][startIndex], startPos, bitRead(red, 0));
+    bitWrite(layeredStoreDirty[layer][1][startIndex], startPos, bitRead(red, 1));
+    bitWrite(layeredStoreDirty[layer][2][startIndex], startPos, bitRead(red, 2));
+    bitWrite(layeredStoreDirty[layer][3][startIndex], startPos, bitRead(red, 3));
 
-    for (int i = 0; i < 6; i++)
-    {
-        uint8_t colorValue = 0b00;
-        switch (i)
-        {
-        case 0:
-        case 1:
-            colorValue = get2BitColorValue(red);
-            break;
-        case 2:
-        case 3:
-            colorValue = get2BitColorValue(green);
-            break;
-        case 4:
-        case 5:
-            colorValue = get2BitColorValue(blue);
-            break;
-        }
-        byte b = bitRead(colorValue, pos%2);
-        bitWrite(layeredStoreDirty[layer][index], pos, b);
-        if(pos == 7) {
-            index++;
-            pos = 0;
-        } else {
-            pos++;
-        }
-    }
+    // write bytes for green cathode
+    int greenIndex = startPos == 7 ? endIndex : startIndex;
+    int greenPos = startPos == 7 ? endPos - 1 : startPos + 1;
+    bitWrite(layeredStoreDirty[layer][0][greenIndex], greenPos, bitRead(green, 0));
+    bitWrite(layeredStoreDirty[layer][1][greenIndex], greenPos, bitRead(green, 1));
+    bitWrite(layeredStoreDirty[layer][2][greenIndex], greenPos, bitRead(green, 2));
+    bitWrite(layeredStoreDirty[layer][3][greenIndex], greenPos, bitRead(green, 3));
+
+    // write bytes for blue cathode
+    bitWrite(layeredStoreDirty[layer][0][endIndex], endPos, bitRead(blue, 0));
+    bitWrite(layeredStoreDirty[layer][1][endIndex], endPos, bitRead(blue, 1));
+    bitWrite(layeredStoreDirty[layer][2][endIndex], endPos, bitRead(blue, 2));
+    bitWrite(layeredStoreDirty[layer][3][endIndex], endPos, bitRead(blue, 3));
 }
 
 void DataStore::set(uint8_t x, uint8_t y, uint8_t z, uint8_t red, uint8_t green, uint8_t blue)
 {
-    set(getLedNumber(x,y,z), red, green, blue);
+    uint16_t ledNumber = getLedNumber(x,y,z);
+    set(ledNumber, red, green, blue);
 }
 
 const uint16_t DataStore::getLedNumber(uint8_t x, uint8_t y, uint8_t z)
 {
-    if(x >= COLS) return -1;
-    if(y >= ROWS) return -1;
+    if(x >= ROWS) return -1;
+    if(y >= COLS) return -1;
     if(z >= LAYERS) return -1;
 
-    int ledNumber = ((z == 0) ? 0 : (z - 1) * (ROWS * COLS));
-    ledNumber += (y == 0 ? 0 : (y - 1) * ROWS);
-    ledNumber += x;
+    int ledNumber = z * ROWS * COLS;
+    ledNumber += x * ROWS;
+    ledNumber += y;
     return ledNumber;
 }
 
-// implementation is for 8x8x8 cube only
 void DataStore::shiftLayerForTick(int layerIndex, int tick)
 {
     int bamIndex = getBAM(tick);
@@ -175,7 +175,13 @@ void DataStore::shiftLayerForTick(int layerIndex, int tick)
 
     for (int i = BYTES-1; i >= 0; i--)
     {
-        SPI.transfer(layeredStore[layerIndex][bamIndex][i]);
+        // correcture for red, since I used the same resistor size for every 
+        // cathode switch in the circuit
+        if(tick == 7 || tick == 14 || tick == 15) {
+            SPI.transfer(layeredStore[layerIndex][bamIndex][i] & gammaCorrect[i%3]);
+        } else {
+            SPI.transfer(layeredStore[layerIndex][bamIndex][i]);
+        }
     }
 
     switch (layerIndex)
@@ -211,15 +217,15 @@ void DataStore::shiftLayerForTickToSerial(int layerIndex, int tick)
 {
     int bamIndex = getBAM(tick);
     if(bamIndex == -1) { 
-        Serial.print("Invalid BAM index ");
+        Serial.print(F("Invalid BAM index "));
         Serial.print(bamIndex);
-        Serial.print(" for tick ");
+        Serial.print(F(" for tick "));
         Serial.println(tick);
         return; 
     } else {
-        Serial.print("Shift BAM index ");
+        Serial.print(F("Shift BAM index "));
         Serial.print(bamIndex);
-        Serial.print(" for tick ");
+        Serial.print(F(" for tick "));
         Serial.println(tick);
     }
 
@@ -227,6 +233,7 @@ void DataStore::shiftLayerForTickToSerial(int layerIndex, int tick)
     for (int i = BYTES-1; i >= 0; i--)
     {
         shiftToSerial(layeredStore[layerIndex][bamIndex][i]);
+        Serial.println();
     }
 
     // shift anode settings
@@ -234,27 +241,35 @@ void DataStore::shiftLayerForTickToSerial(int layerIndex, int tick)
     {
         case 0:
             shiftToSerial(LAYER_1);
+            Serial.println();
             break;
         case 1:
             shiftToSerial(LAYER_2);
+            Serial.println();
             break;
         case 2:
             shiftToSerial(LAYER_3);
+            Serial.println();
             break;
         case 3:
             shiftToSerial(LAYER_4);
+            Serial.println();
             break;
         case 4:
             shiftToSerial(LAYER_5);
+            Serial.println();
             break;
         case 5:
             shiftToSerial(LAYER_6);
+            Serial.println();
             break;
         case 6:
             shiftToSerial(LAYER_7);
+            Serial.println();
             break;
         case 7:
             shiftToSerial(LAYER_8);
+            Serial.println();
             break;
     }
 }
@@ -266,165 +281,36 @@ bool DataStore::changed()
 
 void DataStore::synchronize()
 {
-    // Serial.println("[DS] sync");
-    for (int i = 0; i < ROWS*COLS*LAYERS; i++)
+    for (int i = 0; i < LAYERS; i++)
     {
-        uint8_t rgbValue = getRgbValue(i);
-        copy(i, rgbValue);
+        for (int j = 0; j < BAM; j++)
+        {
+            for (int k = 0; k < BYTES; k++)
+            {
+                layeredStore[i][j][k] = layeredStoreDirty[i][j][k];
+            }
+            
+        }
+        
     }
     this->isDirty = false;
-    // Serial.println("[DS] sync end");
 }
 
 int DataStore::getBAM(int tick)
 {
-    if(0b0 <= tick && tick <=0b11) {
+    if(0b0 <= tick && tick <=0b1) {
         return 0;
     }
-    if(0b100 <= tick && tick <=0b111){
+    if(0b10 <= tick && tick <=0b11) {
         return 1;
     }
-    if(0b1000 <= tick && tick <= 0b1111){
+    if(0b100 <= tick && tick <=0b111){
         return 2;
     }
+    if(0b1000 <= tick && tick <= 0b1111){
+        return 3;
+    }
     return -1;
-}
-
-void DataStore::copy(int led, uint8_t rgbValue)
-{
-    int layer = led / (ROWS*COLS);
-    int startIndex = (led % (ROWS*COLS)) * 3 / 8;
-    int startPos = (led % (ROWS*COLS)) * 3 % 8;
-    int endPos = startPos + 2;
-    int endIndex = endPos < 8 ? startIndex : startIndex + 1;
-    endPos = endPos < 8 ? endPos : endPos - 8;
-    
-    // write bytes for red cathode
-    uint8_t colorValue = get2BitColorValue(Red, rgbValue);
-    bitWrite(layeredStore[layer][0][startIndex], startPos, colorValue > 0 ? 1 : 0);
-    bitWrite(layeredStore[layer][1][startIndex], startPos, colorValue > 1 ? 1 : 0);
-    bitWrite(layeredStore[layer][2][startIndex], startPos, colorValue > 2 ? 1 : 0);
-
-    // write bytes for green cathode
-    colorValue = get2BitColorValue(Green, rgbValue);
-    int greenIndex = startPos == 7 ? endIndex : startIndex;
-    int greenPos = startPos == 7 ? endPos - 1 : startPos + 1;
-    bitWrite(layeredStore[layer][0][greenIndex], greenPos, colorValue > 0 ? 1 : 0);
-    bitWrite(layeredStore[layer][1][greenIndex], greenPos, colorValue > 1 ? 1 : 0);
-    bitWrite(layeredStore[layer][2][greenIndex], greenPos, colorValue > 2 ? 1 : 0);
-
-    // write bytes for blue cathode
-    colorValue = get2BitColorValue(Blue, rgbValue);
-    bitWrite(layeredStore[layer][0][endIndex], endPos, colorValue > 0 ? 1 : 0);
-    bitWrite(layeredStore[layer][1][endIndex], endPos, colorValue > 1 ? 1 : 0);
-    bitWrite(layeredStore[layer][2][endIndex], endPos, colorValue > 2 ? 1 : 0);
-}
-
-uint8_t DataStore::getRgbValue(int led)
-{
-    if(led >= (ROWS*COLS*LAYERS) || led < 0) { return 0; }
-
-    int layer = led / (ROWS*COLS);
-    int index = (led % (ROWS*COLS)) * 6 / 8;
-    int pos = (led % (ROWS*COLS)) * 6 % 8;
-    
-    uint8_t tmp = 0b000000;
-
-    for(int i = 0; i < 6; i++) {
-        byte b = bitRead(layeredStoreDirty[layer][index], pos);
-        bitWrite(tmp, i, b);
-        if(pos == 7) {
-            index++;
-            pos = 0;
-        } else {
-            pos++;
-        }
-    }
-    return tmp;
-}
-
-uint8_t DataStore::get4BitBam(uint8_t colorValue)
-{
-    switch (colorValue)
-    {
-    case 0b01:
-        return 0b0011;
-    case 0b10:
-        return 0b0111;
-    case 0b11:
-        return 0b1111;
-    default:
-        return 0b0000;
-    }
-}
-
-uint8_t DataStore::get2BitColorValue(uint8_t bamValue)
-{
-    switch (bamValue)
-    {
-    case 0b0001:
-    case 0b0011:
-        return 0b01;
-    case 0b0111:
-        return 0b10;
-    case 0b1111:
-        return 0b11;
-    default:
-        return 0b00;
-    }
-}
-
-uint8_t DataStore::get2BitColorValue(RgbColor color, uint8_t rgbValue)
-{
-    uint8_t colorValue = 0b00;
-    int index1, index2;
-    switch (color)
-    {
-    case Red:
-        index1 = 0;
-        index2 = 1;
-        break;
-    case Green:
-        index1 = 2;
-        index2 = 3;
-        break;
-    case Blue:
-        index1 = 4;
-        index2 = 5;
-        break;
-    }
-
-    bitWrite(colorValue, 0, bitRead(rgbValue, index1));
-    bitWrite(colorValue, 1, bitRead(rgbValue, index2));
-
-    return colorValue;
-}
-
-uint8_t DataStore::getValueForBamIndex(uint8_t rgbValue, int bamIndex)
-{
-    uint8_t tmp =  0b000;
-    if(rgbValue == 0) { return tmp; }
-
-    bitWrite(tmp, 0, isOn(get2BitColorValue(Red, rgbValue), bamIndex));
-    bitWrite(tmp, 1, isOn(get2BitColorValue(Green, rgbValue), bamIndex));
-    bitWrite(tmp, 2, isOn(get2BitColorValue(Blue, rgbValue), bamIndex));
-    return tmp;
-}
-
-bool DataStore::isOn(uint8_t colorValue, int bamIndex)
-{
-    switch (bamIndex)
-    {
-        case 0:
-        case 1:
-            return colorValue >= 0b01;
-        case 2:
-            return colorValue >= 0b10;
-        case 3:
-            return colorValue == 0b11;
-        default:
-            return 0;
-    }
 }
 
 inline void DataStore::shiftToSerial(uint8_t value)
@@ -433,5 +319,4 @@ inline void DataStore::shiftToSerial(uint8_t value)
     {
         Serial.print(bitRead(value, i));
     }
-    Serial.println();
 }

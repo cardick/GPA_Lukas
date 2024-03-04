@@ -10,7 +10,6 @@
 
 struct Snake
 {
-
     // BAD WORKAROUND: Since index 0 of the used array of Point3D structs makes 
     // only bullshit and I don't have a clue why, I start on index 1 and make 
     // the array bigger. However, from an outside perspective it behaves like
@@ -24,26 +23,27 @@ public:
     Snake(int length)
     {
         this->length = length;
-        p = new Point3D[(length + 2)];
+        voxels = new Voxel[(length + 1)];
         // set last point to out of bounds for the cube
-        for (int i = 0; i < length+2; i++)
+        for (int i = 0; i < length+1; i++)
         {
-            p[i] = Point3D(-1, -1, -1);
+            voxels[i].x = DEFAULT_VALUE.x;
+            voxels[i].y = DEFAULT_VALUE.y;
+            voxels[i].z = DEFAULT_VALUE.z;
         }
     }
 
     ~Snake()
     {
         // delete the array of points
-        delete p;
-        free(p);
+        delete [] voxels;
     }
 
     /// @brief Get the point that steers the snake
     /// @return the Point3D object
-    const Point3D *get()
+    const Voxel &get()
     {
-        return &p[1];
+        return voxels[0];
     }
 
     /// @brief Get Point3D to draw at a specific position to draw the complete 
@@ -51,25 +51,25 @@ public:
     /// @param index the iteration index [0 .. length] 
     /// @return a Point3D of position. This could be a Point3D with all 
     ///         coordinates set to uint_8 MAX_VALUE to indicate the position is
-    ///         not set.
-    const Point3D *get(int index)
+    ///         not set or the index is out of bounds.
+    const Voxel& get(int index)
     {
         if (index < 0 || index >= this->length)
         {
-            return nullptr;
+            return DEFAULT_VALUE;
         }
-        return &p[(index+1)];
+        return voxels[index];
     }
 
     /// @brief Sets the next position of the snake to move
     /// @param p the point the snake should move
-    void set(Point3D p)
+    void set(const Voxel& vox)
     {
         shift();
         // set first element
-        this->p[1].x = p.x;
-        this->p[1].y = p.y;
-        this->p[1].z = p.z;
+        this->voxels[0].x = vox.x;
+        this->voxels[0].y = vox.y;
+        this->voxels[0].z = vox.z;
     }
 
     /// @brief Sets the next position of the snake to move
@@ -79,24 +79,24 @@ public:
     void set(uint8_t x, uint8_t y, uint8_t z)
     {
         shift();
-        this->p[1].x = x;
-        this->p[1].y = y;
-        this->p[1].z = z;
+        this->voxels[0].x = x;
+        this->voxels[0].y = y;
+        this->voxels[0].z = z;
     }
 
     /// @brief Get the last element of the snakes tail
     /// @return a Point3D
-    const Point3D *getLast()
+    const Voxel &getLast()
     {
-        return &p[length];
+        return voxels[length];
     }
 
     /// @brief Get the element to drop from the cube, when snake moves
     /// @return a Point3D to drop or a Point3D with uint_8 MAX_VALUE as 
     ///         coordinates, if there is nothing to drop
-    const Point3D *getDrop()
+    const Voxel &toDrop()
     {
-        return &p[length + 1];
+        return voxels[length + 1];
     }
 
     /// @brief Get the length of the visible snake.
@@ -107,22 +107,24 @@ public:
     }
 
 private:
-    Point3D *p;
+    const Voxel DEFAULT_VALUE = Voxel(-1, -1, -1);
+
+    Voxel *voxels;
     int length;
 
     /// @brief Shift all points of the snake by one. Begin at the end.
     void shift()
     {
-        for (int i = length + 1; i > 1; i--)
+        for (int i = length; i > 0; i--)
         {
-            this->p[i].x = this->p[i - 1].x;
-            this->p[i].y = this->p[i - 1].y;
-            this->p[i].z = this->p[i - 1].z;
+            this->voxels[i].x = this->voxels[i - 1].x;
+            this->voxels[i].y = this->voxels[i - 1].y;
+            this->voxels[i].z = this->voxels[i - 1].z;
         }
     }
 
     // TODO: Snake grow every 5 steps
-    void grow(Point3D p)
+    void grow(Voxel p)
     {
     }
 };
@@ -133,13 +135,12 @@ public:
     void run();
 
 private:
-    void moveForward(Snake *snake, const Vector3D *v, const int steps);
-    void changeDirAndMoveForward(Snake *snake, Vector3D *v, const int steps);
-    void makeLoop(Snake *snake);
+    void moveForward(Snake &snake, const Vector3D &vec, const int steps);
+    void changeDirAndMoveForward(Snake &snake, Vector3D &vec, const int steps);
+    void makeLoop(Snake &snake);
     uint8_t randomDirection();
-    bool isPossibleDirection(const Point3D *p, const Vector3D *v);
-    bool isInBoundary(const Point3D *p);
-    void printVector(const Vector3D *vec);
+    bool isPossibleDirection(const Voxel &vox, const Vector3D &vec);
+    bool isInBoundary(const Voxel &vox);
 };
 
 #endif

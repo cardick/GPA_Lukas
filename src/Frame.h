@@ -7,7 +7,15 @@
 
 #define FRAME_DEBUG_MODE 0
 
-#include "DataStore1.h"
+#include <avr/pgmspace.h>
+#include "DataStore.h"
+
+const char state_0[] PROGMEM = "Idle";
+const char state_1[] PROGMEM = "Prepare";
+const char state_2[] PROGMEM = "Activate";
+const char state_3[] PROGMEM = "Active";
+const char state_4[] PROGMEM = "Invalid";
+const char *const frame_states[] PROGMEM = {state_0, state_1, state_2, state_3, state_4};
 
 enum FrameState {
     Idle = 0b0 << 0,
@@ -70,10 +78,9 @@ class Frame {
     protected:
     
     private:
-        DataStore1 * ds;
+        DataStore * ds;
         FrameState state = FrameState::Idle;
         int dirtyLifetime = 0;
         int lifetime = 0;
-
 };
 #endif

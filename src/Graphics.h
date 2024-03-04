@@ -19,9 +19,9 @@ class Graphics {
 
         static void drawColumn(const int column, const Color color, const long millis);
 
-        static void drawLine(Point3D point, Vector3D direction, Coloring& coloring);
+        static void drawLine(Voxel voxel, Vector3D direction, Coloring& coloring);
 
-        static void drawLine(Point3D point, Vector3D direction, Coloring& coloring, long millis);
+        static void drawLine(Voxel voxel, Vector3D direction, Coloring& coloring, long millis);
 
         /// @brief Draw a sphere into the center of the cube
         /// @param size the diameter (in an 8x8x8 cube, a value between [1 .. 7])
@@ -39,22 +39,22 @@ class Graphics {
         static void drawSphere(float size, float mx, float my, float mz, Coloring& coloring, Frame *frame);
 
         /// @brief Draw a rectangle anywhere in the cube
-        /// @param point starting point
+        /// @param voxel starting voxel
         /// @param a direction for line a
         /// @param b direction for line b
         /// @param lenghtA length of line a
         /// @param lenghtB length of line b
         /// @param coloring the coloring setting for the rectangle 
-        static void drawRectangle(const Point3D * point, Direction a, Direction b, const int lengthA, const int lengthB, Coloring& coloring, Frame *frame);
+        static void drawRectangle(const Voxel * voxel, Direction a, Direction b, const int lengthA, const int lengthB, Coloring& coloring, Frame *frame);
 
         /// @brief Draws a filled rectangle anywhere in the cube
-        /// @param point starting point
+        /// @param voxel starting voxel
         /// @param a direction for line a
         /// @param b direction for line b
         /// @param lenghtA length of line a
         /// @param lenghtB length of line b
         /// @param color the coloring setting for the rectangle
-        static void fillRectangle(Point3D point, Direction a, Direction b, int lengthA, int lenghtB, Coloring* coloring);
+        static void fillRectangle(Voxel voxel, Direction a, Direction b, int lengthA, int lenghtB, Coloring* coloring);
 
         static void rotate(Vector3D plane, Vector3D direction);
 

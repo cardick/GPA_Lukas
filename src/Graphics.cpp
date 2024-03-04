@@ -9,7 +9,7 @@ void Graphics::drawColumn(const int column, const Color color)
     // ensure column is in range
     if(0 > column || column >= (LightCube::getInstance().getRowSize() * LightCube::getInstance().getColSize())) { return; }
 
-    // get the point for the column index
+    // get the voxel for the column index
     for (int i = 0; i < LightCube::getInstance().getLayerSize(); i++)
     {
         int ledIndex = column + (LightCube::getInstance().getRowSize() * LightCube::getInstance().getColSize() * i);
@@ -34,7 +34,7 @@ void Graphics::drawColumn(const int column, const Color color, const long millis
     // ensure column is in range
     if(0 > column || column >= (LightCube::getInstance().getRowSize() * LightCube::getInstance().getColSize())) { return; }
 
-    // get the point for the column index
+    // get the voxel for the column index
     for (int i = 0; i < LightCube::getInstance().getLayerSize(); i++)
     {
         int ledIndex = column + (LightCube::getInstance().getRowSize() * LightCube::getInstance().getColSize() * i);
@@ -45,11 +45,11 @@ void Graphics::drawColumn(const int column, const Color color, const long millis
     }
 }
 
-void Graphics::drawLine(Point3D point, Vector3D direction, Coloring &coloring)
+void Graphics::drawLine(Voxel voxel, Vector3D direction, Coloring &coloring)
 {
 }
 
-void Graphics::drawLine(Point3D point, Vector3D direction, Coloring& coloring, long millis)
+void Graphics::drawLine(Voxel voxel, Vector3D direction, Coloring& coloring, long millis)
 {
 }
 
@@ -67,7 +67,7 @@ void Graphics::drawSphere(float size, float mx, float my, float mz, Coloring& co
 
     // in the 8x8x8 cube the perimeter of the cube is 4x8 - 4 voxels
     int total = 28;
-    Point3D p = Point3D();
+    Voxel p = Voxel();
 
     for (int i = 0; i < total; i++)
     {
@@ -79,7 +79,7 @@ void Graphics::drawSphere(float size, float mx, float my, float mz, Coloring& co
             // map j to PI range to get the lat value
             float lat = projToRad(j, 0, total, -M_PI, M_PI);
 
-            // calculate the offsets from center point M and add them to M's coordinates
+            // calculate the offsets from center voxel M and add them to M's coordinates
             float x = round(mx + (r * sin(lon) * cos(lat)));
             float y = round(my + (r * sin(lon) * sin(lat)));
             float z = round(mz + (r * cos(lon)));
@@ -95,23 +95,21 @@ void Graphics::drawSphere(float size, float mx, float my, float mz, Coloring& co
     }
 }
 
-void Graphics::drawRectangle(const Point3D * point, Direction a, Direction b, const int lengthA, const int lengthB, Coloring& coloring, Frame *frame)
+void Graphics::drawRectangle(const Voxel * voxel, Direction a, Direction b, const int lengthA, const int lengthB, Coloring& coloring, Frame *frame)
 {
-    Vector3D aDir = {0,0,0};
-    Vector::setDirection(&aDir, a);
-    Vector3D bDir = {0, 0, 0};
-    Vector::setDirection(&bDir, b);
+    Vector3D aDir = Vector3D::getUnitVector(a);
+    Vector3D bDir = Vector3D::getUnitVector(b);
 
     Color color = coloring.getColor();
-    Point3D p = {0,0,0};
+    Voxel p = Voxel();
 
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < lengthA; j++)
         {
-            p.x = point->x + (aDir.vx * j) + (bDir.vx * i * (lengthB - 1));
-            p.y = point->y + (aDir.vy * j) + (bDir.vy * i * (lengthB - 1));
-            p.z = point->z + (aDir.vz * j) + (bDir.vz * i * (lengthB - 1));
+            p.x = voxel->x + (aDir.x * j) + (bDir.x * i * (lengthB - 1));
+            p.y = voxel->y + (aDir.y * j) + (bDir.y * i * (lengthB - 1));
+            p.z = voxel->z + (aDir.z * j) + (bDir.z * i * (lengthB - 1));
 
             frame->set(
                 p.x, 
@@ -128,9 +126,9 @@ void Graphics::drawRectangle(const Point3D * point, Direction a, Direction b, co
         for (int j = 0; j < lengthB; j++)
         {
             frame->set(
-                point->x + (bDir.vx * j) + (aDir.vx * i * (lengthA - 1)), 
-                point->y + (bDir.vy * j) + (aDir.vy * i * (lengthA - 1)),
-                point->z + (bDir.vz * j) + (aDir.vz * i * (lengthA - 1)),
+                voxel->x + (bDir.x * j) + (aDir.x * i * (lengthA - 1)), 
+                voxel->y + (bDir.y * j) + (aDir.y * i * (lengthA - 1)),
+                voxel->z + (bDir.z * j) + (aDir.z * i * (lengthA - 1)),
                 color.red, 
                 color.green, 
                 color.blue );
@@ -138,7 +136,7 @@ void Graphics::drawRectangle(const Point3D * point, Direction a, Direction b, co
     }
 }
 
-void Graphics::fillRectangle(Point3D point, Direction a, Direction b, int lengthA, int lenghtB, Coloring *coloring)
+void Graphics::fillRectangle(Voxel voxel, Direction a, Direction b, int lengthA, int lenghtB, Coloring *coloring)
 {
 }
 

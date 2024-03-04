@@ -49,7 +49,7 @@ void SinusAnimation::run(int variant, long millis)
 
 void SinusAnimation::calculateSingle(Frame * frame, const Vector3D * referenceDirection, const Vector3D * poleDirection, const int poleOffset, const double amplitude, const int shift)
 {
-    if(!Vector::isDirectionVector(referenceDirection) || !Vector::isDirectionVector(poleDirection)) { return; }
+    if(!referenceDirection->isUnitVector() || !poleDirection->isUnitVector()) { return; }
     frame->setAllOff();
 
     // eval the third direction
@@ -60,7 +60,7 @@ void SinusAnimation::calculateSingle(Frame * frame, const Vector3D * referenceDi
     Vector3D refReset = Vector3D(1,1,1) - *referenceDirection;
     Vector3D poleReset = Vector3D(1,1,1) - *poleDirection;
 
-    Point3D p2 = Point3D();
+    Voxel p2 = Voxel();
 
     double radian = 0.0;
     double curveCompress = 1;
@@ -83,8 +83,8 @@ void SinusAnimation::calculateSingle(Frame * frame, const Vector3D * referenceDi
             p2 += *poleDirection * (poleOffset + sinValue);
 
             // get color for point depending on the reference direction
-            Color color = getColor(lastValue <= (poleDirection->vx*p2.x)+(poleDirection->vy*p2.y)+(poleDirection->vz*p2.z));
-            lastValue = (poleDirection->vx*p2.x)+(poleDirection->vy*p2.y)+(poleDirection->vz*p2.z);
+            Color color = getColor(lastValue <= (poleDirection->x*p2.x)+(poleDirection->y*p2.y)+(poleDirection->z*p2.z));
+            lastValue = (poleDirection->x*p2.x)+(poleDirection->y*p2.y)+(poleDirection->z*p2.z);
             
             // set point to frame
             frame->set(p2.x, p2.y, p2.z, color.red, color.green, color.blue);
@@ -100,7 +100,7 @@ void SinusAnimation::calculateSingle(Frame * frame, const Vector3D * referenceDi
 
 void SinusAnimation::calculate(Frame * frame, const Vector3D * referenceDirection, const Vector3D * poleDirection, const int poleOffset, const double amplitude, const int shift)
 {
-    if(!Vector::isDirectionVector(referenceDirection) || !Vector::isDirectionVector(poleDirection)) { return; }
+    if(!referenceDirection->isUnitVector() || !poleDirection->isUnitVector()) { return; }
     frame->setAllOff();
 
     // eval the third direction
@@ -111,7 +111,7 @@ void SinusAnimation::calculate(Frame * frame, const Vector3D * referenceDirectio
     Vector3D refReset = Vector3D(1,1,1) - *referenceDirection;
     Vector3D poleReset = Vector3D(1,1,1) - *poleDirection;
 
-    Point3D p2 = Point3D();
+    Voxel p2 = Voxel();
 
     double radian = 0.0;
     double curveCompress = 1;
@@ -134,7 +134,7 @@ void SinusAnimation::calculate(Frame * frame, const Vector3D * referenceDirectio
             p2 += *poleDirection * (poleOffset + sinValue);
 
             // get color for point depending on the reference direction
-            Color color = getColor((plane.vx*p2.x)+(plane.vy*p2.y)+(plane.vz*p2.z));
+            Color color = getColor((int)((plane.x*p2.x)+(plane.y*p2.y)+(plane.z*p2.z)));
             
             // set point to frame
             frame->set(p2.x, p2.y, p2.z, color.red, color.green, color.blue);

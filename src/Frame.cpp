@@ -1,14 +1,17 @@
 #include "Frame.h"
 #include "MemoryFree.h"
 
+#include <avr/pgmspace.h>
+
 Frame::Frame()
 {
-    this->ds = new DataStore1();
+    this->ds = new DataStore();
     this->reset();
 }
 
 Frame::~Frame()
 {
+    delete ds;
 }
 
 const uint16_t Frame::size()
@@ -64,19 +67,26 @@ const uint8_t Frame::getLayers()
 
 const char* Frame::getState()
 {
+    char buffer[10];
     switch (this->state)
     {
         case Idle:
-            return "Idle";
+            strcpy_P(buffer, (char *)pgm_read_word(&(frame_states[0])));
+            break;
         case Prepare:
-            return "Prepare";
+            strcpy_P(buffer, (char *)pgm_read_word(&(frame_states[1])));
+            break;
         case Activate:
-            return "Activate";
+            strcpy_P(buffer, (char *)pgm_read_word(&(frame_states[2])));
+            break;
         case Active:
-            return "Active";
+            strcpy_P(buffer, (char *)pgm_read_word(&(frame_states[3])));
+            break;
         default:
-            return "Invalid";
+            strcpy_P(buffer, (char *)pgm_read_word(&(frame_states[4])));
+            break;
     }
+    return buffer;
 }
 
 void Frame::reset()
@@ -119,7 +129,7 @@ void Frame::setPrepare()
         this->state = Prepare;
     }
     if(FRAME_DEBUG_MODE > 0) {
-        Serial.print("[Fame::setPrepare] State::");
+        Serial.print(F("[Fame::setPrepare] State::"));
         Serial.println(getState());
     }
 }
@@ -130,11 +140,11 @@ void Frame::activate(long lifetime)
         this->dirtyLifetime = lifetime;
         this->state = Activate;
     } else {
-        Serial.println("[Frame] Cannot activate, not prepared.");
+        Serial.println(F("[Frame] Cannot activate, not prepared."));
     }
 
     if(FRAME_DEBUG_MODE > 0) {
-        Serial.print("[Fame::activate] State::");
+        Serial.print(F("[Fame::activate] State::"));
         Serial.print(getState());
         Serial.print(", ");
         Serial.println(this->dirtyLifetime);
@@ -145,7 +155,7 @@ void Frame::decrementLifeCycle()
 {
     if(this->state == Idle) {
         if(FRAME_DEBUG_MODE > 0) {
-            Serial.println("[Frame::decrement] State::Idle");
+            Serial.println(F("[Frame::decrement] State::Idle"));
         }
         return;
     }
@@ -154,13 +164,13 @@ void Frame::decrementLifeCycle()
         this->lifetime -= 1;
 
         if(FRAME_DEBUG_MODE > 0) {
-            Serial.print("[Frame::decrement] decrement lifetime ");
+            Serial.print(F("[Frame::decrement] decrement lifetime "));
             Serial.println(this->lifetime);
         }
 
         if(this->lifetime <= 0 && !this->ds->changed()) {
             if(FRAME_DEBUG_MODE > 0) {
-                Serial.println("[Frame::decrement] reset datasource");
+                Serial.println(F("[Frame::decrement] reset datasource"));
             }
             // stop interrupt timer
             //TCCR1B &= ~(1 << CS22);
@@ -172,7 +182,7 @@ void Frame::decrementLifeCycle()
 
     if(this->state == Activate && this->lifetime <= 0) {
         if(FRAME_DEBUG_MODE > 0) {
-            Serial.println("[Frame::decrement] synchronize datasource state");
+            Serial.println(F("[Frame::decrement] synchronize datasource state"));
         }
         // stop interrupt timer
         TCCR1B &= ~(1 << CS22);
@@ -182,7 +192,7 @@ void Frame::decrementLifeCycle()
         this->state = Active;
         this->dirtyLifetime = 0;
         if(FRAME_DEBUG_MODE > 0) {
-            Serial.print("[Frame::decrement] activate with lifetime ");
+            Serial.print(F("[Frame::decrement] activate with lifetime "));
             Serial.println(this->lifetime);
         }
         // restart interrupt timer
@@ -190,7 +200,7 @@ void Frame::decrementLifeCycle()
     }
 
     if(FRAME_DEBUG_MODE > 0) {
-        Serial.print("[Frame::decrement] State::");
+        Serial.print(F("[Frame::decrement] State::"));
         Serial.println(getState());
     }
 }
