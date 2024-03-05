@@ -19,9 +19,14 @@ const uint16_t Frame::size()
     return (getRows() * getCols() * getLayers());
 }
 
-uint16_t Frame::get(int led)
+Voxel Frame::voxel(int index) const
 {
-    return this->ds->get(led);
+    return Voxel();
+}
+
+uint16_t Frame::get(int index) const
+{
+    return this->ds->get(index);
 }
 
 void Frame::set(int led, uint8_t red, uint8_t green, uint8_t blue)

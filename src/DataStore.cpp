@@ -1,5 +1,6 @@
 #include "DataStore.h"
 #include <SPI.h>
+#include "Vector.h"
 
 DataStore::DataStore()
 {
@@ -84,16 +85,16 @@ void DataStore::setAllOff(bool force)
     }
 }
 
-uint16_t DataStore::get(uint16_t led)
+uint16_t DataStore::get(uint16_t index) const
 {
-    if (led >= (ROWS * COLS * LAYERS))
+    if (index >= (ROWS * COLS * LAYERS))
     {
         return 0;
     }
 
-    int layer = led / (ROWS * COLS);
-    int startIndex = (led % (ROWS * COLS)) * 3 / 8;
-    int startPos = (led % (ROWS * COLS)) * 3 % 8;
+    int layer = index / (ROWS * COLS);
+    int startIndex = (index % (ROWS * COLS)) * 3 / 8;
+    int startPos = (index % (ROWS * COLS)) * 3 % 8;
     int endPos = startPos + 2;
     int endIndex = endPos < 8 ? startIndex : startIndex + 1;
     endPos = endPos < 8 ? endPos : endPos - 8;
@@ -123,14 +124,14 @@ uint16_t DataStore::get(uint16_t led)
     return tmp;
 }
 
-uint16_t DataStore::get(uint8_t x, uint8_t y, uint8_t z)
+uint16_t DataStore::get(uint8_t x, uint8_t y, uint8_t z) const
 {
-    return get(getLedNumber(x, y, z));
+    return get(getIndex(x, y, z));
 }
 
-void DataStore::set(uint16_t led, uint8_t red, uint8_t green, uint8_t blue)
+void DataStore::set(uint16_t index, uint8_t red, uint8_t green, uint8_t blue)
 {
-    if (led >= (ROWS * COLS * LAYERS))
+    if (index >= (ROWS * COLS * LAYERS))
     {
         return;
     }
@@ -140,9 +141,9 @@ void DataStore::set(uint16_t led, uint8_t red, uint8_t green, uint8_t blue)
         this->isDirty = true;
     }
 
-    int layer = led / (ROWS * COLS);
-    int startIndex = (led % (ROWS * COLS)) * 3 / 8;
-    int startPos = (led % (ROWS * COLS)) * 3 % 8;
+    int layer = index / (ROWS * COLS);
+    int startIndex = (index % (ROWS * COLS)) * 3 / 8;
+    int startPos = (index % (ROWS * COLS)) * 3 % 8;
     int endPos = startPos + 2;
     int endIndex = endPos < 8 ? startIndex : startIndex + 1;
     endPos = endPos < 8 ? endPos : endPos - 8;
@@ -170,11 +171,57 @@ void DataStore::set(uint16_t led, uint8_t red, uint8_t green, uint8_t blue)
 
 void DataStore::set(uint8_t x, uint8_t y, uint8_t z, uint8_t red, uint8_t green, uint8_t blue)
 {
-    uint16_t ledNumber = getLedNumber(x, y, z);
-    set(ledNumber, red, green, blue);
+    uint16_t index = getIndex(x, y, z);
+    set(index, red, green, blue);
 }
 
-const uint16_t DataStore::getLedNumber(uint8_t x, uint8_t y, uint8_t z)
+Voxel DataStore::getVoxel(int index) const
+{
+    if (index >= (ROWS * COLS * LAYERS))
+    {
+        return Voxel();
+    }
+
+    uint8_t z = index / (ROWS * COLS);
+    uint8_t y = (index % (ROWS * COLS)) / COLS;
+    uint8_t x = (index % (ROWS * COLS)) % COLS;
+
+    int startIndex = (index % (ROWS * COLS)) * 3 / 8;
+    int startPos = (index % (ROWS * COLS)) * 3 % 8;
+    int endPos = startPos + 2;
+    int endIndex = endPos < 8 ? startIndex : startIndex + 1;
+    endPos = endPos < 8 ? endPos : endPos - 8;
+
+    // write bytes for red cathode
+    uint8_t red = 0b0000;
+    bitWrite(red, 0, bitRead(layeredStore[z][0][startIndex], startPos));
+    bitWrite(red, 1, bitRead(layeredStore[z][1][startIndex], startPos));
+    bitWrite(red, 2, bitRead(layeredStore[z][2][startIndex], startPos));
+    bitWrite(red, 3, bitRead(layeredStore[z][3][startIndex], startPos));
+
+    // write bytes for green cathode
+    uint8_t green = 0b0000;
+    int greenIndex = startPos == 7 ? endIndex : startIndex;
+    int greenPos = startPos == 7 ? endPos - 1 : startPos + 1;
+    bitWrite(green, 4, bitRead(layeredStore[z][0][greenIndex], greenPos));
+    bitWrite(green, 5, bitRead(layeredStore[z][1][greenIndex], greenPos));
+    bitWrite(green, 6, bitRead(layeredStore[z][2][greenIndex], greenPos));
+    bitWrite(green, 7, bitRead(layeredStore[z][3][greenIndex], greenPos));
+
+    // write bytes for blue cathode
+    uint8_t blue = 0b0000;
+    bitWrite(blue, 8, bitRead(layeredStore[z][0][endIndex], endPos));
+    bitWrite(blue, 9, bitRead(layeredStore[z][1][endIndex], endPos));
+    bitWrite(blue, 10, bitRead(layeredStore[z][2][endIndex], endPos));
+    bitWrite(blue, 11, bitRead(layeredStore[z][3][endIndex], endPos));
+
+    Color col = Color((Brightness)red, (Brightness)green, (Brightness)blue);
+    Voxel vox = Voxel(x, y, z);
+    vox.setColor(col);
+    return vox;
+}
+
+const uint16_t DataStore::getIndex(uint8_t x, uint8_t y, uint8_t z) const
 {
     if (x >= ROWS)
         return -1;
@@ -183,10 +230,10 @@ const uint16_t DataStore::getLedNumber(uint8_t x, uint8_t y, uint8_t z)
     if (z >= LAYERS)
         return -1;
 
-    int ledNumber = z * ROWS * COLS;
-    ledNumber += x * ROWS;
-    ledNumber += y;
-    return ledNumber;
+    int index = z * ROWS * COLS;
+    index += x * ROWS;
+    index += y;
+    return index;
 }
 
 void DataStore::shiftLayerForTick(int layerIndex, int tick)

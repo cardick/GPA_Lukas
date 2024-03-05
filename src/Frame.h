@@ -33,9 +33,11 @@ class Frame {
 
         const uint16_t size();
 
-        uint16_t get(int led);
+        Voxel voxel(int index) const;
 
-        void set(int led, uint8_t red, uint8_t green, uint8_t blue);
+        uint16_t get(int index) const;
+
+        void set(int index, uint8_t red, uint8_t green, uint8_t blue);
 
         void set(uint8_t x, uint8_t y, uint8_t z, uint8_t red, uint8_t green, uint8_t blue);
 

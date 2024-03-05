@@ -5,6 +5,7 @@
 #include "Frame.h"
 #include "Coloring.h"
 #include "Graphics.h"
+#include "Voxel.h"
 
 void CubeCheck::run()
 {
@@ -19,7 +20,8 @@ void CubeCheck::run()
     // this->testLayer(millis);
     this->allOff();
     this->testColorSpace(5000);
-    // this->testSphere();
+    this->allOff();
+    this->testSphere();
 }
 
 void CubeCheck::testCubeFunctionality()
@@ -146,19 +148,12 @@ void CubeCheck::testLayer(long millis)
 
 void CubeCheck::testColorSpace(long millis)
 {
-    Serial.println(F("testColorSpace end"));
-
     // spanning the color space
     Frame *f = LightCube::getInstance().getFrame();
     Coloring* space = new ColorSpace(f->getRows(), f->getCols(), f->getLayers());
     Voxel vox = Voxel();
     Color color = Color();
 
-    ((ColorSpace*)space)->print();
-    memFree();
-
-    Serial.print(F("Can frame be prepared "));
-    Serial.println(f->canPrepare());
     f->setPrepare();
     for (int i = 0; i < 8; i++)
     {
@@ -167,34 +162,26 @@ void CubeCheck::testColorSpace(long millis)
             for (int k = 0; k < 8; k++)
             {
                 vox = Voxel(i,j,k);
-                vox.print();
                 color = space->getColor(vox);
-                color.print();
-
                 f->set(vox.x, vox.y, vox.z, color.red, color.green, color.blue);
             }
         }
     }
-    Serial.print(F("Is frame prepared "));
-    Serial.println(f->isPrepare());
     f->activate(getFrameCount(millis));
-    memFree();
     wait();
-
-    Serial.println(f->getState());
-    Serial.println(F("testColorSpace end"));
 }
 
 void CubeCheck::testSphere()
 {
-    SolidColoring c = SolidColoring();
-    c.setColor(Color(High, Medium, Off));
+    // SolidColoring c = SolidColoring();
+    // c.setColor(Color(High, Medium, Off));
+    Coloring * c = new ColorSpace(8,8,8);
 
     Frame *frame = LightCube::getInstance().getFrame();
 
     for(float i=1.45; i<8; i+=2) {
         frame->setPrepare();
-        Graphics::drawSphere(i, c, frame);
+        Graphics::drawSphere(i, *c, frame);
         if(i>7) {
             frame->activate(getFrameCount(2000));
         } else {

@@ -2,6 +2,8 @@
 #include <Arduino.h>
 #endif
 
+#include "Voxel.h"
+
 #ifndef DataStore_h
 #define DataStore_h
 
@@ -43,34 +45,34 @@ class DataStore {
         /// @return 
         const int getLayers();
 
-        /// @brief Set all LEDs to off value.
+        /// @brief Make the complete cube on.
         /// @param force Force the changes to be directly synchronized with active state
         void setAllOn(bool force);
 
-        /// @brief Set all LEDs to full on value.
+        /// @brief Make the complete cube off.
         /// @param force Force the changes to be directly synchronized with active state
         void setAllOff(bool force);
 
-        /// @brief Get the active state of the RGB value of a LED.
-        /// @param led Number of the LED in the cube. A value between 0 .. (ROWS * COLS * LAYERS) - 1
-        /// @return the 12-Bit RGB value (4-Bit for each cathode) 
-        uint16_t get(uint16_t led);
+        /// @brief Get the active state of a voxel.
+        /// @param index index of the voxel in the cube. A value between 0 .. (ROWS * COLS * LAYERS) - 1
+        /// @return the 12-Bit rgb value in MSBFT order (4-Bit for each color) 
+        uint16_t get(uint16_t index) const;
 
-        /// @brief Get the active state of the RGB value of the LED with given coordinates
+        /// @brief Get the active state of voxel with given coordinates
         /// @param x X-Axis coordinate (column in cube). A value between 0 and COLS-1.
         /// @param y Y-Axis coordinate (row in cube). A value between 0 and ROWS-1.
         /// @param z Z-Axis coordinate (layer in cube). A value between 0 and LAYERS-1.
-        /// @return the 12-Bit RGB value (4-Bit for each cathode)
-        uint16_t get(uint8_t x, uint8_t y, uint8_t z);
+        /// @return the 12-Bit RGB value in MSBFT order (4-Bit for each color) 
+        uint16_t get(uint8_t x, uint8_t y, uint8_t z) const;
 
-        /// @brief Set the 4-Bit RGB values for a LED. 
-        /// @param led Number of the LED in the cube. A value between 0 .. (ROWS * COLS * LAYERS) -1 
+        /// @brief Set the 4-Bit RGB values for a voxel. 
+        /// @param index the index of the voxel in the cube. A value between 0 .. (ROWS * COLS * LAYERS) -1 
         /// @param red 4-Bit BAM value for the red cathode.
         /// @param green 4-Bit BAM value for the green cathode.
         /// @param blue 4-Bit BAM value for the blue cathode.
-        void set(uint16_t led, uint8_t red, uint8_t green, uint8_t blue);
+        void set(uint16_t index, uint8_t red, uint8_t green, uint8_t blue);
 
-        /// @brief Set the 4-Bit RGB values for the LED with the given coordinates in the cube.
+        /// @brief Set the 4-Bit RGB values for a voxel with the given coordinates in the cube.
         /// @param x X-Axis coordinate (row in cube). A value between 0 and ROWS-1.
         /// @param y Y-Axis coordinate (column in cube). A value between 0 and COLS-1.
         /// @param z Z-Axis coordinate (layer in cube). A value between 0 and LAYERS-1.
@@ -79,19 +81,24 @@ class DataStore {
         /// @param blue 4-Bit BAM value for the blue cathode.
         void set(uint8_t x, uint8_t y, uint8_t z, uint8_t red, uint8_t green, uint8_t blue);
 
-        /// @brief Evaluate the LED number for the LED with the given coordinates in the cube.
+        /// @brief Get the voxel at position from the displayed frame. 
+        /// @param index the index [0 .. 511] 
+        /// @return the voxel
+        Voxel getVoxel(int index) const;
+
+        /// @brief Evaluate the index of the voxel with the given coordinates in the cube.
         /// @param x X-Axis coordinate (row in cube). A value between 0 and ROWS-1.
         /// @param y Y-Axis coordinate (column in cube). A value between 0 and COLS-1.
         /// @param z Z-Axis coordinate (layer in cube). A value between 0 and LAYERS-1.
-        /// @return the uniuqe LED number in the cube or MAX uint16_t if a coordinate is out of range.
-        const uint16_t getLedNumber(uint8_t x, uint8_t y, uint8_t z);
+        /// @return the index in the cube or MAX uint16_t if a coordinate is out of range.
+        const uint16_t getIndex(uint8_t x, uint8_t y, uint8_t z) const;
 
-        /// @brief Shift out the active state of LED values for a layer to SPI, when layer and tick are within their ranges.
+        /// @brief Shift the active state for a layer out to SPI, when layer and tick are within their ranges.
         /// @param layerIndex value between 0 .. LAYERS
         /// @param tick value between 0 .. 15
         void shiftLayerForTick(int layerIndex, int tick);
 
-        /// @brief Shift out the active state of LED values for a layer to Serial out, when layer and tick are within their ranges.
+        /// @brief Shift the active state for a layer out to Serial, when layer and tick are within their ranges.
         /// @param layerIndex value between 0 .. LAYERS
         /// @param tick value between 0 .. 15
         void shiftLayerForTickToSerial(int layerIndex, int tick);
