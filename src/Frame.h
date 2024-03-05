@@ -49,7 +49,7 @@ class Frame {
 
         const uint8_t getLayers();
 
-        const char* getState();
+        const String getState();
 
         void reset();
 
@@ -83,4 +83,5 @@ class Frame {
         int dirtyLifetime = 0;
         int lifetime = 0;
 };
+
 #endif

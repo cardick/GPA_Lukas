@@ -1,6 +1,9 @@
 #include <Arduino.h>
 #include "Vector.h"
 
+
+// Vector3D class implementation
+
 Vector3D::Vector3D() : x(0), y(0), z(0) {}
 Vector3D::Vector3D(float x, float y, float z) : x(x), y(y), z(z) {}
 Vector3D::Vector3D(const Vector3D &vec) : x(vec.x), y(vec.y), z(vec.z) {}
@@ -71,7 +74,7 @@ bool Vector3D::operator!=(const Vector3D &a) const
     return (x != a.x) || (y != a.y) || (z != a.z);
 }
 
-double Vector3D::magnitude() const
+float Vector3D::magnitude() const
 {
     return sqrt(sq(x) + sq(y) + sq(z));
 }
@@ -79,6 +82,16 @@ double Vector3D::magnitude() const
 Vector3D Vector3D::inverse() const
 {
     return *this * (-1);
+}
+
+void Vector3D::normalize()
+{
+    *this *= 1/magnitude();
+}
+
+Vector3D Vector3D::normalized() const
+{
+    return (*this) * 1/magnitude();
 }
 
 Vector3D Vector3D::crossProduct(const Vector3D &vec) const
@@ -101,7 +114,12 @@ bool Vector3D::isZeroVector() const
 
 bool Vector3D::isUnitVector() const
 {
-    return (x <= 1 || x >= -1) && (y <= 1 || y >= -1) && (z <= 1 || z >= -1);
+    return magnitude() == 1;
+}
+
+bool Vector3D::isStandardBaseVector() const
+{
+    return (x == 1 || x == 0 || x == -1) && (y == 1 || y == 0 || y == -1) && (z == 1 || z == 0 || z == -1);
 }
 
 void Vector3D::print() const
@@ -115,12 +133,12 @@ void Vector3D::print() const
     Serial.println(F(")"));
 }
 
-Vector3D Vector3D::getUnitVector(const Direction direction)
+Vector3D Vector3D::getStandardBaseVector(const Direction direction)
 {
-    return getUnitVector((uint8_t)direction);
+    return getStandardBaseVector((uint8_t)direction);
 }
 
-Vector3D Vector3D::getUnitVector(const uint8_t direction)
+Vector3D Vector3D::getStandardBaseVector(const uint8_t direction)
 {
     if (direction > 63)
     {
@@ -157,12 +175,32 @@ Vector3D Vector3D::getUnitVector(const uint8_t direction)
             break;
         }
     }
-
     return Vector3D(x, y, z);
 }
 
+Vector3D Vector3D::getUnitVector(const Direction direction)
+{
+    return getUnitVector((uint8_t)direction);
+}
+
+Vector3D Vector3D::getUnitVector(const uint8_t direction)
+{
+    return getStandardBaseVector(direction).normalized();
+}
+
+
+// Voxel class implementation
+
 Voxel::Voxel() : x(0), y(0), z(0) {}
 Voxel::Voxel(uint8_t x, uint8_t y, uint8_t z) : x(x), y(y), z(z) {}
+
+Voxel &Voxel::operator=(const Voxel &a)
+{
+    x = a.x;
+    y = a.y;
+    z = a.z;
+    return *this;
+}
 
 bool Voxel::operator==(const Voxel &a) const
 {

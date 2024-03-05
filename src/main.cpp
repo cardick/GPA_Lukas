@@ -137,17 +137,17 @@ void setup() {
 
 /// @brief Within the loop only the bytes should be manipulated that are written out in ISR method
 void loop() {
-  // Animation* animation = new CubeCheck();
-  // animation->run();
-
-  Animation* animation = new SnakeAnimation();
+  Animation* animation = new CubeCheck();
   animation->run();
+
+  // Animation* animation = new SnakeAnimation();
+  // animation->run();
 
   // put your animation here
   // Animation* animation = new GpaAnimation();
   // for (int i = 0; i < 20; i++)
   // {
-  //   ((GpaAnimation*)animation)->run(120000);
+    // ((GpaAnimation*)animation)->run(120000);
   // }
   
   // Animation* animation = new SinusAnimation();

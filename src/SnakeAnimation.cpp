@@ -45,7 +45,7 @@ void SnakeAnimation::run()
 
 void SnakeAnimation::moveForward(Snake &snake, const Vector3D &v, const int steps)
 {
-    Serial.println("move");
+    // Serial.println("move");
     Frame *f = LightCube::getInstance().getFrame();
     f->setPrepare();
     f->setAllOff();
@@ -90,8 +90,8 @@ void SnakeAnimation::moveForward(Snake &snake, const Vector3D &v, const int step
         // the last step mustn't change the position
         if (i <= (steps - 1))
         {
-            snake.get().print();
-            v.print();
+            // snake.get().print();
+            // v.print();
 
             Voxel next = snake.get() + v;
             

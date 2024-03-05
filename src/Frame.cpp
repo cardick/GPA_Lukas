@@ -65,7 +65,7 @@ const uint8_t Frame::getLayers()
     return this->ds->getLayers();
 }
 
-const char* Frame::getState()
+const String Frame::getState()
 {
     char buffer[10];
     switch (this->state)
@@ -86,7 +86,8 @@ const char* Frame::getState()
             strcpy_P(buffer, (char *)pgm_read_word(&(frame_states[4])));
             break;
     }
-    return buffer;
+    
+    return String(buffer);
 }
 
 void Frame::reset()
@@ -120,7 +121,7 @@ const bool Frame::isActivate()
 
 const bool Frame::isActive()
 {
-    return this->lifetime > 0; //&& (this->state == Active);
+    return this->lifetime > 0 && (this->state == Active);
 }
 
 void Frame::setPrepare()

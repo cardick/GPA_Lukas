@@ -19,6 +19,7 @@ class CubeCheck : public Animation {
         void testColumnPlanes(long millis);
         void testRowPlanes(long millis);
         void testLayer(long millis);
+        void testColorSpace(long millis);
         void testSphere();
         void moveFrontBack();
         void allOff();

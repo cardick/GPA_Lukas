@@ -17,8 +17,9 @@ void CubeCheck::run()
     // this->testColumnPlanes(millis);
     // this->allOff();
     // this->testLayer(millis);
-    // this->allOff();
-    this->testSphere();
+    this->allOff();
+    this->testColorSpace(5000);
+    // this->testSphere();
 }
 
 void CubeCheck::testCubeFunctionality()
@@ -143,6 +144,47 @@ void CubeCheck::testLayer(long millis)
     }
 }
 
+void CubeCheck::testColorSpace(long millis)
+{
+    Serial.println(F("testColorSpace end"));
+
+    // spanning the color space
+    Frame *f = LightCube::getInstance().getFrame();
+    Coloring* space = new ColorSpace(f->getRows(), f->getCols(), f->getLayers());
+    Voxel vox = Voxel();
+    Color color = Color();
+
+    ((ColorSpace*)space)->print();
+    memFree();
+
+    Serial.print(F("Can frame be prepared "));
+    Serial.println(f->canPrepare());
+    f->setPrepare();
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            for (int k = 0; k < 8; k++)
+            {
+                vox = Voxel(i,j,k);
+                vox.print();
+                color = space->getColor(vox);
+                color.print();
+
+                f->set(vox.x, vox.y, vox.z, color.red, color.green, color.blue);
+            }
+        }
+    }
+    Serial.print(F("Is frame prepared "));
+    Serial.println(f->isPrepare());
+    f->activate(getFrameCount(millis));
+    memFree();
+    wait();
+
+    Serial.println(f->getState());
+    Serial.println(F("testColorSpace end"));
+}
+
 void CubeCheck::testSphere()
 {
     SolidColoring c = SolidColoring();
@@ -154,9 +196,9 @@ void CubeCheck::testSphere()
         frame->setPrepare();
         Graphics::drawSphere(i, c, frame);
         if(i>7) {
-            frame->activate(getFrameCount(10000));
+            frame->activate(getFrameCount(2000));
         } else {
-            frame->activate(getFrameCount(10));
+            frame->activate(getFrameCount(90));
         }
         wait();
     }
@@ -263,8 +305,10 @@ void CubeCheck::moveFrontBack()
     }
     f->reset();
 }
+
 void CubeCheck::allOff()
 {
     LightCube::getInstance().getFrame()->setAllOff();
     LightCube::getInstance().getFrame()->activate(1);
+    wait();
 }

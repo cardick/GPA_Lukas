@@ -14,21 +14,22 @@ enum Direction
   Down = 1 << 5
 };
 
-/// @brief vector in a cubes or cuboid space.
+/// @brief Vector is used to calculate the positions and movements of voxels in the cube (three dimensional space).
 class Vector3D
 {
 public:
-
   float x, y, z;
 
   Vector3D();
   Vector3D(float x, float y, float z);
-  Vector3D(const Vector3D& vec);
+  Vector3D(const Vector3D &vec);
 
-  Vector3D& operator=(const Vector3D& a);
+  // assignment
+  Vector3D &operator=(const Vector3D &a);
 
-  Vector3D operator+(const Vector3D& a) const;
-  Vector3D operator-(const Vector3D& a) const;
+  // movements
+  Vector3D operator+(const Vector3D &a) const;
+  Vector3D operator-(const Vector3D &a) const;
   void operator+=(const Vector3D &a);
   void operator-=(const Vector3D &a);
 
@@ -37,8 +38,17 @@ public:
   void operator*=(const int a);
   void operator/=(const int a);
 
-  bool operator==(const Vector3D& a) const;
-  bool operator!=(const Vector3D& a) const;
+  // comparison
+  bool operator==(const Vector3D &a) const;
+  bool operator!=(const Vector3D &a) const;
+
+  /// @brief Set direction coordinates to get the unit vector of the direction. Can be used to set a direction by using the Direction enum (e.g. Left|Up, Right, Down|Back, Right|Up|Front).
+  /// @param direction
+  static Vector3D getStandardBaseVector(const Direction direction);
+
+  /// @brief Set the direction coordinates to get the unit vector for this direction. Could be used to get a random direction.
+  /// @param direction unless there are 6 base directions the max value is maximum value of 6 bits (63)
+  static Vector3D getStandardBaseVector(const uint8_t direction);
 
   /// @brief Set direction coordinates to get the unit vector of the direction. Can be used to set a direction by using the Direction enum (e.g. Left|Up, Right, Down|Back, Right|Up|Front).
   /// @param direction
@@ -51,11 +61,18 @@ public:
   /// @brief Building the magnitude of a vector.
   /// @param vector
   /// @return
-  double magnitude() const;
+  float magnitude() const;
 
   /// @brief Sets the direction of the vector to its opposite.
   /// @param vector the vector to change
   Vector3D inverse() const;
+
+  /// @brief Normalize this vector.
+  void normalize();
+
+  /// @brief Get the normalized vector of this vector.
+  /// @return the normalized vector
+  Vector3D normalized() const;
 
   /// @brief Build the cross product of two vectors. The cross product is used to evaluate a perpendicular vector.
   /// @param cross the resulting cross product
@@ -67,6 +84,7 @@ public:
   /// @return
   float dotProduct(const Vector3D &vec) const;
 
+  /// @brief Print current state to Serial 
   void print() const;
 
   /// @brief Indicats whether the given vector is the zero vector (0,0,0).
@@ -78,9 +96,11 @@ public:
   /// @param vector
   /// @return
   bool isUnitVector() const;
+
+  bool isStandardBaseVector() const;
 };
 
-/// @brief point in a cube or cuboid space.
+/// @brief A voxel represents a value on the regular grid of the cube (the three dimensional space).
 class Voxel
 {
 public:
@@ -89,18 +109,22 @@ public:
   Voxel();
   Voxel(uint8_t x, uint8_t y, uint8_t z);
 
-  bool operator==(const Voxel& a) const;
-  bool operator!=(const Voxel& a) const;
+  // assignment
+  Voxel &operator=(const Voxel &a);
 
-  Voxel operator+(const Vector3D& a) const;
-  Voxel operator-(const Vector3D& a) const;
-  void operator+=(const Vector3D& a);
-  void operator-=(const Vector3D& a);
+  // comparison
+  bool operator==(const Voxel &a) const;
+  bool operator!=(const Voxel &a) const;
 
-  Voxel operator*(const Vector3D& a) const;
+  // movements
+  Voxel operator+(const Vector3D &a) const;
+  Voxel operator-(const Vector3D &a) const;
+  void operator+=(const Vector3D &a);
+  void operator-=(const Vector3D &a);
+
+  Voxel operator*(const Vector3D &a) const;
   Voxel operator*(const int a) const;
-
-  void operator*=(const Vector3D& a);
+  void operator*=(const Vector3D &a);
   void operator*=(const int a);
 
   void print() const;
