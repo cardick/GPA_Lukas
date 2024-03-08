@@ -9,6 +9,7 @@
 
 void CubeCheck::run()
 {
+    memFree();
     // long millis = 90;
     // this->testColumns();
     // this->allOff();
@@ -19,9 +20,11 @@ void CubeCheck::run()
     // this->allOff();
     // this->testLayer(millis);
     this->allOff();
-    this->testColorSpace(5000);
-    this->allOff();
+    // this->testColorSpace(2000);
+    // this->allOff();
     this->testSphere();
+    this->testRotation();
+
 }
 
 void CubeCheck::testCubeFunctionality()
@@ -50,14 +53,17 @@ void CubeCheck::testBlockWise()
     };
 
     Frame * frame = LightCube::getInstance().getFrame();
+    SolidColoring coloring = SolidColoring();
+
     for(int i = 0; i < 16; i++) {
         for(Color c : colors) {
+            coloring.setColor(c);
             int startColumn = i * 4;
             frame->setPrepare();
-            Graphics::drawColumn(startColumn, c);
-            Graphics::drawColumn(startColumn + 1, c);
-            Graphics::drawColumn(startColumn + 2, c);
-            Graphics::drawColumn(startColumn + 3, c);
+            Graphics::drawColumn(startColumn, coloring);
+            Graphics::drawColumn(startColumn + 1, coloring);
+            Graphics::drawColumn(startColumn + 2, coloring);
+            Graphics::drawColumn(startColumn + 3, coloring);
             frame->activate(15);
             wait();
         }
@@ -67,10 +73,13 @@ void CubeCheck::testBlockWise()
 void CubeCheck::testColumns()
 {
     Frame * frame = LightCube::getInstance().getFrame();
+    SolidColoring color = SolidColoring();
+    color.setColor( Color(High, High, High));
+
     for(int i = 0; i < 64; i++) {
         frame->setPrepare();
         frame->setAllOff();
-        Graphics::drawColumn(i, Color(High, High, High));
+        Graphics::drawColumn(i, color);
         frame->activate(15);
         wait();
     }
@@ -79,12 +88,14 @@ void CubeCheck::testColumns()
 void CubeCheck::testColumnPlanes(long millis)
 {
     Frame * frame = LightCube::getInstance().getFrame();
+    SolidColoring color = SolidColoring();
+    color.setColor( Color(High, High, High));
     for(int i=0;i<LightCube::getInstance().getColSize();i++) {
         frame->setPrepare();
         frame->setAllOff();
         for (int j = 0; j < LightCube::getInstance().getRowSize(); j++)
         {
-            Graphics::drawColumn((i*LightCube::getInstance().getRowSize())+j, Color(High, High, High));
+            Graphics::drawColumn((i*LightCube::getInstance().getRowSize())+j, color);
         }
         frame->activate(getFrameCount(millis));
         wait();
@@ -94,7 +105,7 @@ void CubeCheck::testColumnPlanes(long millis)
         frame->setAllOff();
         for (int j = 0; j < LightCube::getInstance().getRowSize(); j++)
         {
-            Graphics::drawColumn((i*LightCube::getInstance().getRowSize())+j, Color(High, High, High));
+            Graphics::drawColumn((i*LightCube::getInstance().getRowSize())+j, color);
         }
         frame->activate(getFrameCount(millis));
         wait();
@@ -104,12 +115,15 @@ void CubeCheck::testColumnPlanes(long millis)
 void CubeCheck::testRowPlanes(long millis)
 {
     Frame * frame = LightCube::getInstance().getFrame();
+    SolidColoring color = SolidColoring();
+    color.setColor( Color(High, High, High));
+
     for(int i=0;i<LightCube::getInstance().getRowSize();i++) {
         frame->setPrepare();
         frame->setAllOff();
         for (int j = 0; j < LightCube::getInstance().getColSize(); j++)
         {
-            Graphics::drawColumn(i+(j*LightCube::getInstance().getColSize()), Color(High, High, High));
+            Graphics::drawColumn(i+(j*LightCube::getInstance().getColSize()), color);
         }
         frame->activate(getFrameCount(millis));
         wait();
@@ -119,7 +133,7 @@ void CubeCheck::testRowPlanes(long millis)
         frame->setAllOff();
         for (int j = 0; j < LightCube::getInstance().getColSize(); j++)
         {
-            Graphics::drawColumn(i+(j*LightCube::getInstance().getColSize()), Color(High, High, High));
+            Graphics::drawColumn(i+(j*LightCube::getInstance().getColSize()), color);
         }
         frame->activate(getFrameCount(millis));
         wait();
@@ -179,15 +193,24 @@ void CubeCheck::testSphere()
 
     Frame *frame = LightCube::getInstance().getFrame();
 
-    for(float i=1.45; i<8; i+=2) {
+    // for(float i=1.45; i<8; i+=2) {
         frame->setPrepare();
-        Graphics::drawSphere(i, *c, frame);
-        if(i>7) {
+        Graphics::drawSphere(5.45, *c, frame);
+        // if(i>7) {
             frame->activate(getFrameCount(2000));
-        } else {
-            frame->activate(getFrameCount(90));
-        }
+        // } else {
+        //     frame->activate(getFrameCount(90));
+        // }
         wait();
+    // }
+}
+
+void CubeCheck::testRotation()
+{
+    unsigned long start_time = millis();
+    while (millis() < (start_time*60000))
+    {
+        Graphics::rotate((Direction)(Up|Right), 360, 300);
     }
 }
 
@@ -291,6 +314,11 @@ void CubeCheck::moveFrontBack()
         wait();
     }
     f->reset();
+}
+
+void CubeCheck::rotateCross()
+{
+    //Graphics::drawColumn(3, )
 }
 
 void CubeCheck::allOff()

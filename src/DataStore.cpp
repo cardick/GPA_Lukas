@@ -183,42 +183,10 @@ Voxel DataStore::getVoxel(int index) const
     }
 
     uint8_t z = index / (ROWS * COLS);
-    uint8_t y = (index % (ROWS * COLS)) / COLS;
-    uint8_t x = (index % (ROWS * COLS)) % COLS;
+    uint8_t x = (index % (ROWS * COLS)) / COLS;
+    uint8_t y = (index % (ROWS * COLS)) % COLS;
 
-    int startIndex = (index % (ROWS * COLS)) * 3 / 8;
-    int startPos = (index % (ROWS * COLS)) * 3 % 8;
-    int endPos = startPos + 2;
-    int endIndex = endPos < 8 ? startIndex : startIndex + 1;
-    endPos = endPos < 8 ? endPos : endPos - 8;
-
-    // write bytes for red cathode
-    uint8_t red = 0b0000;
-    bitWrite(red, 0, bitRead(layeredStore[z][0][startIndex], startPos));
-    bitWrite(red, 1, bitRead(layeredStore[z][1][startIndex], startPos));
-    bitWrite(red, 2, bitRead(layeredStore[z][2][startIndex], startPos));
-    bitWrite(red, 3, bitRead(layeredStore[z][3][startIndex], startPos));
-
-    // write bytes for green cathode
-    uint8_t green = 0b0000;
-    int greenIndex = startPos == 7 ? endIndex : startIndex;
-    int greenPos = startPos == 7 ? endPos - 1 : startPos + 1;
-    bitWrite(green, 4, bitRead(layeredStore[z][0][greenIndex], greenPos));
-    bitWrite(green, 5, bitRead(layeredStore[z][1][greenIndex], greenPos));
-    bitWrite(green, 6, bitRead(layeredStore[z][2][greenIndex], greenPos));
-    bitWrite(green, 7, bitRead(layeredStore[z][3][greenIndex], greenPos));
-
-    // write bytes for blue cathode
-    uint8_t blue = 0b0000;
-    bitWrite(blue, 8, bitRead(layeredStore[z][0][endIndex], endPos));
-    bitWrite(blue, 9, bitRead(layeredStore[z][1][endIndex], endPos));
-    bitWrite(blue, 10, bitRead(layeredStore[z][2][endIndex], endPos));
-    bitWrite(blue, 11, bitRead(layeredStore[z][3][endIndex], endPos));
-
-    Color col = Color((Brightness)red, (Brightness)green, (Brightness)blue);
-    Voxel vox = Voxel(x, y, z);
-    vox.setColor(col);
-    return vox;
+    return Voxel(x, y, z);
 }
 
 const uint16_t DataStore::getIndex(uint8_t x, uint8_t y, uint8_t z) const

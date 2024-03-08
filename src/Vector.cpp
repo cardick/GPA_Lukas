@@ -47,7 +47,7 @@ Vector3D Vector3D::operator*(const int a) const
 
 Vector3D Vector3D::operator/(const int a) const
 {
-    return Vector3D(round(x / a), round(y / a), round(z / a));
+    return Vector3D(x / a, y / a, z / a);
 }
 
 void Vector3D::operator*=(const int a)
@@ -59,9 +59,33 @@ void Vector3D::operator*=(const int a)
 
 void Vector3D::operator/=(const int a)
 {
-    x = round(x / a);
-    y = round(y / a);
-    z = round(z / a);
+    x = x / a;
+    y = y / a;
+    z = z / a;
+}
+
+Vector3D Vector3D::operator*(const float a) const
+{
+    return Vector3D(x * a, y * a, z * a);
+}
+
+Vector3D Vector3D::operator/(const float a) const
+{
+    return Vector3D(x / a, y / a, z / a);
+}
+
+void Vector3D::operator*=(const float a)
+{
+    x *= a;
+    y *= a;
+    z *= a;
+}
+
+void Vector3D::operator/=(const float a)
+{
+    x = x / a;
+    y = y / a;
+    z = z / a;
 }
 
 bool Vector3D::operator==(const Vector3D &a) const
@@ -86,12 +110,12 @@ Vector3D Vector3D::inverse() const
 
 void Vector3D::normalize()
 {
-    *this *= 1/magnitude();
+    *this *= (1 / magnitude());
 }
 
 Vector3D Vector3D::normalized() const
 {
-    return (*this) * 1/magnitude();
+    return (*this) * (1 / magnitude());
 }
 
 Vector3D Vector3D::crossProduct(const Vector3D &vec) const
@@ -105,6 +129,19 @@ Vector3D Vector3D::crossProduct(const Vector3D &vec) const
 float Vector3D::dotProduct(const Vector3D &vec) const
 {
     return (x * vec.x) + (y * vec.y) + (z * vec.z);
+}
+
+void Vector3D::rnd()
+{
+    this->x = round(this->x);
+    this->y = round(this->y);
+    this->z = round(this->z);
+    // Serial.print(F("rnd "));
+    // Serial.print(x);
+    // Serial.print(F(", "));
+    // Serial.print(y);
+    // Serial.print(F(", "));
+    // Serial.print(z);
 }
 
 bool Vector3D::isZeroVector() const

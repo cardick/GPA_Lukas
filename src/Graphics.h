@@ -13,7 +13,7 @@ class Graphics {
 
     public:
 
-        static void drawColumn(const int column, const Color color);
+        static void drawColumn(const int column, Coloring& coloring);
         
         static void drawLayer(const int layer, const Color color);
 
@@ -56,12 +56,20 @@ class Graphics {
         /// @param color the coloring setting for the rectangle
         static void fillRectangle(Voxel voxel, Direction a, Direction b, int lengthA, int lenghtB, Coloring* coloring);
 
-        static void rotate(Vector3D plane, Vector3D direction);
+        /// @brief Rotates the active frames voxels stepwise around an axis that passes through the center of the cube.
+        /// @param direction the to rotate  
+        /// @param degree the angle in degrees [0 .. 360]
+        /// @param frameTime the time in ms for a frame
+        static void rotate(Direction direction, float degree, long frameTime);
 
         /// @brief Clear all settings in cube
         static void erase();
 
-        // move the plane via y axxis
+        /// @brief Retrieve the color value from the RGB color representation.
+        /// @param index the color index 
+        /// @param value the 12-Bit RGB value
+        /// @return 4-Bit color value
+        static uint8_t getColorValue(uint8_t index, uint16_t value);
 
     private:
         /// @brief Projection of a running index onto the angle of a circle in the specified intervals.
@@ -89,20 +97,57 @@ class Graphics {
                 (abs(b)+a);
         }
 
+        static int toFrames(long millis);
+
         /// @brief Convert ot radians
         /// @param angle the angle in degree
         /// @return rad value
-        static float toRadians(float angle) {
+        static double toRadians(double angle) {
             return (M_PI / 180) * angle;
         }
 
         /// @brief Convert to degree
         /// @param radian the radian value 
         /// @return deg value
-        static float toDegrees(float radian) {
+        static double toDegrees(double radian) {
             return (radian * 180) / M_PI;
         }
-            
+
+        /// @brief Angle axis rotation based on Rodrigues' rotation formula
+        ///     Formula:
+        ///     d = (k dot v) * k
+        ///     r = v - d
+        ///     v' = d + r * cos(angle) + k cross r * sin(angle)
+        /// Explanaition: https://www.youtube.com/watch?v=OKr0YCj0BW4
+        /// The rotation works with vector displacment of the voxel to the coordinate origin.
+        /// @param sinTheta sin of angle 
+        /// @param cosTheta cos of angle
+        /// @param vox the voxel to rotate 
+        /// @param k unit vector for an axis of the standard basis (e1, e2, e3) of the cartesian coordinate system 
+        /// @return the rotated voxel
+        static Voxel rodRot(double sinTheta, double cosTheta, Voxel vox, Vector3D k);
+
+        /// @brief Angle axis rotation based on Rodrigues' rotation formula
+        ///     Formula:
+        ///     term1 = v * cos(theta)
+        ///     term2 = k cross v * sin(theta)
+        ///     term3 = k * k dot v * (1 - cos(theta))
+        ///     v' = term1 + term2 + term3
+        /// Explanaition: https://medium.com/@sim30217/rodrigues-rotation-formula-47489db49050
+        /// The rotation works with vector displacment of the voxel to the coordinate origin.
+        /// @param sinTheta sin of angle 
+        /// @param cosTheta cos of angle
+        /// @param vox the voxel to rotate 
+        /// @param k unit vector for an axis of the standard basis (e1, e2, e3) of the cartesian coordinate system 
+        /// @return the rotated voxel
+        static Voxel rodRot2(double sinTheta, double cosTheta, Voxel vox, Vector3D k);
+
+        /// @brief Multiplication of floating points values as integers with a given precision.
+        /// @param a a value with accuracy offset
+        /// @param b b value with accuracy offset
+        /// @param accuracy the precision to use
+        /// @return the result with accuracy offset
+        static long fpmult(long a, long b, long accuracy);
 };
 
 #endif

@@ -1,6 +1,7 @@
+#include <Arduino.h>
+
 #include "Frame.h"
 #include "MemoryFree.h"
-
 #include <avr/pgmspace.h>
 
 Frame::Frame()
@@ -21,7 +22,7 @@ const uint16_t Frame::size()
 
 Voxel Frame::voxel(int index) const
 {
-    return Voxel();
+    return ds->getVoxel(index);
 }
 
 uint16_t Frame::get(int index) const
@@ -37,6 +38,11 @@ void Frame::set(int led, uint8_t red, uint8_t green, uint8_t blue)
 void Frame::set(uint8_t x, uint8_t y, uint8_t z, uint8_t red, uint8_t green, uint8_t blue)
 {
     this->ds->set(x, y, z, red, green, blue);
+}
+
+int Frame::getIndex(uint8_t x, uint8_t y, uint8_t z)
+{
+    return this->ds->getIndex(x, y, z);
 }
 
 void Frame::setAllOn()
@@ -190,9 +196,14 @@ void Frame::decrementLifeCycle()
         if(FRAME_DEBUG_MODE > 0) {
             Serial.println(F("[Frame::decrement] synchronize datasource state"));
         }
+#ifdef UNO_R3        
         // stop interrupt timer
         TCCR1B &= ~(1 << CS22);
-        
+#elif defined(UNO_WIFI_R2)
+#else
+  #error "Undefined target platform. Pleas select a correct target platform from platformio.ini."
+#endif
+
         this->lifetime = this->dirtyLifetime;
         this->ds->synchronize();
         this->state = Active;
@@ -201,8 +212,14 @@ void Frame::decrementLifeCycle()
             Serial.print(F("[Frame::decrement] activate with lifetime "));
             Serial.println(this->lifetime);
         }
+#ifdef UNO_R3        
         // restart interrupt timer
         TCCR1B = B00001011;
+#elif defined(UNO_WIFI_R2)
+#else
+  #error "Undefined target platform. Pleas select a correct target platform from platformio.ini."
+#endif
+
     }
 
     if(FRAME_DEBUG_MODE > 0) {

@@ -43,8 +43,6 @@ Brightness ColorSpace::blue(const Voxel& vox)
 
 Brightness ColorSpace::colorSpace(const int i)
 {
-    Serial.print(F("color index "));
-    Serial.print(i);
    switch(i) 
     {
         case 0:

@@ -21,7 +21,9 @@ class CubeCheck : public Animation {
         void testLayer(long millis);
         void testColorSpace(long millis);
         void testSphere();
+        void testRotation();
         void moveFrontBack();
+        void rotateCross();
         void allOff();
 };
 

@@ -4,6 +4,13 @@
 #include <Arduino.h>
 #include "Frame.h"
 
+/// @brief the digital representation of the light cube. The light cube is 
+/// arranged in rows, columns and layers which are mapped to x,y and z  
+/// coordinates of a cartesian coordinate system and each voxel has a unique 
+/// index between 0 .. 511.
+/// Rows are an y coordniate and the index can be count 0 .. 7 each row
+/// Columns are on x axis and the index can be count 0 .. 56 each column stepwise by 8
+/// Layers are on z axis and the index can be count 0 .. 448 each layer stepwise by 64
 class LightCube
 {
 public:

@@ -21,6 +21,9 @@
 #include "SinusAnimation.h"
 #include "SnakeAnimation.h"
 
+
+// PINs are the same for ATmega328P (Uno R3) and ATmega4809 (Uno wifi R2)
+
 // must be 13 defined by SPI (SRCLK - Shift Register Clock)
 #define CLOCK_PIN 13
 // must be 11 defined by SPI
@@ -74,50 +77,67 @@ void setup() {
   // duty cycle so the overall duty cycle is 16 ticks nedded for 4-Bit BAM 
   // and amount of layers needed for multiplexing.
   //
-  // Arduino Uno R3 with ATmega 328 has a CPU Frequency of 16MHz
+  // Arduino Uno R3 with ATmega 328 and Uno wifi R2 with ATmega4809 have a 
+  // CPU Frequency of 16MHz
   //
   // Formula for CTC-Mode: 
-  //    CPU Frequency 16MHz / Prescale / Interrupt frequency = OCR1A
+  //    CPU Frequency 16MHz / Prescale / Interrupt frequency = Comparative value
+  //
+  // To get the target frame rate for the cube divide interrupt frequency by 
+  // duty cycle.
+  //
+  // Comparative value for the prescaled ticks, when comparative value is 
+  // reached an interrupt is triggered
+  //
+  // To reach 120 FPS for a 4x4x4 cube with 4-Bit BAM, the target interrupt 
+  // frequency (tIF) is calculated: 
+  //    tIF = 120 (target FPS) * 16 (BAM) * 4 (Layers) = 7.680
+  // Therefore the comparative value has to be set to prescaled ticks divided by target
+  // interrupt frequency which is then 250.000 / 7.680 = 32,55 ~ 32
+  // For the 8x8x8 cube a comparative value of 30 -> ~60FPS, 19 -> ~100FPS, 16 -> ~120FPS  
+
+#ifdef UNO_R3
 
   // set TCCR1A register to zero for CTC-Mode
   TCCR1A = B00000000;
 
   // set TCCR1B register B00001XXX for CTC-Mode
-
   // TCCR1B = B00001010; // Prescale 8 
   TCCR1B = B00001011; // Prescale 64
   // TCCR1B = B00001100; // Prescale 256 
   
-  // TCCR1B = 0;
-  // TCCR1B |= (0 << CS12) | (0 << CS11) | (1 >> CS10); //kein Prescale 
-  // TCCR1B |= (0 << CS12) | (1 << CS11) | (0 >> CS10); //Prescale auf 8 -> 2.000.000 ticks/s
-  // TCCR1B |= (0 << CS12) | (1 << CS11) | (1 >> CS10); //Prescale auf 64 -> 250.000 ticks/s
-  // TCCR1B |= (1 << CS12) | (0 << CS11) | (0 >> CS10); //Prescale auf 256 -> 62.500 ticks/s
-  // TCCR1B |= (1 << CS12) | (0 << CS11) | (1 >> CS10); //Prescale auf 1024 
-
-
-  // OCR1A is the comparative value for the prescaled ticks, when OCR1A is 
-  // reached an interrupt is triggered
-
-  // To get the target frame rate for the cube divide interrupt frequency by 
-  // duty cycle.
-
-  // To reach 120 FPS for a 4x4x4 cube with 4-Bit BAM, the target interrupt 
-  // frequency (tIF) is calculated: 
-  //    tIF = 120 (target FPS) * 16 (BAM) * 4 (Layers) = 7.680
-  // Therefore the OCR1A has to be set to prescaled ticks divided by target
-  // interrupt frequency which is then 250.000 / 7.680 = 32,55 ~ 32
-
-  // HINT (4x4x4): a OCR1A faster than 70 (~55FPS in a 4x4x4) seems to mix the
-  // colors between the layers
-
-  // For a 8x8x8 cube OCR1A value of 30 -> ~60FPS, 19 -> ~100FPS, 16 -> ~120FPS  
+  //Comparative value 
   OCR1A = 30;
 
   // TIMSK register is responsible for the usage of the timer in scope of the 
   // interrupts
   TIMSK1 = B00000010;
-  
+
+  float frameRate = 250000 / OCR1A / (Brightness::Full + 1) / LAYERS;
+
+#elif defined(UNO_WIFI_R2)
+  // not sure if CTRLA value is the right one and if and if the clock prescaler in CLKCTRL must be set
+
+  // Set Prescaler to 64 (equivilant to Uno R3 setting B00001011)
+  // TCB0.CTRLA |= TCB_CLKSEL_CLKDIV1_gc; // sleep mode
+  TCB0.CTRLA |= TCB_CLKSEL_CLKDIV2_gc; //
+
+  // Configure TCB in Periodic Timeout mode
+  // TCB0.CTRLB = TCB_CNTMODE_TIMEOUT_gc;
+  // TCB_CNTMODE_INT_gc
+
+  // set compare value (eauivilant OCR1A at ATmega328P)
+  TCB0.CCMP = 30;  
+
+  // activate the compare-interrupt
+  TCB0.INTCTRL = TCB_CAPT_bm;
+
+  float frameRate = 250000 / TCB0.CCMP / (Brightness::Full + 1) / LAYERS;
+
+#else
+  #error "Undefined target platform. Pleas select a correct target platform from platformio.ini."
+#endif
+
   // Configure the Arduino pins used as OUTPUT, so they can send data to the 
   // Shift Register
   pinMode(LATCH_PIN, OUTPUT);
@@ -126,7 +146,6 @@ void setup() {
   pinMode(BLANK_PIN, OUTPUT);
 
   // setup frame rate for cube
-  float frameRate = 250000 / OCR1A / (Brightness::Full + 1) / LAYERS;
 
   // initialize the cube
   LightCube::getInstance().init(frameRate);
@@ -170,11 +189,20 @@ void loop() {
 /// Tutorial 2: https://electronoobs.com/eng_arduino_tut140.php 
 /// https://medium.com/@tiemenwaterreus/4-bit-angle-modulating-16-leds-using-arduino-and-shift-registers-8b2b738d4ced
 /// https://medium.com/@tiemenwaterreus/building-a-4x4x4-led-cube-part-ii-the-software-813a5207bca8
-ISR(TIMER1_COMPA_vect) {
+
+
+#ifdef UNO_R3
+  ISR(TIMER1_COMPA_vect) {
+#elif defined(UNO_WIFI_R2)
+  ISR(TCB0_INT_vect) {
+#else
+  #error "Undefined target platform. Pleas select a correct target platform from platformio.ini."
+#endif
 
   // shift current layer for current BAM tick to the shift registers
   LightCube::getInstance().shiftLayerForTick(currentLayer, currentTick);
 
+#ifdef UNO_R3
   // set OE to high disables outputs of shift registers
   PORTD |= 1 << BLANK_PIN;
 
@@ -184,6 +212,12 @@ ISR(TIMER1_COMPA_vect) {
 
   // set OE to low enables outputs of shift registers
   PORTD &= ~(1 << BLANK_PIN);
+
+#elif defined(UNO_WIFI_R2)
+  // do the equivilant for R2
+#else
+  #error "Undefined target platform. Pleas select a correct target platform from platformio.ini."
+#endif
   
   // reset current layer to the first one, when all layers have been shifted out
   currentLayer = ((currentLayer < LightCube::getInstance().getLayerSize() - 1) ? (currentLayer + 1) : 0);

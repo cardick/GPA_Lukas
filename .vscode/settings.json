@@ -68,5 +68,6 @@
   "C_Cpp_Runner.showCompilationTime": false,
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
-  "cmake.configureOnOpen": false
+  "cmake.configureOnOpen": false,
+  "C_Cpp.default.compilerPath": "C:/Users/CarstenD/.platformio/packages/toolchain-atmelavr/bin/avr-gcc.exe"
 }
