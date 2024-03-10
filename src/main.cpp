@@ -20,6 +20,7 @@
 #include "GpaAnimation.h"
 #include "SinusAnimation.h"
 #include "SnakeAnimation.h"
+#include "Eraser.h"
 
 
 // PINs are the same for ATmega328P (Uno R3) and ATmega4809 (Uno wifi R2)
@@ -156,9 +157,17 @@ void setup() {
 
 /// @brief Within the loop only the bytes should be manipulated that are written out in ISR method
 void loop() {
-  Animation* animation = new CubeCheck();
-  animation->run();
+  Animation* cc = new CubeCheck();
+  Animation* animation = new Eraser();
 
+  cc->run();
+  ((Eraser*)animation)->run(Eraser::BTF, 120);
+
+  cc->run();
+  ((Eraser*)animation)->run(Eraser::LTR, 120);
+
+  cc->run();
+  ((Eraser*)animation)->run(Eraser::DTU, 120);
   // Animation* animation = new SnakeAnimation();
   // animation->run();
 

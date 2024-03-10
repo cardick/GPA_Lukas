@@ -9,21 +9,27 @@
 
 void CubeCheck::run()
 {
-    memFree();
+    // memFree();
     // long millis = 90;
     // this->testColumns();
-    // this->allOff();
+    this->testColorSpace(2000);
     // this->testBlockWise();
+    
+    // right to left
     // this->testRowPlanes(millis);
     // this->allOff();
+
+    // back to front
     // this->testColumnPlanes(millis);
     // this->allOff();
+
+    // down to up
     // this->testLayer(millis);
-    this->allOff();
-    // this->testColorSpace(2000);
     // this->allOff();
-    this->testSphere();
-    this->testRotation();
+
+    // this->allOff();
+    // this->testSphere();
+    // this->testRotation();
 
 }
 
@@ -90,6 +96,8 @@ void CubeCheck::testColumnPlanes(long millis)
     Frame * frame = LightCube::getInstance().getFrame();
     SolidColoring color = SolidColoring();
     color.setColor( Color(High, High, High));
+
+    // set the first column plane
     for(int i=0;i<LightCube::getInstance().getColSize();i++) {
         frame->setPrepare();
         frame->setAllOff();
@@ -100,6 +108,8 @@ void CubeCheck::testColumnPlanes(long millis)
         frame->activate(getFrameCount(millis));
         wait();
     }
+
+    // move column plane along the rows
     for(int i = LightCube::getInstance().getColSize()-1; i>=0; i--) {
         frame->setPrepare();
         frame->setAllOff();
@@ -118,6 +128,7 @@ void CubeCheck::testRowPlanes(long millis)
     SolidColoring color = SolidColoring();
     color.setColor( Color(High, High, High));
 
+    // move 
     for(int i=0;i<LightCube::getInstance().getRowSize();i++) {
         frame->setPrepare();
         frame->setAllOff();
@@ -142,14 +153,20 @@ void CubeCheck::testRowPlanes(long millis)
 
 void CubeCheck::testLayer(long millis)
 {
+    // move up
     for (int i = 0; i < LightCube::getInstance().getLayerSize(); i++)
     {
         LightCube::getInstance().getFrame()->setPrepare();
-        LightCube::getInstance().getFrame()->setAllOff();
+        //LightCube::getInstance().getFrame()->setAllOff();
         Graphics::drawLayer(i, Color(High, High, High));
+        if(i>0) {
+            Graphics::drawLayer(i-1, Color(Off, Off, Off));
+        }
         LightCube::getInstance().getFrame()->activate(getFrameCount(millis));
         wait();
     }
+
+    // move down
     for (int i = LightCube::getInstance().getLayerSize()-1; i >= 0; i--)
     {
         LightCube::getInstance().getFrame()->setPrepare();
@@ -175,7 +192,7 @@ void CubeCheck::testColorSpace(long millis)
         {
             for (int k = 0; k < 8; k++)
             {
-                vox = Voxel(i,j,k);
+                // vox = Voxel(i,j,k);
                 color = space->getColor(vox);
                 f->set(vox.x, vox.y, vox.z, color.red, color.green, color.blue);
             }

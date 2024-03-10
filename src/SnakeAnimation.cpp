@@ -10,7 +10,7 @@ void SnakeAnimation::run()
     wait();
 
     Snake snake = Snake(1);
-    snake.set(random(100) % 8, random(100) % 8, random(100) % 8);
+    snake.set(static_cast<uint8_t>(random(100) % 8), static_cast<uint8_t>(random(100) % 8), static_cast<uint8_t>(random(100) % 8));
 
     Vector3D vec = Vector3D();
 
@@ -45,10 +45,14 @@ void SnakeAnimation::run()
 
 void SnakeAnimation::moveForward(Snake &snake, const Vector3D &v, const int steps)
 {
-    // Serial.println("move");
+    Serial.println("move");
     Frame *f = LightCube::getInstance().getFrame();
-    f->setPrepare();
-    f->setAllOff();
+    if(f->canPrepare()) {
+        f->setPrepare();
+        f->setAllOff();
+    } else {
+        Serial.println(F("Couldn't prepare frame."));
+    }
 
     // draw initial snake
     for (int i = 0; i < snake.getLength(); i++)
@@ -57,6 +61,10 @@ void SnakeAnimation::moveForward(Snake &snake, const Vector3D &v, const int step
         {
             f->set(snake.get(i).x, snake.get(i).y, snake.get(i).z, Full, High, Full);
         }
+        else {
+            snake.get(i).print();
+            Serial.println(F("snake not in boundaries."));
+        }
     }
     
     for (int i = 0; i < steps; i++)
@@ -64,6 +72,8 @@ void SnakeAnimation::moveForward(Snake &snake, const Vector3D &v, const int step
         if (f->canPrepare() && !f->isPrepare())
         {
             f->setPrepare();
+        } else {
+            Serial.println(f->getState());
         }
 
         if (isInBoundary(snake.get()))
@@ -84,6 +94,7 @@ void SnakeAnimation::moveForward(Snake &snake, const Vector3D &v, const int step
         }
         else
         {
+            Serial.println(F("couldn't activate frame."));
             memFree();
         }
 
@@ -98,8 +109,9 @@ void SnakeAnimation::moveForward(Snake &snake, const Vector3D &v, const int step
             if (isInBoundary(next))
             {
                 snake.set(next);
+            }else{
+                Serial.println(F("cannot move that direction"));
             }
-            Serial.println();
         }
         wait();
     }

@@ -23,7 +23,6 @@ void GpaAnimation::run(unsigned long millis)
         moveTunnel(LightCube::getInstance().getFrame());
         moveTunnelBack(LightCube::getInstance().getFrame());
     }
-    
 }
 
 void GpaAnimation::moveTunnel(Frame *frame)
