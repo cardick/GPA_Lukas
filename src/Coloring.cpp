@@ -10,6 +10,11 @@ Color SolidColoring::getColor(const Voxel& vox)
     return this->_c;
 }
 
+Color SolidColoring::getColor(uint8_t voxelX, uint8_t voxelY, uint8_t voxelZ)
+{
+    return this->_c;
+}
+
 ColorSpace::ColorSpace() : width(0), depth(0), height(0)
 {
 }
@@ -21,6 +26,14 @@ ColorSpace::ColorSpace(int width, int depth, int height) : width(width), depth(d
 Color ColorSpace::getColor(const Voxel& vox)
 {
     return Color(red(vox), green(vox), blue(vox));
+}
+
+Color ColorSpace::getColor(uint8_t voxelX, uint8_t voxelY, uint8_t voxelZ)
+{
+    Brightness red = colorSpace(static_cast<int>(round(4.0f / static_cast<float>(width) * static_cast<float>(voxelX))));
+    Brightness green = colorSpace(static_cast<int>(round(4.0f / static_cast<float>(depth) * static_cast<float>(voxelY))));
+    Brightness blue = colorSpace(static_cast<int>(round(4.0f / static_cast<float>(height) * static_cast<float>(voxelZ))));
+    return Color(red, green, blue);
 }
 
 Brightness ColorSpace::red(const Voxel& vox)
