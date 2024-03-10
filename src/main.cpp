@@ -12,15 +12,17 @@
 // #include "app_api.h"
 
 #include "LightCube.h"
-#include "Coloring.h"
+// #include "Coloring.h"
+// #include "Color.h"
 #include "MemoryFree.h"
+#include "AnimationOrchestration.h"
 
 // includes for animations
-#include "CubeCheck.h"
+// #include "CubeCheck.h"
 #include "GpaAnimation.h"
-#include "SinusAnimation.h"
-#include "SnakeAnimation.h"
-#include "Eraser.h"
+// #include "SinusAnimation.h"
+// #include "SnakeAnimation.h"
+// #include "Eraser.h"
 
 
 // PINs are the same for ATmega328P (Uno R3) and ATmega4809 (Uno wifi R2)
@@ -156,40 +158,14 @@ void setup() {
 }
 
 /// @brief Within the loop only the bytes should be manipulated that are written out in ISR method
-void loop() {
-  Animation* cc = new CubeCheck();
-  Animation* animation = new Eraser();
+void loop() 
+{
 
-  cc->run();
-  // ((Eraser*)animation)->run(Eraser::BTF, 120);
+  AnimationOrchestration* anim = new AnimationOrchestration();
+  anim->run();
+  //anim = nullptr;
 
-  // cc->run();
-  // ((Eraser*)animation)->run(Eraser::LTR, 120);
-
-  // cc->run();
-  // ((Eraser*)animation)->run(Eraser::DTU, 120);
-  // Animation* animation = new SnakeAnimation();
-  // animation->run();
-
-  // put your animation here
-  // Animation* animation = new GpaAnimation();
-  // for (int i = 0; i < 20; i++)
-  // {
-    // ((GpaAnimation*)animation)->run(120000);
-  // }
-  
-  // Animation* animation = new SinusAnimation();
-  // delay(200);
-  // ((SinusAnimation*)animation)->run(0, 10000);
-  // ((SinusAnimation*)animation)->run(1, 5000);
-    
-  // animation = new GpaAnimation();
-  // animation->run();
-  while (true)
-  {
-    /* code */
-  }
-  
+  while (true) { /* do not repeat */ }
 }
 
 /// @brief ISR is the interrupt method executed by the arduino. Multiplexing and BAM is realized here.

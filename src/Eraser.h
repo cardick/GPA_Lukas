@@ -6,21 +6,27 @@
 #define Eraser_h
 
 #include "Animation.h"
+#include "Coloring.h"
 
 class Eraser : public Animation
 {
 private:
-    /* data */
-    void eraseRightToLeft(unsigned long speed);
-    void eraseBackToFront(unsigned long speed);
-    void eraseDownToUp(unsigned long speed);
+    Coloring* offColoring;
+
+
+    void eraseRightToLeft(unsigned long speed, bool onReturn, Coloring* coloring);
+    void eraseBackToFront(unsigned long speed, bool onReturn, Coloring* coloring);
+    void eraseDownToUp(unsigned long speed, bool onReturn, Coloring* coloring);
 public:
     static const int LTR = 1;
     static const int BTF = 2;
     static const int DTU = 3;
 
+    Eraser();
+    ~Eraser();
+
     void run();
-    void run(int type, unsigned long speed);
+    void run(int type, Coloring* coloring, bool eraseOnReturn, unsigned long speed);
 };
 
 #endif

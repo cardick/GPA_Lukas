@@ -15,7 +15,7 @@ class Graphics {
 
         static void drawColumn(const int column, Coloring& coloring);
         
-        static void drawLayer(const int layer, const Color color);
+        static void drawLayer(const int layer, Coloring& coloring);
 
         static void drawColumn(const int column, const Color color, const long millis);
 

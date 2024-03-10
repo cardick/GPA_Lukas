@@ -12,6 +12,8 @@
 class Animation {
 
     public:
+        virtual ~Animation() = default;
+        
         /// @brief Run the animation.
         virtual void run() = 0;
     protected:

@@ -38,19 +38,19 @@ Color ColorSpace::getColor(uint8_t voxelX, uint8_t voxelY, uint8_t voxelZ)
 
 Brightness ColorSpace::red(const Voxel& vox)
 {
-    int i = round(4.0 / (float)width * (float)vox.x);
+    int i = static_cast<int>(round(4.0 / static_cast<float>(width) *  static_cast<float>(vox.x)));
     return colorSpace(i);
 }
 
 Brightness ColorSpace::green(const Voxel& vox)
 {
-    int i = round(4.0 / (float)depth * (float)vox.y);
+    int i = static_cast<int>(round(4.0 / static_cast<float>(depth) * static_cast<float>(vox.y)));
     return colorSpace(i);
 }
 
 Brightness ColorSpace::blue(const Voxel& vox)
 {
-    int i = round(4.0 / (float)height * (float)vox.z);
+    int i = static_cast<int>(round(4.0 / static_cast<float>(height) * static_cast<float>(vox.z)));
     return colorSpace(i);
 }
 
@@ -81,3 +81,5 @@ void ColorSpace::print()
     Serial.print(F(", height: "));
     Serial.println(height);
 }
+
+Coloring::Coloring() { }
