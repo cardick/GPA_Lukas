@@ -161,13 +161,13 @@ void loop() {
   Animation* animation = new Eraser();
 
   cc->run();
-  ((Eraser*)animation)->run(Eraser::BTF, 120);
+  // ((Eraser*)animation)->run(Eraser::BTF, 120);
 
-  cc->run();
-  ((Eraser*)animation)->run(Eraser::LTR, 120);
+  // cc->run();
+  // ((Eraser*)animation)->run(Eraser::LTR, 120);
 
-  cc->run();
-  ((Eraser*)animation)->run(Eraser::DTU, 120);
+  // cc->run();
+  // ((Eraser*)animation)->run(Eraser::DTU, 120);
   // Animation* animation = new SnakeAnimation();
   // animation->run();
 

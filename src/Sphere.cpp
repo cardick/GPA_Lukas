@@ -34,14 +34,17 @@ void Sphere::rotateAndDraw(double axisX, double axisY, double axisZ, double angl
 
     const int polarSteps = 36;
     const int azimuthalSteps = 18;
+    const int steps = 28;
 
     Frame *frame = LightCube::getInstance().getFrame();
 
-    for (int i = 0; i <= polarSteps / 4; ++i) {
-        double polarAngle = static_cast<double>(i) * M_PI / static_cast<double>(polarSteps / 4);
+    for (int i = 0; i <= steps/4; ++i) {
+        // double polarAngle = static_cast<double>(i) * M_PI / static_cast<double>(polarSteps / 4);
+        double polarAngle = mapToRad(1, 0, steps/4, -M_PI_4/2, M_PI_4/2);
 
-        for (int j = 0; j <= azimuthalSteps / 2; ++j) {
-            double azimuthalAngle = static_cast<double>(j) * 2.0 * M_PI / static_cast<double>(azimuthalSteps / 2);
+        for (int j = 0; j <= steps/2; ++j) {
+            // double azimuthalAngle = static_cast<double>(j) * 2.0 * M_PI / static_cast<double>(azimuthalSteps / 2);
+            double azimuthalAngle = mapToRad(1, 0, steps/2, -M_PI_4, M_PI_4);
 
             // Calculate coordinates based on spherical coordinates
             double surfaceX = radius * sin(polarAngle) * cos(azimuthalAngle) + x;
@@ -98,20 +101,23 @@ void Sphere::rotateAndDrawPointAroundCenter(Frame * frame, uint8_t pointX, uint8
 
 void Sphere::draw()
 {
-    const int polarSteps = 36;
-    const int azimuthalSteps = 18;
+    // const int polarSteps = 36;
+    // const int azimuthalSteps = 18;
+    const int steps = 28;
 
     Frame *frame = LightCube::getInstance().getFrame();
 
-    for (int i = 0; i <= polarSteps / 4; ++i) {
-        double polarAngle = static_cast<double>(i) * M_PI / static_cast<double>(polarSteps / 4);
+    for (int i = 0; i < steps; ++i) {
+        // double polarAngle = static_cast<double>(i) * M_PI / static_cast<double>(polarSteps / 4);
+        double polarAngle = mapToRad(1, 0, steps, -M_PI_2, M_PI_2);
 
-        for (int j = 0; j <= azimuthalSteps / 2; ++j) {
-            double azimuthalAngle = static_cast<double>(j) * 2.0 * M_PI / static_cast<double>(azimuthalSteps / 2);
+        for (int j = 0; j < steps; ++j) {
+            // double azimuthalAngle = static_cast<double>(j) * 2.0 * M_PI / static_cast<double>(azimuthalSteps / 2);
+            double azimuthalAngle = mapToRad(1, 0, steps, -M_PI, M_PI);
 
             // Calculate coordinates based on spherical coordinates
-            double surfaceX = radius * sin(polarAngle) * cos(azimuthalAngle) + x;
-            double surfaceY = radius * sin(polarAngle) * sin(azimuthalAngle) + y;
+            double surfaceX = radius * sin(polarAngle) * sin(azimuthalAngle) + x;
+            double surfaceY = radius * sin(polarAngle) * cos(azimuthalAngle) + y;
             double surfaceZ = radius * cos(polarAngle) + z;
 
             // Round the coordinates and add them to the set
@@ -139,6 +145,21 @@ void Sphere::drawPoint(Frame *frame, uint8_t pointX, uint8_t pointY, uint8_t poi
 {
     Color color = coloring->getColor(pointX, pointY, pointZ);
     frame->set(pointX, pointY, pointZ, color.red, color.green, color.blue);
+}
+
+double Sphere::mapToRad(int index, int from, int to, double piFrom, double piTo)
+{
+    double len = size(static_cast<double>(from), static_cast<double>(to));
+    if(len == 0) { return NAN; }
+    double piLen = size(piFrom, piTo);
+    return static_cast<double>(index) * piLen / len;
+}
+
+double Sphere::size(double a, double b) {
+    return a>0 && b>0 ? (a<b ? (b-a) : (a-b)) : 
+        a<0 && b<0 ? (a<b ? (b+a) : (a+b)) : 
+        a<0 && b>0 ? (abs(a)+b) :
+        (abs(b)+a);
 }
 
 uint8_t Sphere::colorValue(uint8_t index, uint16_t value)

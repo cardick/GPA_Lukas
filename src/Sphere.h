@@ -60,6 +60,11 @@ private:
     /// @param value the 12 bit RGB value
     /// @return the 4 bit color value
     uint8_t colorValue(uint8_t index, uint16_t value);
+
+    double mapToRad(int index, int from, int to, double piFrom, double piTo);
+
+    double size(double a, double b);
+
 };
 
 #endif

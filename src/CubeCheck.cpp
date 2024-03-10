@@ -13,7 +13,7 @@ void CubeCheck::run()
     // memFree();
     // long millis = 90;
     // this->testColumns();
-    this->testColorSpace(2000);
+    // this->testColorSpace(2000);
     // this->testBlockWise();
     
     // right to left
@@ -28,8 +28,8 @@ void CubeCheck::run()
     // this->testLayer(millis);
     // this->allOff();
 
-    // this->allOff();
-    // this->testSphere();
+    this->allOff();
+    this->testSphere();
     // this->testRotation();
 
 }
