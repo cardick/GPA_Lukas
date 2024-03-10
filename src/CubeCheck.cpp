@@ -6,6 +6,7 @@
 #include "Coloring.h"
 #include "Graphics.h"
 #include "Voxel.h"
+#include "Sphere.h"
 
 void CubeCheck::run()
 {
@@ -204,23 +205,31 @@ void CubeCheck::testColorSpace(long millis)
 
 void CubeCheck::testSphere()
 {
-    // SolidColoring c = SolidColoring();
-    // c.setColor(Color(High, Medium, Off));
-    Coloring * c = new ColorSpace(8,8,8);
-
-    Frame *frame = LightCube::getInstance().getFrame();
-
-    // for(float i=1.45; i<8; i+=2) {
-        frame->setPrepare();
-        Graphics::drawSphere(5.45, *c, frame);
-        // if(i>7) {
-            frame->activate(getFrameCount(2000));
-        // } else {
-        //     frame->activate(getFrameCount(90));
-        // }
-        wait();
-    // }
+    Coloring * colors = new ColorSpace(5,5,5);
+    Sphere sphere(2.5, 3.5, 3.5, 3.5, *colors);
+    LightCube::getInstance().getFrame()->setPrepare();
+    sphere.draw();
+    LightCube::getInstance().getFrame()->activate(getFrameCount(500));
+    wait();
 }
+// {
+    // // SolidColoring c = SolidColoring();
+    // // c.setColor(Color(High, Medium, Off));
+    // Coloring * c = new ColorSpace(8,8,8);
+
+    // Frame *frame = LightCube::getInstance().getFrame();
+
+    // // for(float i=1.45; i<8; i+=2) {
+    //     frame->setPrepare();
+    //     Graphics::drawSphere(5.45, *c, frame);
+    //     // if(i>7) {
+    //         frame->activate(getFrameCount(2000));
+    //     // } else {
+    //     //     frame->activate(getFrameCount(90));
+    //     // }
+    //     wait();
+    // // }
+// }
 
 void CubeCheck::testRotation()
 {
