@@ -10,6 +10,7 @@
 
 void CubeCheck::run()
 {
+    coloring = new ColorSpace(LightCube::getInstance().getRowSize(), LightCube::getInstance().getColSize(), LightCube::getInstance().getLayerSize());
     // memFree();
     // long millis = 90;
     // this->testColumns();
@@ -154,14 +155,20 @@ void CubeCheck::testRowPlanes(long millis)
 
 void CubeCheck::testLayer(long millis)
 {
+    SolidColoring colors = SolidColoring();
+    colors.setColor(Color(High, High, High));
+
+    SolidColoring off = SolidColoring();
+    off.setColor(Color(High, High, High));
+
     // move up
     for (int i = 0; i < LightCube::getInstance().getLayerSize(); i++)
     {
         LightCube::getInstance().getFrame()->setPrepare();
         //LightCube::getInstance().getFrame()->setAllOff();
-        Graphics::drawLayer(i, Color(High, High, High));
+        Graphics::drawLayer(i, colors);
         if(i>0) {
-            Graphics::drawLayer(i-1, Color(Off, Off, Off));
+            Graphics::drawLayer(i-1, off);
         }
         LightCube::getInstance().getFrame()->activate(getFrameCount(millis));
         wait();
@@ -172,7 +179,7 @@ void CubeCheck::testLayer(long millis)
     {
         LightCube::getInstance().getFrame()->setPrepare();
         LightCube::getInstance().getFrame()->setAllOff();
-        Graphics::drawLayer(i, Color(High, High, High));
+        Graphics::drawLayer(i, colors);
         LightCube::getInstance().getFrame()->activate(getFrameCount(millis));
         wait();
     }
@@ -180,11 +187,9 @@ void CubeCheck::testLayer(long millis)
 
 void CubeCheck::testColorSpace(long millis)
 {
+    wait();
     // spanning the color space
     Frame *f = LightCube::getInstance().getFrame();
-    Coloring* space = new ColorSpace(f->getRows(), f->getCols(), f->getLayers());
-    Voxel vox = Voxel();
-    Color color = Color();
 
     f->setPrepare();
     for (int i = 0; i < 8; i++)
@@ -193,9 +198,8 @@ void CubeCheck::testColorSpace(long millis)
         {
             for (int k = 0; k < 8; k++)
             {
-                // vox = Voxel(i,j,k);
-                color = space->getColor(vox);
-                f->set(vox.x, vox.y, vox.z, color.red, color.green, color.blue);
+                Color color = coloring->getColor(static_cast<uint8_t>(i), static_cast<uint8_t>(j), static_cast<uint8_t>(k));
+                f->set(i, j, k, color.red, color.green, color.blue);
             }
         }
     }

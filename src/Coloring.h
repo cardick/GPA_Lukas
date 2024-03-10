@@ -11,6 +11,8 @@
 class Coloring
 {
 public:
+    Coloring();
+    virtual ~Coloring() = default;
     virtual Color getColor(const Voxel& vox) = 0;
     virtual Color getColor(uint8_t voxelX, uint8_t voxelY, uint8_t voxelZ);
 };
@@ -18,6 +20,7 @@ public:
 class SolidColoring : public Coloring
 {
 public:
+    SolidColoring(){};
     void setColor(Color c);
 
     Color getColor(const Voxel& vox);

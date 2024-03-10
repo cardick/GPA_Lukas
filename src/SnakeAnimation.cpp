@@ -5,16 +5,16 @@
 
 void SnakeAnimation::run()
 {
-    LightCube::getInstance().getFrame()->setAllOff();
-    LightCube::getInstance().getFrame()->activate(1);
+    // LightCube::getInstance().getFrame()->setAllOff();
+    // LightCube::getInstance().getFrame()->activate(1);
     wait();
 
     Snake snake = Snake(1);
-    snake.set(static_cast<uint8_t>(random(100) % 8), static_cast<uint8_t>(random(100) % 8), static_cast<uint8_t>(random(100) % 8));
+    snake.set(4,3,6);//static_cast<uint8_t>(random(100)) % 8, static_cast<uint8_t>(random(100)) % 8, static_cast<uint8_t>(random(100)) % 8);
 
     Vector3D vec = Vector3D();
 
-    for (int i = 0; i < 200; i++)
+    for (int i = 0; i < 50; i++)
     {
         uint8_t rndDir = randomDirection();
         while (rndDir == 0)
@@ -59,7 +59,7 @@ void SnakeAnimation::moveForward(Snake &snake, const Vector3D &v, const int step
     {
         if(isInBoundary(snake.get(i))) 
         {
-            f->set(snake.get(i).x, snake.get(i).y, snake.get(i).z, Full, High, Full);
+            f->set(snake.get(i).x, snake.get(i).y, snake.get(i).z, Full, Medium, Low);
         }
         else {
             snake.get(i).print();

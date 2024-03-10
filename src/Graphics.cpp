@@ -25,7 +25,7 @@ void Graphics::drawColumn(const int column, Coloring& coloring)
     }
 }
 
-void Graphics::drawLayer(const int layer, const Color color)
+void Graphics::drawLayer(const int layer, Coloring& coloring)
 {
     if (layer < 0 || layer >= LightCube::getInstance().getLayerSize())
     {
@@ -36,7 +36,9 @@ void Graphics::drawLayer(const int layer, const Color color)
     int startLed = layer * ledSize;
     for (int i = 0; i < ledSize; i++)
     {
-        LightCube::getInstance().getFrame()->set(startLed + i, color.red, color.green, color.blue);
+        Voxel v = LightCube::getInstance().getFrame()->voxel(i);
+        Color c = coloring.getColor(v);        
+        LightCube::getInstance().getFrame()->set(startLed + i, c.red, c.green, c.blue);
     }
 }
 

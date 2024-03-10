@@ -9,10 +9,12 @@
 
 void GpaAnimation::run()
 {
-    run(2000);
+    SolidColoring coloring = SolidColoring();
+    coloring.setColor(Color(High, High, High));
+    run(2000, &coloring);
 }
 
-void GpaAnimation::run(unsigned long millis)
+void GpaAnimation::run(unsigned long millis, Coloring* coloring)
 {
     LightCube::getInstance().reset();
     wait();
@@ -20,12 +22,12 @@ void GpaAnimation::run(unsigned long millis)
     unsigned long current = currentMillis();
     while (currentMillis()-current < millis )
     {
-        moveTunnel(LightCube::getInstance().getFrame());
-        moveTunnelBack(LightCube::getInstance().getFrame());
+        moveTunnel(LightCube::getInstance().getFrame(), coloring);
+        moveTunnelBack(LightCube::getInstance().getFrame(), coloring);
     }
 }
 
-void GpaAnimation::moveTunnel(Frame *frame)
+void GpaAnimation::moveTunnel(Frame *frame, Coloring* coloring)
 {
     // was möchte ich, das der Würfel tut
     // Die hinterste Matrix bekommt einen aussen rahmen der dann nach zeit(x) um eine Matrix nach vorne rückt.
@@ -35,8 +37,6 @@ void GpaAnimation::moveTunnel(Frame *frame)
     // das ganze geht dann so bis die ganz enge Matrix ganz vorne ist
     // dann könnte die erste Matrix komplett weiß werden und die ganze animation fängt von vorne an.
     Voxel start = Voxel();
-    SolidColoring coloring = SolidColoring();
-    coloring.setColor(Color(High, High, High));
 
     for (int i = 0; i < 15; i++)
     {
@@ -50,12 +50,12 @@ void GpaAnimation::moveTunnel(Frame *frame)
         start.x = i < 7 ? i : 7;
         start.y = 0;
         start.z = 0;
-        Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, coloring, frame);
+        Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, *coloring, frame);
 
         start.x -= 1;
         if (i <= 7 && start.x >= 0)
         {
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, coloring, frame);
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, *coloring, frame);
         }
 
         if (i >= 2)
@@ -63,11 +63,11 @@ void GpaAnimation::moveTunnel(Frame *frame)
             start.x = (i - 2) < 7 ? (i - 2) : 7;
             start.y = 1;
             start.z = 1;
-            Graphics::drawRectangle(&start, Up, Left, 6, 6, coloring, frame);
+            Graphics::drawRectangle(&start, Up, Left, 6, 6, *coloring, frame);
             start.x -= 1;
             if (i <= 9 && start.x >= 0)
             {
-                Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 6, 6, coloring, frame);
+                Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 6, 6, *coloring, frame);
             }
         }
         if (i >= 4)
@@ -75,11 +75,11 @@ void GpaAnimation::moveTunnel(Frame *frame)
             start.x = (i - 4) < 7 ? (i - 4) : 7;
             start.y = 2;
             start.z = 2;
-            Graphics::drawRectangle(&start, Up, Left, 4, 4, coloring, frame);
+            Graphics::drawRectangle(&start, Up, Left, 4, 4, *coloring, frame);
             start.x -= 1;
             if (i <= 11 && start.x >= 0)
             {
-                Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 4, 4, coloring, frame);
+                Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 4, 4, *coloring, frame);
             }
         }
         if (i >= 6)
@@ -87,11 +87,11 @@ void GpaAnimation::moveTunnel(Frame *frame)
             start.x = (i - 6) < 7 ? (i - 6) : 7;
             start.y = 3;
             start.z = 3;
-            Graphics::drawRectangle(&start, Up, Left, 2, 2, coloring, frame);
+            Graphics::drawRectangle(&start, Up, Left, 2, 2, *coloring, frame);
             start.x -= 1;
             if (i <= 13 && start.x >= 0)
             {
-                Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 2, 2, coloring, frame);
+                Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 2, 2, *coloring, frame);
             }
         }
 
@@ -102,21 +102,19 @@ void GpaAnimation::moveTunnel(Frame *frame)
         }
         else
         {
-            frame->activate(getFrameCount(100));
+            frame->activate(getFrameCount(90));
         }
 
         wait();
     }
 }
 
-void GpaAnimation::moveTunnelBack(Frame *frame)
+void GpaAnimation::moveTunnelBack(Frame *frame, Coloring* coloring)
 {
     // laufe zurück Umkehrfunktion zu moveTunnel
     wait();
 
     Voxel start = Voxel();
-    SolidColoring coloring = SolidColoring();
-    coloring.setColor(Color(High, High, High));
 
     SolidColoring offColoring = SolidColoring();
     offColoring.setColor(Color(Off, Off, Off));
@@ -134,12 +132,12 @@ void GpaAnimation::moveTunnelBack(Frame *frame)
 
         if (i > offset - 3)
         {
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, coloring, frame);
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, *coloring, frame);
         }
         if (i > offset - 1)
         {
             start.x += 1;
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, coloring, frame);
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, *coloring, frame);
         }
 
         start.x = i <= offset - 2 ? 0 : i <= offset + 5 ? i - offset + 2 : 7;
@@ -148,12 +146,12 @@ void GpaAnimation::moveTunnelBack(Frame *frame)
 
         if (i > offset - 5)
         {
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 6, 6, coloring, frame);
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 6, 6, *coloring, frame);
         }
         if (i < offset + 6 && i > offset - 3)
         {
             start.x += 1;
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 6, 6, coloring, frame);
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 6, 6, *coloring, frame);
         }
 
         start.x = i <= offset - 4 ? 0 : i <= offset + 3 ? i - offset + 4 : 7;
@@ -162,12 +160,12 @@ void GpaAnimation::moveTunnelBack(Frame *frame)
 
         if (i > offset - 7)
         {
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 4, 4, coloring, frame);
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 4, 4, *coloring, frame);
         }
         if (i < offset + 4 && i > offset - 5)
         {
             start.x += 1;
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 4, 4, coloring, frame);
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 4, 4, *coloring, frame);
         }
 
         start.x = i <= offset - 6 ? 0 : i <= offset + 1 ? i - offset + 6 : 7;
@@ -176,12 +174,12 @@ void GpaAnimation::moveTunnelBack(Frame *frame)
         
         if (i > 0)
         {
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 2, 2, coloring, frame);
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 2, 2, *coloring, frame);
         }
         if (i <= offset + 3 && i > offset - 7)
         {
             start.x += 1;
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 2, 2, coloring, frame);
+            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 2, 2, *coloring, frame);
         }
 
         if (i == 0)
@@ -190,7 +188,7 @@ void GpaAnimation::moveTunnelBack(Frame *frame)
         }
         else
         {
-            frame->activate(getFrameCount(100));
+            frame->activate(getFrameCount(90));
         }
         wait();
     }

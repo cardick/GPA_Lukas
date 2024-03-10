@@ -6,6 +6,7 @@
 #define CubeCheck_h
 
 #include "Animation.h"
+#include "Coloring.h"
 
 /// @brief Animation that checks the cube functionality
 class CubeCheck : public Animation {
@@ -13,6 +14,8 @@ class CubeCheck : public Animation {
         void run();
 
     private:
+        Coloring* coloring;
+
         void testCubeFunctionality();
         void testBlockWise();
         void testColumns();
