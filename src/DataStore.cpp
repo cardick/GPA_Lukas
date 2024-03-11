@@ -1,22 +1,22 @@
 #include "DataStore.h"
 #include <SPI.h>
-#include "Vector.h"
+#include "Voxel.h"
 
 DataStore::DataStore()
 {
 }
 
-const int DataStore::getRows()
+uint8_t DataStore::getRows()
 {
     return ROWS;
 }
 
-const int DataStore::getCols()
+uint8_t DataStore::getCols()
 {
     return COLS;
 }
 
-const int DataStore::getLayers()
+uint8_t DataStore::getLayers()
 {
     return LAYERS;
 }
@@ -28,16 +28,7 @@ void DataStore::setAllOn(bool force)
         this->isDirty = true;
     }
 
-    for (int i = 0; i < LAYERS; i++)
-    {
-        for (int j = 0; j < BAM; j++)
-        {
-            for (int k = 0; k < BYTES; k++)
-            {
-                this->layeredStoreDirty[i][j][k] = ALL_ON;
-            }
-        }
-    }
+    memset(layeredStoreDirty, pgm_read_byte(&ALL_ON), LAYERS * BAM * BYTES);
 
     // correct the offset bits, that are not in use
     int offset = (ROWS * COLS) % 8;
@@ -68,16 +59,7 @@ void DataStore::setAllOff(bool force)
         this->isDirty = true;
     }
 
-    for (int i = 0; i < LAYERS; i++)
-    {
-        for (int j = 0; j < BAM; j++)
-        {
-            for (int k = 0; k < BYTES; k++)
-            {
-                this->layeredStoreDirty[i][j][k] = ALL_OFF;
-            }
-        }
-    }
+    memset(layeredStoreDirty, pgm_read_byte(&ALL_OFF), LAYERS * BAM * BYTES);
 
     if (force)
     {
@@ -92,34 +74,30 @@ uint16_t DataStore::get(uint16_t index) const
         return 0;
     }
 
+    // evaluate bit positions
     int layer = index / (ROWS * COLS);
     int startIndex = (index % (ROWS * COLS)) * 3 / 8;
     int startPos = (index % (ROWS * COLS)) * 3 % 8;
     int endPos = startPos + 2;
     int endIndex = endPos < 8 ? startIndex : startIndex + 1;
     endPos = endPos < 8 ? endPos : endPos - 8;
-
-    uint16_t tmp = 0b000000000000;
-
-    // write bytes for red cathode
-    bitWrite(tmp, 0, bitRead(layeredStore[layer][0][startIndex], startPos));
-    bitWrite(tmp, 1, bitRead(layeredStore[layer][1][startIndex], startPos));
-    bitWrite(tmp, 2, bitRead(layeredStore[layer][2][startIndex], startPos));
-    bitWrite(tmp, 3, bitRead(layeredStore[layer][3][startIndex], startPos));
-
-    // write bytes for green cathode
     int greenIndex = startPos == 7 ? endIndex : startIndex;
     int greenPos = startPos == 7 ? endPos - 1 : startPos + 1;
-    bitWrite(tmp, 4, bitRead(layeredStore[layer][0][greenIndex], greenPos));
-    bitWrite(tmp, 5, bitRead(layeredStore[layer][1][greenIndex], greenPos));
-    bitWrite(tmp, 6, bitRead(layeredStore[layer][2][greenIndex], greenPos));
-    bitWrite(tmp, 7, bitRead(layeredStore[layer][3][greenIndex], greenPos));
 
-    // write bytes for blue cathode
-    bitWrite(tmp, 8, bitRead(layeredStore[layer][0][endIndex], endPos));
-    bitWrite(tmp, 9, bitRead(layeredStore[layer][1][endIndex], endPos));
-    bitWrite(tmp, 10, bitRead(layeredStore[layer][2][endIndex], endPos));
-    bitWrite(tmp, 11, bitRead(layeredStore[layer][3][endIndex], endPos));
+    // write the cathode bits
+    uint16_t tmp = 
+        (bitRead(layeredStore[layer][0][startIndex], startPos) << 0) |
+        (bitRead(layeredStore[layer][1][startIndex], startPos) << 1) |
+        (bitRead(layeredStore[layer][2][startIndex], startPos) << 2) |
+        (bitRead(layeredStore[layer][3][startIndex], startPos) << 3) |
+        (bitRead(layeredStore[layer][0][greenIndex], greenPos) << 4) |
+        (bitRead(layeredStore[layer][1][greenIndex], greenPos) << 5) |
+        (bitRead(layeredStore[layer][2][greenIndex], greenPos) << 6) |
+        (bitRead(layeredStore[layer][3][greenIndex], greenPos) << 7) |
+        (bitRead(layeredStore[layer][0][endIndex], endPos) << 8) |
+        (bitRead(layeredStore[layer][1][endIndex], endPos) << 9) |
+        (bitRead(layeredStore[layer][2][endIndex], endPos) << 10) |
+        (bitRead(layeredStore[layer][3][endIndex], endPos) << 11);
 
     return tmp;
 }
@@ -141,11 +119,12 @@ void DataStore::set(uint16_t index, uint8_t red, uint8_t green, uint8_t blue)
         this->isDirty = true;
     }
 
-    int layer = index / (ROWS * COLS);
-    int startIndex = (index % (ROWS * COLS)) * 3 / 8;
-    int startPos = (index % (ROWS * COLS)) * 3 % 8;
-    int endPos = startPos + 2;
-    int endIndex = endPos < 8 ? startIndex : startIndex + 1;
+    int8_t layer = index / (ROWS * COLS);
+    int8_t offset = index % (ROWS * COLS);
+    int8_t startIndex = offset * 3 / 8;
+    int8_t startPos = offset * 3 % 8;
+    int8_t endPos = startPos + 2;
+    int8_t endIndex = endPos < 8 ? startIndex : startIndex + 1;
     endPos = endPos < 8 ? endPos : endPos - 8;
 
     // write bytes for red cathode
@@ -155,8 +134,8 @@ void DataStore::set(uint16_t index, uint8_t red, uint8_t green, uint8_t blue)
     bitWrite(layeredStoreDirty[layer][3][startIndex], startPos, bitRead(red, 3));
 
     // write bytes for green cathode
-    int greenIndex = startPos == 7 ? endIndex : startIndex;
-    int greenPos = startPos == 7 ? endPos - 1 : startPos + 1;
+    int8_t greenIndex = startPos == 7 ? endIndex : startIndex;
+    int8_t greenPos = startPos == 7 ? endPos - 1 : startPos + 1;
     bitWrite(layeredStoreDirty[layer][0][greenIndex], greenPos, bitRead(green, 0));
     bitWrite(layeredStoreDirty[layer][1][greenIndex], greenPos, bitRead(green, 1));
     bitWrite(layeredStoreDirty[layer][2][greenIndex], greenPos, bitRead(green, 2));
@@ -224,34 +203,7 @@ void DataStore::shiftLayerForTick(int layerIndex, int tick)
 
         SPI.transfer(layeredStore[layerIndex][bamIndex][i]);
     }
-
-    switch (layerIndex)
-    {
-    case 0:
-        SPI.transfer(LAYER_1);
-        break;
-    case 1:
-        SPI.transfer(LAYER_2);
-        break;
-    case 2:
-        SPI.transfer(LAYER_3);
-        break;
-    case 3:
-        SPI.transfer(LAYER_4);
-        break;
-    case 4:
-        SPI.transfer(LAYER_5);
-        break;
-    case 5:
-        SPI.transfer(LAYER_6);
-        break;
-    case 6:
-        SPI.transfer(LAYER_7);
-        break;
-    case 7:
-        SPI.transfer(LAYER_8);
-        break;
-    }
+    SPI.transfer(pgm_read_byte(&LAYER[layerIndex]));
 }
 
 bool DataStore::changed()
@@ -265,10 +217,8 @@ void DataStore::synchronize()
     {
         for (int j = 0; j < BAM; j++)
         {
-            for (int k = 0; k < BYTES; k++)
-            {
-                layeredStore[i][j][k] = layeredStoreDirty[i][j][k];
-            }
+            // Use memcpy to copy the entire block of memory
+            memcpy(layeredStore[i][j], layeredStoreDirty[i][j], BYTES);
         }
     }
     this->isDirty = false;
