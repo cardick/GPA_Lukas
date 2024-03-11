@@ -11,24 +11,25 @@
 class Coloring
 {
 public:
-    Coloring();
     virtual ~Coloring() = default;
-    virtual Color getColor(const Voxel& vox) = 0;
-    virtual Color getColor(uint8_t voxelX, uint8_t voxelY, uint8_t voxelZ);
+    virtual Color getColor(const Voxel &vox) = 0;
+    virtual Color getColor(uint8_t voxelX, uint8_t voxelY, uint8_t voxelZ) = 0;
 };
 
 class SolidColoring : public Coloring
 {
 public:
-    SolidColoring(){};
-    void setColor(Color c);
+    SolidColoring();
+    SolidColoring(Color *c);
+    ~SolidColoring();
+    void setColor(const Color &c);
 
-    Color getColor(const Voxel& vox);
+    Color getColor(const Voxel &vox);
 
     Color getColor(uint8_t voxelX, uint8_t voxelY, uint8_t voxelZ);
 
 private:
-    Color _c;
+    Color *_c;
 };
 
 class ColorSpace : public Coloring
@@ -36,15 +37,16 @@ class ColorSpace : public Coloring
 public:
     ColorSpace();
     ColorSpace(int width, int depth, int height);
-    Color getColor(const Voxel& vox);
+    ~ColorSpace(){};
+    Color getColor(const Voxel &vox);
     Color getColor(uint8_t voxelX, uint8_t voxelY, uint8_t voxelZ);
     void print();
 
 private:
     int width, depth, height;
-    Brightness red(const Voxel& vox);
-    Brightness green(const Voxel& vox);
-    Brightness blue(const Voxel& vox);
+    Brightness red(const Voxel &vox);
+    Brightness green(const Voxel &vox);
+    Brightness blue(const Voxel &vox);
     Brightness colorSpace(const int i);
 };
 

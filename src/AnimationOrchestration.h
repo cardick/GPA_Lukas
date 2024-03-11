@@ -17,7 +17,7 @@ private:
     Animation* animation;
     bool finished;
 
-    void snake();
+    // void snake();
     void colors();
     void tunnel();
     void sinus();

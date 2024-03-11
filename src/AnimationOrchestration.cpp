@@ -6,26 +6,25 @@
 #include "Color.h"
 
 #include "Animation.h"
-#include "CubeCheck.h"
+#include "ColorSpectrum.h"
 #include "Eraser.h"
 #include "SnakeAnimation.h"
 #include "GpaAnimation.h"
 #include "SinusAnimation.h"
 
-void AnimationOrchestration::snake()
-{
-    animation = new SnakeAnimation();
-}
+// void AnimationOrchestration::snake()
+// {
+//     animation = new SnakeAnimation();
+// }
 
 void AnimationOrchestration::colors()
 {
-    animation = new CubeCheck();
+    animation = new ColorSpectrum();
 }
 
 void AnimationOrchestration::tunnel()
 {
     animation = new GpaAnimation();
-    // ((GpaAnimation*)animation)->run(120000);
 }
 
 void AnimationOrchestration::sinus()
@@ -40,36 +39,48 @@ void AnimationOrchestration::intro()
     colors();
     if (animation != nullptr)
     {
-
         animation->run();
     }
     while (LightCube::getInstance().isBusy() && freeMemory() < 140)
     { /*wait for space*/
     }
-    animation = nullptr;
+
+    delete animation;
 
     ((Eraser *)eraser)->run(Eraser::DTU, eraseColors, false, 90);
 }
 
 void AnimationOrchestration::outro()
 {
+    tunnel();
+
+    while (LightCube::getInstance().isBusy() && freeMemory() < 140)
+    { /*wait for space*/
+    }
+
+    if (animation != nullptr)
+    {
+        ColorSpace cs = ColorSpace(8, 8, 8);
+        ((GpaAnimation *)animation)->run(2000, &cs);
+    }
+    animation = nullptr;
+    while (LightCube::getInstance().isBusy() && freeMemory() < 140)
+    { /*wait for space*/
+    }
 }
 
 void AnimationOrchestration::sin1()
 {
+    while (LightCube::getInstance().isBusy() && freeMemory() < 140)
+    { /*wait for space*/
+    }
+
     sinus();
     if (animation != nullptr)
     {
         ((SinusAnimation *)animation)->run(0, 3000);
     }
-
-    while (LightCube::getInstance().isBusy() && freeMemory() < 140)
-    { /*wait for space*/
-    }
     animation = nullptr;
-
-    ((SolidColoring *)eraseColors)->setColor(Color(Low, Full, Medium));
-    ((Eraser *)eraser)->run(Eraser::BTF, eraseColors, false, 90);
 }
 
 void AnimationOrchestration::sin2()
@@ -92,7 +103,7 @@ void AnimationOrchestration::sin2()
 
 AnimationOrchestration::AnimationOrchestration() : eraser(new Eraser()), eraseColors(new SolidColoring()), animation(nullptr), finished(true)
 {
-    ((SolidColoring *)eraseColors)->setColor(Color(Full, High, Off));
+    ((SolidColoring *)eraseColors)->setColor(Color(Medium, Low, High));
 }
 
 AnimationOrchestration::~AnimationOrchestration()
@@ -115,7 +126,6 @@ void AnimationOrchestration::run()
     tunnel();
     if (animation != nullptr)
     {
-
         animation->run();
     }
     while (LightCube::getInstance().isBusy() && freeMemory() < 140)
@@ -125,24 +135,13 @@ void AnimationOrchestration::run()
 
     sin1();
 
-    tunnel();
-    Serial.println(freeMemory());
-    while (LightCube::getInstance().isBusy() && freeMemory() < 140)
-    { /*wait for space*/
+    ((SolidColoring *)eraseColors)->setColor(Color(Low, Full, Medium));
+    if(eraser!=nullptr) {
+        ((Eraser *)eraser)->run(Eraser::BTF, eraseColors, false, 90);
+    } else {
+        Serial.println(F("eraser has been deleted."));
     }
-
-    if (animation != nullptr)
-    {
-        ColorSpace cs = ColorSpace(8, 8, 8);
-        ((GpaAnimation *)animation)->run(2000, &cs);
-    }
-    animation = nullptr;
-    while (LightCube::getInstance().isBusy() && freeMemory() < 140)
-    { /*wait for space*/
-    }
-    
     // Serial.println(freeMemory());
-
     // outro();
 
     finished = true;

@@ -1,33 +1,45 @@
 #include "GpaAnimation.h"
-
 #include "LightCube.h"
-#include "Frame.h"
 #include "Coloring.h"
 #include "Graphics.h"
-#include "Vector.h"
 #include "MemoryFree.h"
+#include "Voxel.h"
+
+GpaAnimation::GpaAnimation() : coloring(new SolidColoring())
+{
+    ((SolidColoring*)coloring)->setColor(Color(High, High, High));
+}
+
+GpaAnimation::~GpaAnimation()
+{
+    delete coloring;
+}
 
 void GpaAnimation::run()
 {
-    SolidColoring coloring = SolidColoring();
-    coloring.setColor(Color(High, High, High));
-    run(2000, &coloring);
+    Serial.print(F("Color red "));
+    Serial.print(coloring->getColor(0,0,0).red, BIN);
+    Serial.print(F(", green "));
+    Serial.print(coloring->getColor(0,0,0).green, BIN);
+    Serial.print(F(", blue "));
+    Serial.println(coloring->getColor(0,0,0).blue, BIN);
+    memFree();
+    moveTunnel();
+    moveTunnelBack();
 }
 
-void GpaAnimation::run(unsigned long millis, Coloring* coloring)
+void GpaAnimation::run(unsigned long runtime, Coloring *coloring)
 {
-    LightCube::getInstance().reset();
-    wait();
-
-    unsigned long current = currentMillis();
-    while (currentMillis()-current < millis )
+    this->coloring = coloring;
+    unsigned long current = millis();
+    while (millis() - current < runtime)
     {
-        moveTunnel(LightCube::getInstance().getFrame(), coloring);
-        moveTunnelBack(LightCube::getInstance().getFrame(), coloring);
+        moveTunnel();
+        moveTunnelBack();
     }
 }
 
-void GpaAnimation::moveTunnel(Frame *frame, Coloring* coloring)
+void GpaAnimation::moveTunnel()
 {
     // was möchte ich, das der Würfel tut
     // Die hinterste Matrix bekommt einen aussen rahmen der dann nach zeit(x) um eine Matrix nach vorne rückt.
@@ -37,164 +49,101 @@ void GpaAnimation::moveTunnel(Frame *frame, Coloring* coloring)
     // das ganze geht dann so bis die ganz enge Matrix ganz vorne ist
     // dann könnte die erste Matrix komplett weiß werden und die ganze animation fängt von vorne an.
     Voxel start = Voxel();
+    wait();
 
     for (int i = 0; i < 15; i++)
     {
         // set prepare to indicate frame state will change
-        frame->setPrepare();
+        LightCube::getInstance().getFrame()->setPrepare();
 
         // clean up screen before modifying
         Graphics::erase();
 
         // begin frame logic
-        start.x = i < 7 ? i : 7;
-        start.y = 0;
-        start.z = 0;
-        Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, *coloring, frame);
-
-        start.x -= 1;
-        if (i <= 7 && start.x >= 0)
-        {
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, *coloring, frame);
-        }
+        drawFTB(start, i, 8);
 
         if (i >= 2)
         {
-            start.x = (i - 2) < 7 ? (i - 2) : 7;
-            start.y = 1;
-            start.z = 1;
-            Graphics::drawRectangle(&start, Up, Left, 6, 6, *coloring, frame);
-            start.x -= 1;
-            if (i <= 9 && start.x >= 0)
-            {
-                Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 6, 6, *coloring, frame);
-            }
+            drawFTB(start, i, 6);
         }
         if (i >= 4)
         {
-            start.x = (i - 4) < 7 ? (i - 4) : 7;
-            start.y = 2;
-            start.z = 2;
-            Graphics::drawRectangle(&start, Up, Left, 4, 4, *coloring, frame);
-            start.x -= 1;
-            if (i <= 11 && start.x >= 0)
-            {
-                Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 4, 4, *coloring, frame);
-            }
+            drawFTB(start, i, 4);
         }
         if (i >= 6)
         {
-            start.x = (i - 6) < 7 ? (i - 6) : 7;
-            start.y = 3;
-            start.z = 3;
-            Graphics::drawRectangle(&start, Up, Left, 2, 2, *coloring, frame);
-            start.x -= 1;
-            if (i <= 13 && start.x >= 0)
-            {
-                Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 2, 2, *coloring, frame);
-            }
+            drawFTB(start, i, 2);
         }
 
         // end frame logic
         if (i == 0 || i == 14)
         {
-            frame->activate(getFrameCount(250));
+            LightCube::getInstance().getFrame()->activate(getFrameCount(250));
         }
         else
         {
-            frame->activate(getFrameCount(90));
+            LightCube::getInstance().getFrame()->activate(getFrameCount(90));
         }
 
         wait();
     }
 }
 
-void GpaAnimation::moveTunnelBack(Frame *frame, Coloring* coloring)
+void GpaAnimation::moveTunnelBack()
 {
-    // laufe zurück Umkehrfunktion zu moveTunnel
+    // reverse movement for move tunnel
+    Voxel start = Voxel();
     wait();
 
-    Voxel start = Voxel();
-
-    SolidColoring offColoring = SolidColoring();
-    offColoring.setColor(Color(Off, Off, Off));
-
-    int offset = 8;
-
-    for (int i = 7 + offset; i >= 0; i--)
+    for (int i = 15; i >= 0; i--)
     {
-        frame->setPrepare();
-        frame->setAllOff();
+        LightCube::getInstance().getFrame()->setPrepare();
+        LightCube::getInstance().getFrame()->setAllOff();
 
-        start.x = i <= offset ? 0 : i - offset;
-        start.y = 0;
-        start.z = 0;
-
-        if (i > offset - 3)
-        {
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, *coloring, frame);
-        }
-        if (i > offset - 1)
-        {
-            start.x += 1;
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 8, 8, *coloring, frame);
-        }
-
-        start.x = i <= offset - 2 ? 0 : i <= offset + 5 ? i - offset + 2 : 7;
-        start.y = 1;
-        start.z = 1;
-
-        if (i > offset - 5)
-        {
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 6, 6, *coloring, frame);
-        }
-        if (i < offset + 6 && i > offset - 3)
-        {
-            start.x += 1;
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 6, 6, *coloring, frame);
-        }
-
-        start.x = i <= offset - 4 ? 0 : i <= offset + 3 ? i - offset + 4 : 7;
-        start.y = 2;
-        start.z = 2;
-
-        if (i > offset - 7)
-        {
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 4, 4, *coloring, frame);
-        }
-        if (i < offset + 4 && i > offset - 5)
-        {
-            start.x += 1;
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 4, 4, *coloring, frame);
-        }
-
-        start.x = i <= offset - 6 ? 0 : i <= offset + 1 ? i - offset + 6 : 7;
-        start.y = 3;
-        start.z = 3;
-        
-        if (i > 0)
-        {
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 2, 2, *coloring, frame);
-        }
-        if (i <= offset + 3 && i > offset - 7)
-        {
-            start.x += 1;
-            Graphics::drawRectangle(&start, Direction::Up, Direction::Left, 2, 2, *coloring, frame);
-        }
+        drawBTF(start, i, 8);
+        drawBTF(start, i, 6);
+        drawBTF(start, i, 4);
+        drawBTF(start, i, 2);
 
         if (i == 0)
         {
-            frame->activate(getFrameCount(500));
+            LightCube::getInstance().getFrame()->activate(getFrameCount(500));
         }
         else
         {
-            frame->activate(getFrameCount(90));
+            LightCube::getInstance().getFrame()->activate(getFrameCount(90));
         }
         wait();
     }
 }
 
-unsigned long GpaAnimation::currentMillis()
+void GpaAnimation::drawFTB(Voxel vox, uint8_t step, uint8_t size)
 {
-    return millis();
+    vox.x = (step - 8 + size) < 7 ? (step - 8 + size) : 7;
+    vox.y = (8 - size) / 2;
+    vox.z = (8 - size) / 2;
+
+    Graphics::drawRectangle(&vox, Up, Left, size, size, *coloring, LightCube::getInstance().getFrame());
+    vox.x -= 1;
+    if (step <= (15 - size) && vox.x >= 0)
+    {
+        Graphics::drawRectangle(&vox, Direction::Up, Direction::Left, size, size, *coloring, LightCube::getInstance().getFrame());
+    }
+}
+
+void GpaAnimation::drawBTF(Voxel vox, int8_t step, uint8_t size)
+{
+    vox.x = step <= size ? 0 : (step <= 7 + size ? step - size : 7);
+    vox.y = (8 - size) / 2;
+    vox.z = (8 - size) / 2;
+
+    if (step > ((size - 3) < 0 ? 0 : size - 3))
+    {
+        Graphics::drawRectangle(&vox, Direction::Up, Direction::Left, size, size, *coloring, LightCube::getInstance().getFrame());
+    }
+    if (step < 8 + size && step > size - 1)
+    {
+        vox.x += 1;
+        Graphics::drawRectangle(&vox, Direction::Up, Direction::Left, size, size, *coloring, LightCube::getInstance().getFrame());
+    }
 }

@@ -38,6 +38,13 @@ public:
     {
     }
 
+    Color &operator=(const Color &a) {
+        red = a.red;
+        green = a.green;
+        blue = a.blue;
+        return *this;
+    }
+
     void print() const
     {
         Serial.print(F("color r: "));

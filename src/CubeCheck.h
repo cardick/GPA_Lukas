@@ -11,6 +11,7 @@
 /// @brief Animation that checks the cube functionality
 class CubeCheck : public Animation {
     public:
+        ~CubeCheck();
         void run();
 
     private:

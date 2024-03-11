@@ -32,8 +32,8 @@ void Sphere::rotateAndDraw(double axisX, double axisY, double axisZ, double angl
     axisY /= length;
     axisZ /= length;
 
-    const int polarSteps = 36;
-    const int azimuthalSteps = 18;
+    // const int polarSteps = 36;
+    // const int azimuthalSteps = 18;
     const int steps = 28;
 
     Frame *frame = LightCube::getInstance().getFrame();

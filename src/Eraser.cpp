@@ -110,7 +110,7 @@ Eraser::Eraser()
 
 Eraser::~Eraser()
 {
-    delete this->offColoring;
+    delete offColoring;
 }
 
 void Eraser::run()
@@ -122,6 +122,8 @@ void Eraser::run()
 
 void Eraser::run(int type, Coloring* coloring, bool eraseOnReturn, unsigned long speed)
 {
+    memFree();
+    
     if (type == LTR){
         eraseRightToLeft(speed, eraseOnReturn, coloring);
     }

@@ -35,9 +35,9 @@ class Animation {
         }
 
         void memFree() {
-            Serial.print("mem free ");
+            Serial.print(F("mem free "));
             Serial.print(freeMemory());
-            Serial.println(" bytes");
+            Serial.println(F(" bytes"));
         }
 };
 

@@ -118,15 +118,25 @@ void Graphics::drawRectangle(const Voxel *voxel, Direction a, Direction b, const
 {
     Vector3D aDir = Vector3D::getStandardBaseVector(a);
     Vector3D bDir = Vector3D::getStandardBaseVector(b);
-    Voxel p = Voxel();
+    uint8_t ax = aDir.x;
+    uint8_t ay = aDir.y;
+    uint8_t az = aDir.z;
+    uint8_t bx = bDir.x;
+    uint8_t by = bDir.y;
+    uint8_t bz = bDir.z;
+    uint8_t px, py, pz;
+    
     Color color = Color();
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < lengthA; j++)
         {
-            p = *voxel + (aDir * j) + (bDir * i * (lengthB - 1));
-            color = coloring.getColor(p);
-            frame->set(p.x, p.y, p.z, color.red, color.green, color.blue);
+            // p = *voxel + (aDir * j) + (bDir * i * (lengthB - 1));
+            px = voxel->x + (ax * j) + (bx * i * (lengthB - 1));
+            py = voxel->y + (ay * j) + (by * i * (lengthB - 1));
+            pz = voxel->z + (az * j) + (bz * i * (lengthB - 1));
+            color = coloring.getColor(px, py, pz);
+            frame->set(px, py, pz, color.red, color.green, color.blue);
         }
     }
 
@@ -134,9 +144,12 @@ void Graphics::drawRectangle(const Voxel *voxel, Direction a, Direction b, const
     {
         for (int j = 0; j < lengthB; j++)
         {
-            p = *voxel + (bDir * j) + (aDir * i * (lengthA - 1));
-            color = coloring.getColor(p);
-            frame->set(p.x, p.y, p.z, color.red, color.green, color.blue);
+            // p = *voxel + (bDir * j) + (aDir * i * (lengthA - 1));
+            px = voxel->x + (bx * j) + (ax * i * (lengthA - 1));
+            py = voxel->y + (by * j) + (ay * i * (lengthA - 1));
+            pz = voxel->z + (bz * j) + (az * i * (lengthA - 1));
+            color = coloring.getColor(px, py, pz);
+            frame->set(px, py, pz, color.red, color.green, color.blue);
         }
     }
 }

@@ -1,21 +1,37 @@
 #include "Coloring.h"
 
-void SolidColoring::setColor(Color c)
+SolidColoring::SolidColoring() : _c(new Color())
 {
-    this->_c = c;
 }
 
-Color SolidColoring::getColor(const Voxel& vox)
+SolidColoring::SolidColoring(Color *c) : _c(c)
 {
-    return this->_c;
+}
+
+SolidColoring::~SolidColoring()
+{
+    delete _c;
+}
+
+void SolidColoring::setColor(const Color &c)
+{
+    *(_c) = c;
+    // this->_c->red = c.red;
+    // this->_c->green = c.green;
+    // this->_c->blue = c.blue;
+}
+
+Color SolidColoring::getColor(const Voxel &vox)
+{
+    return *_c;
 }
 
 Color SolidColoring::getColor(uint8_t voxelX, uint8_t voxelY, uint8_t voxelZ)
 {
-    return this->_c;
+    return *_c;
 }
 
-ColorSpace::ColorSpace() : width(0), depth(0), height(0)
+ColorSpace::ColorSpace() : width(8), depth(8), height(8)
 {
 }
 
@@ -81,5 +97,3 @@ void ColorSpace::print()
     Serial.print(F(", height: "));
     Serial.println(height);
 }
-
-Coloring::Coloring() { }
