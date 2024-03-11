@@ -3,7 +3,6 @@
 #include "Coloring.h"
 #include "Graphics.h"
 #include "MemoryFree.h"
-#include "Voxel.h"
 
 GpaAnimation::GpaAnimation() : coloring(new SolidColoring())
 {
@@ -48,7 +47,6 @@ void GpaAnimation::moveTunnel()
     // dann geht der äussere rahmen aus und der zweite rahmen geht an die erste matrix und
     // das ganze geht dann so bis die ganz enge Matrix ganz vorne ist
     // dann könnte die erste Matrix komplett weiß werden und die ganze animation fängt von vorne an.
-    Voxel start = Voxel();
     wait();
 
     for (int i = 0; i < 15; i++)
@@ -60,19 +58,19 @@ void GpaAnimation::moveTunnel()
         Graphics::erase();
 
         // begin frame logic
-        drawFTB(start, i, 8);
+        drawFTB(i, 8);
 
         if (i >= 2)
         {
-            drawFTB(start, i, 6);
+            drawFTB(i, 6);
         }
         if (i >= 4)
         {
-            drawFTB(start, i, 4);
+            drawFTB(i, 4);
         }
         if (i >= 6)
         {
-            drawFTB(start, i, 2);
+            drawFTB(i, 2);
         }
 
         // end frame logic
@@ -82,7 +80,7 @@ void GpaAnimation::moveTunnel()
         }
         else
         {
-            LightCube::getInstance().getFrame()->activate(getFrameCount(90));
+            LightCube::getInstance().getFrame()->activate(getFrameCount(80));
         }
 
         wait();
@@ -92,7 +90,6 @@ void GpaAnimation::moveTunnel()
 void GpaAnimation::moveTunnelBack()
 {
     // reverse movement for move tunnel
-    Voxel start = Voxel();
     wait();
 
     for (int i = 15; i >= 0; i--)
@@ -100,10 +97,10 @@ void GpaAnimation::moveTunnelBack()
         LightCube::getInstance().getFrame()->setPrepare();
         LightCube::getInstance().getFrame()->setAllOff();
 
-        drawBTF(start, i, 8);
-        drawBTF(start, i, 6);
-        drawBTF(start, i, 4);
-        drawBTF(start, i, 2);
+        drawBTF(i, 8);
+        drawBTF(i, 6);
+        drawBTF(i, 4);
+        drawBTF(i, 2);
 
         if (i == 0)
         {
@@ -111,39 +108,37 @@ void GpaAnimation::moveTunnelBack()
         }
         else
         {
-            LightCube::getInstance().getFrame()->activate(getFrameCount(90));
+            LightCube::getInstance().getFrame()->activate(getFrameCount(80));
         }
         wait();
     }
 }
 
-void GpaAnimation::drawFTB(Voxel vox, uint8_t step, uint8_t size)
+void GpaAnimation::drawFTB(uint8_t step, uint8_t size)
 {
-    vox.x = (step - 8 + size) < 7 ? (step - 8 + size) : 7;
-    vox.y = (8 - size) / 2;
-    vox.z = (8 - size) / 2;
+    uint8_t px = (step - 8 + size) < 7 ? (step - 8 + size) : 7;
+    uint8_t py = (8 - size) / 2;
+    uint8_t pz = (8 - size) / 2;
 
-    Graphics::drawRectangle(&vox, Up, Left, size, size, *coloring, LightCube::getInstance().getFrame());
-    vox.x -= 1;
-    if (step <= (15 - size) && vox.x >= 0)
+    Graphics::drawRectangle(px, py, pz, Up, Left, size, size, *coloring, LightCube::getInstance().getFrame());
+    if (step <= (15 - size) && px >= 0)
     {
-        Graphics::drawRectangle(&vox, Direction::Up, Direction::Left, size, size, *coloring, LightCube::getInstance().getFrame());
+        Graphics::drawRectangle(px+1, py, pz, Up, Left, size, size, *coloring, LightCube::getInstance().getFrame());
     }
 }
 
-void GpaAnimation::drawBTF(Voxel vox, int8_t step, uint8_t size)
+void GpaAnimation::drawBTF(int8_t step, uint8_t size)
 {
-    vox.x = step <= size ? 0 : (step <= 7 + size ? step - size : 7);
-    vox.y = (8 - size) / 2;
-    vox.z = (8 - size) / 2;
+    uint8_t px = step <= size ? 0 : (step <= 7 + size ? step - size : 7);
+    uint8_t py = (8 - size) / 2;
+    uint8_t pz = (8 - size) / 2;
 
     if (step > ((size - 3) < 0 ? 0 : size - 3))
     {
-        Graphics::drawRectangle(&vox, Direction::Up, Direction::Left, size, size, *coloring, LightCube::getInstance().getFrame());
+        Graphics::drawRectangle(px, py, pz, Up, Left, size, size, *coloring, LightCube::getInstance().getFrame());
     }
     if (step < 8 + size && step > size - 1)
     {
-        vox.x += 1;
-        Graphics::drawRectangle(&vox, Direction::Up, Direction::Left, size, size, *coloring, LightCube::getInstance().getFrame());
+        Graphics::drawRectangle(px+1, py, pz, Up, Left, size, size, *coloring, LightCube::getInstance().getFrame());
     }
 }

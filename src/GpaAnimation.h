@@ -32,18 +32,16 @@ private:
     void moveTunnelBack();
 
     /// @brief Draw animation frame front to back
-    /// @param vox start voxel
     /// @param step current step
     /// @param size size of rectangle
     /// @param coloring coloring
-    void drawFTB(Voxel vox, uint8_t step, uint8_t size);
+    void drawFTB(uint8_t step, uint8_t size);
 
     /// @brief Draw animation frame back to front
-    /// @param vox start voxel
     /// @param step current step
     /// @param size size of rectangle
     /// @param coloring the coloring
-    void drawBTF(Voxel vox, int8_t step, uint8_t size);
+    void drawBTF(int8_t step, uint8_t size);
 };
 
 #endif

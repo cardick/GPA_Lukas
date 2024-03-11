@@ -1,7 +1,3 @@
-#ifdef ARDUINO
-#include <Arduino.h>
-#endif
-
 #ifndef Coloring_h
 #define Coloring_h
 
@@ -24,9 +20,8 @@ public:
     ~SolidColoring();
     void setColor(const Color &c);
 
-    Color getColor(const Voxel &vox);
-
-    Color getColor(uint8_t voxelX, uint8_t voxelY, uint8_t voxelZ);
+    Color getColor(const Voxel &vox) override;
+    Color getColor(uint8_t voxelX, uint8_t voxelY, uint8_t voxelZ) override;
 
 private:
     Color *_c;
@@ -38,9 +33,8 @@ public:
     ColorSpace();
     ColorSpace(int width, int depth, int height);
     ~ColorSpace(){};
-    Color getColor(const Voxel &vox);
-    Color getColor(uint8_t voxelX, uint8_t voxelY, uint8_t voxelZ);
-    void print();
+    Color getColor(const Voxel &vox) override;
+    Color getColor(uint8_t voxelX, uint8_t voxelY, uint8_t voxelZ) override;
 
 private:
     int width, depth, height;

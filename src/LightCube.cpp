@@ -23,7 +23,7 @@ void LightCube::init(float frameRate)
     {
         return;
     }
-    frameRate = frameRate;
+    this->frameRate = frameRate;
     initialized = true;
 }
 

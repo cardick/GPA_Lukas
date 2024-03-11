@@ -23,31 +23,31 @@ bool Voxel::operator!=(const Voxel &a) const
 
 Voxel Voxel::operator+(const Vector3D &a) const
 {
-    return Voxel(round(x + a.x), round(y + a.y), round(z + a.z));
+    return Voxel(static_cast<uint8_t>(round(x + a.x)), static_cast<uint8_t>(round(y + a.y)), static_cast<uint8_t>(round(z + a.z)));
 }
 
 Voxel Voxel::operator-(const Vector3D &a) const
 {
-    return Voxel(round(x - a.x), round(y - a.y), round(z - a.z));
+    return Voxel(static_cast<uint8_t>(round(x - a.x)), static_cast<uint8_t>(round(y - a.y)), static_cast<uint8_t>(round(z - a.z)));
 }
 
 void Voxel::operator+=(const Vector3D &a)
 {
-    x += round(a.x);
-    y += round(a.y);
-    z += round(a.z);
+    x += static_cast<uint8_t>(round(a.x));
+    y += static_cast<uint8_t>(round(a.y));
+    z += static_cast<uint8_t>(round(a.z));
 }
 
 void Voxel::operator-=(const Vector3D &a)
 {
-    x -= round(a.x);
-    y -= round(a.y);
-    z -= round(a.z);
+    x -= static_cast<uint8_t>(round(a.x));
+    y -= static_cast<uint8_t>(round(a.y));
+    z -= static_cast<uint8_t>(round(a.z));
 }
 
 Voxel Voxel::operator*(const Vector3D &a) const
 {
-    return Voxel(round(x * a.x), round(y * a.y), round(z * a.z));
+    return Voxel(static_cast<uint8_t>(round(x * a.x)), static_cast<uint8_t>(round(y * a.y)), static_cast<uint8_t>(round(z * a.z)));
 }
 
 Voxel Voxel::operator*(const int a) const
@@ -57,13 +57,13 @@ Voxel Voxel::operator*(const int a) const
 
 void Voxel::operator*=(const Vector3D &a)
 {
-    x = round(x * a.x);
-    y = round(y * a.y);
-    z = round(z * a.z);
+    x = static_cast<uint8_t>(round(x * a.x));
+    y = static_cast<uint8_t>(round(y * a.y));
+    z = static_cast<uint8_t>(round(z * a.z));
 }
 void Voxel::operator*=(const int a)
 {
-    x = round(x * a);
-    y = round(y * a);
-    z = round(z * a);
+    x = static_cast<uint8_t>(round(x * a));
+    y = static_cast<uint8_t>(round(y * a));
+    z = static_cast<uint8_t>(round(z * a));
 }

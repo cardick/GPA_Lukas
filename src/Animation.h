@@ -26,11 +26,11 @@ class Animation {
         }
 
         /// @brief Get the number of frames to be displayed for the given millis
-        /// @param millis the milli seconds
+        /// @param lifetime the lifetime in millis
         /// @return amount of frame repeats
-        uint16_t getFrameCount(long millis) {
+        uint16_t getFrameCount(long lifetime) {
             float frameRate = LightCube::getInstance().getFrameRate();
-            float frameCount = frameRate * millis / 1000;
+            float frameCount = frameRate * lifetime / 1000;
             return max(static_cast<uint16_t>(round(frameCount)), 1);
         }
 

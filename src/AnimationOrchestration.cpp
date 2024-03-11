@@ -12,6 +12,56 @@
 #include "GpaAnimation.h"
 #include "SinusAnimation.h"
 
+AnimationOrchestration::AnimationOrchestration() : eraser(new Eraser()), eraseColors(new SolidColoring()), animation(nullptr), finished(true)
+{
+    ((SolidColoring *)eraseColors)->setColor(Color(Medium, Low, High));
+}
+
+AnimationOrchestration::~AnimationOrchestration()
+{
+    delete eraser;
+    delete eraseColors;
+    delete animation;
+}
+
+void AnimationOrchestration::run()
+{
+
+    finished = false;
+    intro();
+
+    // while (LightCube::getInstance().isBusy() && freeMemory() < 140)
+    // { /*wait for space*/
+    // }
+
+    // tunnel();
+    // if (animation != nullptr)
+    // {
+    //     animation->run();
+    // }
+    // while (LightCube::getInstance().isBusy() && freeMemory() < 140)
+    // { /*wait for space*/
+    // }
+    // animation = nullptr;
+
+    // sin1();
+
+    // ((SolidColoring *)eraseColors)->setColor(Color(Low, Full, Medium));
+    // if(eraser!=nullptr) {
+    //     ((Eraser *)eraser)->run(Eraser::BTF, eraseColors, false, 90);
+    // } else {
+    //     Serial.println(F("eraser has been deleted."));
+    // }
+    // // Serial.println(freeMemory());
+    // // outro();
+
+    finished = true;
+}
+
+bool AnimationOrchestration::isFinished()
+{
+    return finished;
+}
 // void AnimationOrchestration::snake()
 // {
 //     animation = new SnakeAnimation();
@@ -41,11 +91,12 @@ void AnimationOrchestration::intro()
     {
         animation->run();
     }
-    while (LightCube::getInstance().isBusy() && freeMemory() < 140)
+    
+    while (LightCube::getInstance().isBusy())// && freeMemory() < 140)
     { /*wait for space*/
     }
-
     delete animation;
+    animation = nullptr;
 
     ((Eraser *)eraser)->run(Eraser::DTU, eraseColors, false, 90);
 }
@@ -99,55 +150,4 @@ void AnimationOrchestration::sin2()
     ((SolidColoring *)eraseColors)->setColor(Color(Full, High, High));
     ((Eraser *)eraser)->run(Eraser::LTR, eraseColors, false, 90);
     Serial.println(freeMemory());
-}
-
-AnimationOrchestration::AnimationOrchestration() : eraser(new Eraser()), eraseColors(new SolidColoring()), animation(nullptr), finished(true)
-{
-    ((SolidColoring *)eraseColors)->setColor(Color(Medium, Low, High));
-}
-
-AnimationOrchestration::~AnimationOrchestration()
-{
-    delete eraser;
-    delete eraseColors;
-    delete animation;
-}
-
-void AnimationOrchestration::run()
-{
-
-    finished = false;
-    intro();
-
-    while (LightCube::getInstance().isBusy() && freeMemory() < 140)
-    { /*wait for space*/
-    }
-
-    tunnel();
-    if (animation != nullptr)
-    {
-        animation->run();
-    }
-    while (LightCube::getInstance().isBusy() && freeMemory() < 140)
-    { /*wait for space*/
-    }
-    animation = nullptr;
-
-    sin1();
-
-    ((SolidColoring *)eraseColors)->setColor(Color(Low, Full, Medium));
-    if(eraser!=nullptr) {
-        ((Eraser *)eraser)->run(Eraser::BTF, eraseColors, false, 90);
-    } else {
-        Serial.println(F("eraser has been deleted."));
-    }
-    // Serial.println(freeMemory());
-    // outro();
-
-    finished = true;
-}
-
-bool AnimationOrchestration::isFinished()
-{
-    return this->finished;
 }

@@ -135,11 +135,6 @@ void Frame::activate(uint16_t lifetime)
 
 void Frame::decrementLifeCycle()
 {
-    Serial.print(F("[Frame] lifeCycle-- state:"));
-    Serial.print(state);
-    Serial.print(F(", lifetime: "));
-    Serial.println(lifetime);
-
     if (state == Idle)
     {
         return;

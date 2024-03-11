@@ -214,7 +214,6 @@ bool DataStore::changed()
 
 void DataStore::synchronize()
 {
-    Serial.println(F("[DS] synchronize"));
     for (uint8_t i = 0; i < LAYERS; i++)
     {
         for (uint8_t j = 0; j < BAM; j++)

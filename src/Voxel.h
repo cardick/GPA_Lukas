@@ -1,9 +1,6 @@
-#include <Arduino.h>
 #ifndef Voxel_h
 #define Voxel_h
 
-#include "Color.h"
-#include "MathUtil.h"
 #include "Vector.h"
 
 /// @brief A voxel represents a value on the regular grid of the cube (the three dimensional space).

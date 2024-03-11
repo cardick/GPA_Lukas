@@ -114,13 +114,13 @@ void setup() {
   TCCR1B |= (1 << CS11) | (1 << CS10) ;
   
   //Comparative value 
-  OCR1A = 250;
+  OCR1A = 30;
 
   // TIMSK register is responsible for the usage of the timer in scope of the 
   // interrupts
   TIMSK1 = B00000010;
 
-  float frameRate = 250000 / OCR1A / (Brightness::Full + 1) / LAYERS;
+  float frameRate = static_cast<float>(250000.0 / OCR1A / (Brightness::Full + 1) / LAYERS);
 
 #elif defined(UNO_WIFI_R2)
   // not sure if CTRLA value is the right one and if and if the clock prescaler in CLKCTRL must be set
@@ -164,22 +164,17 @@ void setup() {
 /// @brief Within the loop only the bytes should be manipulated that are written out in ISR method
 void loop() 
 {
-  // Serial.println(F("loop"));
-  Serial.print(F("cube initialized with frame rate "));
-  Serial.println(LightCube::getInstance().getFrameRate());
-  // Serial.println(freeMemory());
-
   // AnimationOrchestration* anim = new AnimationOrchestration();
   // anim->run();
 
   // Animation *animation = new SnakeAnimation();
   // animation->run();
 
-  Eraser erase = Eraser();
-  erase.run(Eraser::DTU, new SolidColoring(new Color(Off, Off, Medium)), true, 90);
+  // Eraser erase = Eraser();
+  // erase.run(Eraser::DTU, new SolidColoring(new Color(Off, Off, Medium)), true, 90);
 
-  // animation = new GpaAnimation();
-  // animation->run();
+  GpaAnimation animation = GpaAnimation();
+  animation.run();
 
   // SinusAnimation sin = SinusAnimation();
   // sin.run(0, 4000);

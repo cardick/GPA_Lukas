@@ -19,10 +19,6 @@ class Graphics {
 
         static void drawColumn(const int column, const Color color, const long millis);
 
-        static void drawLine(Voxel voxel, Vector3D direction, Coloring& coloring);
-
-        static void drawLine(Voxel voxel, Vector3D direction, Coloring& coloring, long millis);
-
         /// @brief Draw a sphere into the center of the cube
         /// @param size the diameter (in an 8x8x8 cube, a value between [1 .. 7])
         /// @param coloring the coloring for the sphere
@@ -45,7 +41,7 @@ class Graphics {
         /// @param lenghtA length of line a
         /// @param lenghtB length of line b
         /// @param coloring the coloring setting for the rectangle 
-        static void drawRectangle(const Voxel * voxel, Direction a, Direction b, const int lengthA, const int lengthB, Coloring& coloring, Frame *frame);
+        static void drawRectangle(uint8_t px, uint8_t py, uint8_t pz, Direction a, Direction b, const int lengthA, const int lengthB, Coloring& coloring, Frame *frame);
 
         /// @brief Draws a filled rectangle anywhere in the cube
         /// @param voxel starting voxel
@@ -55,12 +51,6 @@ class Graphics {
         /// @param lenghtB length of line b
         /// @param color the coloring setting for the rectangle
         static void fillRectangle(Voxel voxel, Direction a, Direction b, int lengthA, int lenghtB, Coloring* coloring);
-
-        /// @brief Rotates the active frames voxels stepwise around an axis that passes through the center of the cube.
-        /// @param direction the to rotate  
-        /// @param degree the angle in degrees [0 .. 360]
-        /// @param frameTime the time in ms for a frame
-        static void rotate(Direction direction, float degree, long frameTime);
 
         /// @brief Clear all settings in cube
         static void erase();
@@ -148,6 +138,8 @@ class Graphics {
         /// @param accuracy the precision to use
         /// @return the result with accuracy offset
         static long fpmult(long a, long b, long accuracy);
+
+        static void print(float x, float y, float z);
 };
 
 #endif

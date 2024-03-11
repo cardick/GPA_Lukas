@@ -1,22 +1,24 @@
 #include "Graphics.h"
-#include "Vector.h"
 #include "LightCube.h"
 #include "Frame.h"
+#include "MathUtil.h"
+#include "Vector.h"
 #include "MemoryFree.h"
 
 void Graphics::drawColumn(const int column, Coloring& coloring)
 {
+    uint8_t size = LightCube::getInstance().getRowSize() * LightCube::getInstance().getColSize();
+
     // ensure column is in range
-    if (0 > column || column >= (LightCube::getInstance().getRowSize() * LightCube::getInstance().getColSize()))
+    if (0 > column || column >= (size))
     {
         return;
     }
 
     // get the voxel for the column index
-    for (int i = 0; i < LightCube::getInstance().getLayerSize(); i++) // z
+    for (int i = 0; i < LightCube::getInstance().getLayerSize(); i++)
     {
-
-        int ledIndex = column + (LightCube::getInstance().getRowSize() * LightCube::getInstance().getColSize() * i);
+        int ledIndex = column + (size * i);
         Voxel v = LightCube::getInstance().getFrame()->voxel(ledIndex);
         Color c = coloring.getColor(v);
         LightCube::getInstance().getFrame()->set(ledIndex, c.red, c.green, c.blue);
@@ -42,8 +44,9 @@ void Graphics::drawLayer(const int layer, Coloring& coloring)
 
 void Graphics::drawColumn(const int column, const Color color, const long millis)
 {
+    uint8_t size = LightCube::getInstance().getRowSize() * LightCube::getInstance().getColSize();
     // ensure column is in range
-    if (0 > column || column >= (LightCube::getInstance().getRowSize() * LightCube::getInstance().getColSize()))
+    if (0 > column || column >= size)
     {
         return;
     }
@@ -51,7 +54,7 @@ void Graphics::drawColumn(const int column, const Color color, const long millis
     // get the voxel for the column index
     for (int i = 0; i < LightCube::getInstance().getLayerSize(); i++)
     {
-        int ledIndex = column + (LightCube::getInstance().getRowSize() * LightCube::getInstance().getColSize() * i);
+        int ledIndex = column + (size * i);
         LightCube::getInstance().getFrame()->setPrepare();
         LightCube::getInstance().getFrame()->set(ledIndex, color.red, color.green, color.blue);
         LightCube::getInstance().getFrame()->activate(2);
@@ -59,14 +62,6 @@ void Graphics::drawColumn(const int column, const Color color, const long millis
         { /* just wait till cube is ready to prepare next frame */
         }
     }
-}
-
-void Graphics::drawLine(Voxel voxel, Vector3D direction, Coloring &coloring)
-{
-}
-
-void Graphics::drawLine(Voxel voxel, Vector3D direction, Coloring &coloring, long millis)
-{
 }
 
 void Graphics::drawSphere(float size, Coloring &coloring, Frame *frame)
@@ -112,29 +107,27 @@ void Graphics::drawSphere(float size, float mx, float my, float mz, Coloring &co
     }
 }
 
-void Graphics::drawRectangle(const Voxel *voxel, Direction a, Direction b, const int lengthA, const int lengthB, Coloring &coloring, Frame *frame)
+void Graphics::drawRectangle(uint8_t px, uint8_t py, uint8_t pz, Direction a, Direction b, const int lengthA, const int lengthB, Coloring &coloring, Frame *frame)
 {
-    Vector3D aDir = Vector3D::getStandardBaseVector(a);
-    Vector3D bDir = Vector3D::getStandardBaseVector(b);
-    uint8_t ax = aDir.x;
-    uint8_t ay = aDir.y;
-    uint8_t az = aDir.z;
-    uint8_t bx = bDir.x;
-    uint8_t by = bDir.y;
-    uint8_t bz = bDir.z;
-    uint8_t px, py, pz;
+    int8_t ax = x_axis_value(a);
+    int8_t ay = y_axis_value(a);
+    int8_t az = z_axis_value(a);
+    int8_t bx = x_axis_value(b);
+    int8_t by = y_axis_value(b);
+    int8_t bz = z_axis_value(b);
+
+    uint8_t rpx, rpy, rpz;
     
     Color color = Color();
     for (int i = 0; i < 2; i++)
     {
         for (int j = 0; j < lengthA; j++)
         {
-            // p = *voxel + (aDir * j) + (bDir * i * (lengthB - 1));
-            px = voxel->x + (ax * j) + (bx * i * (lengthB - 1));
-            py = voxel->y + (ay * j) + (by * i * (lengthB - 1));
-            pz = voxel->z + (az * j) + (bz * i * (lengthB - 1));
+            rpx = px + (ax * j) + (bx * i * (lengthB - 1));
+            rpy = py + (ay * j) + (by * i * (lengthB - 1));
+            rpz = pz + (az * j) + (bz * i * (lengthB - 1));
             color = coloring.getColor(px, py, pz);
-            frame->set(px, py, pz, color.red, color.green, color.blue);
+            frame->set(rpx, rpy, rpz, color.red, color.green, color.blue);
         }
     }
 
@@ -142,18 +135,13 @@ void Graphics::drawRectangle(const Voxel *voxel, Direction a, Direction b, const
     {
         for (int j = 0; j < lengthB; j++)
         {
-            // p = *voxel + (bDir * j) + (aDir * i * (lengthA - 1));
-            px = voxel->x + (bx * j) + (ax * i * (lengthA - 1));
-            py = voxel->y + (by * j) + (ay * i * (lengthA - 1));
-            pz = voxel->z + (bz * j) + (az * i * (lengthA - 1));
+            rpx = px + (bx * j) + (ax * i * (lengthA - 1));
+            rpy = py + (by * j) + (ay * i * (lengthA - 1));
+            rpz = pz + (bz * j) + (az * i * (lengthA - 1));
             color = coloring.getColor(px, py, pz);
-            frame->set(px, py, pz, color.red, color.green, color.blue);
+            frame->set(rpx, rpy, rpz, color.red, color.green, color.blue);
         }
     }
-}
-
-void Graphics::fillRectangle(Voxel voxel, Direction a, Direction b, int lengthA, int lenghtB, Coloring *coloring)
-{
 }
 
 void Graphics::erase()
@@ -267,6 +255,17 @@ Voxel Graphics::rodRot2(double sinTheta, double cosTheta, Voxel vox, Vector3D k)
 long Graphics::fpmult(long a, long b, long accuracy)
 {
     return (a * b) / accuracy;
+}
+
+void Graphics::print(float x, float y, float z)
+{
+    Serial.print(F("(x: "));
+    Serial.print(x, 2);
+    Serial.print(F(", y: "));
+    Serial.print(y, 2);
+    Serial.print(F(", z: "));
+    Serial.print(z, 2);
+    Serial.println(F(")"));
 }
 
 uint8_t Graphics::getColorValue(uint8_t index, uint16_t value)

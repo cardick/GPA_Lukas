@@ -1,6 +1,5 @@
-#include <Arduino.h>
 #include "Vector.h"
-
+#include <avr/pgmspace.h>
 
 // Vector3D class implementation
 
@@ -105,7 +104,11 @@ float Vector3D::magnitude() const
 
 Vector3D Vector3D::inverse() const
 {
-    return *this * (-1);
+    Vector3D v = *this;
+    v.x = -v.x;
+    v.y = -v.y;
+    v.z = -v.z;
+    return v;
 }
 
 void Vector3D::normalize()
@@ -166,42 +169,24 @@ Vector3D Vector3D::getStandardBaseVector(const Direction direction)
 
 Vector3D Vector3D::getStandardBaseVector(const uint8_t direction)
 {
-    if (direction > 63)
+    static const Vector3D directionTable[] = {
+        Vector3D(1, 0, 0),  // Front
+        Vector3D(0, 1, 0),  // Left
+        Vector3D(0, 0, 1),  // Up
+        Vector3D(-1, 0, 0), // Back
+        Vector3D(0, -1, 0), // Right
+        Vector3D(0, 0, -1)  // Down
+    };
+    
+    if (direction < sizeof(directionTable) / sizeof(directionTable[0]))
     {
-        return Vector3D();
+        Vector3D result;
+        memcpy_P(&result, &directionTable[direction], sizeof(Vector3D));
+        return result;
     }
 
-    // zero vector - no direction
-    float x = 0;
-    float y = 0;
-    float z = 0;
-
-    // set directions to vector
-    for (uint8_t i = 0; i < 6; i++)
-    {
-        switch (direction & (1 << i))
-        {
-        case Front:
-            x += 1;
-            break;
-        case Left:
-            y += 1;
-            break;
-        case Up:
-            z += 1;
-            break;
-        case Back:
-            x -= 1;
-            break;
-        case Right:
-            y -= 1;
-            break;
-        case Down:
-            z -= 1;
-            break;
-        }
-    }
-    return Vector3D(x, y, z);
+    // Handle invalid direction value
+    return Vector3D();
 }
 
 Vector3D Vector3D::getUnitVector(const Direction direction)

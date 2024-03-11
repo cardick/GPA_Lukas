@@ -1,7 +1,7 @@
-#include <Arduino.h>
 #ifndef Vector_h
 #define Vector_h
 
+#include <avr/pgmspace.h>
 #include "MathUtil.h"
 
 /// @brief Vector is used to calculate the positions and movements of voxels in the cube (three dimensional space).

@@ -11,14 +11,12 @@ SolidColoring::SolidColoring(Color *c) : _c(c)
 SolidColoring::~SolidColoring()
 {
     delete _c;
+    _c = nullptr;
 }
 
 void SolidColoring::setColor(const Color &c)
 {
-    *(_c) = c;
-    // this->_c->red = c.red;
-    // this->_c->green = c.green;
-    // this->_c->blue = c.blue;
+    *_c = c;
 }
 
 Color SolidColoring::getColor(const Voxel &vox)
