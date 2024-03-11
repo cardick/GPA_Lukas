@@ -81,9 +81,6 @@ public:
   /// @brief round the coordinates up to int positions
   void rnd();
 
-  /// @brief Print current state to Serial 
-  void print() const;
-
   /// @brief Indicats whether the given vector is the zero vector (0,0,0).
   /// @param vector
   /// @return

@@ -45,16 +45,6 @@ public:
         return *this;
     }
 
-    void print() const
-    {
-        Serial.print(F("color r: "));
-        Serial.print(red);
-        Serial.print(F(", g: "));
-        Serial.print(red);
-        Serial.print(F(", b: "));
-        Serial.println(red);
-    }
-
     static Brightness toBrightness(uint8_t value) 
     {
         if(value == 0) 

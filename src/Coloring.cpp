@@ -87,13 +87,3 @@ Brightness ColorSpace::colorSpace(const int i)
     }
     return Off;
 }
-
-void ColorSpace::print()
-{
-    Serial.print(F("Color Space of width: "));
-    Serial.print(width);
-    Serial.print(F(", depth: "));
-    Serial.print(depth);
-    Serial.print(F(", height: "));
-    Serial.println(height);
-}

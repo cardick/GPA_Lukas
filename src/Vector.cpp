@@ -159,17 +159,6 @@ bool Vector3D::isStandardBaseVector() const
     return (x == 1 || x == 0 || x == -1) && (y == 1 || y == 0 || y == -1) && (z == 1 || z == 0 || z == -1);
 }
 
-void Vector3D::print() const
-{
-    Serial.print(F("vector (x="));
-    Serial.print(x);
-    Serial.print(F(", y="));
-    Serial.print(y);
-    Serial.print(F(",z="));
-    Serial.print(z);
-    Serial.println(F(")"));
-}
-
 Vector3D Vector3D::getStandardBaseVector(const Direction direction)
 {
     return getStandardBaseVector((uint8_t)direction);

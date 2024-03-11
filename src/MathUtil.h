@@ -14,26 +14,4 @@ enum Direction
   Down = 1 << 5
 };
 
-class MathUtil
-{
-private:
-  /* data */
-public:
-
-  static int multiplyWithOffset(int a, int b, int off)
-  {
-      Serial.print(F("mult a "));
-      Serial.print(a);
-      Serial.print(F(" with b "));
-      Serial.print(b);
-      int i = b*a;
-      Serial.print(F(" to "));
-      Serial.print(i);
-      Serial.print(F(" div prec "));
-      Serial.print(off);
-      Serial.print(F(" to res "));
-      Serial.println(i / off);
-      return i / off;
-  }
-};
 #endif

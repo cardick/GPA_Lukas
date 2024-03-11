@@ -98,11 +98,6 @@ class DataStore {
         /// @param tick value between 0 .. 15
         void shiftLayerForTick(int layerIndex, int tick);
 
-        /// @brief Shift the active state for a layer out to Serial, when layer and tick are within their ranges.
-        /// @param layerIndex value between 0 .. LAYERS
-        /// @param tick value between 0 .. 15
-        void shiftLayerForTickToSerial(int layerIndex, int tick);
-
         /// @brief Indicates whether the data store is modified and out of sync with the active state.
         /// @return true if modifications are present, that are not already in sync; false otherwise
         bool changed();
@@ -121,9 +116,5 @@ class DataStore {
         /// @param tick the tick count 
         /// @return the BAM index
         int getBAM(int tick);
-
-        /// @brief Shift out an 8 Bit unsigned int value to Serial with it's leading zeros.
-        /// @param value the value to shift out
-        inline void shiftToSerial(uint8_t value);
 };
 #endif

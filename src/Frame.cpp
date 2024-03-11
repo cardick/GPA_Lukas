@@ -140,10 +140,6 @@ void Frame::setPrepare()
     if(canPrepare()) {
         this->state = Prepare;
     }
-    if(FRAME_DEBUG_MODE > 0) {
-        Serial.print(F("[Fame::setPrepare] State::"));
-        Serial.println(getState());
-    }
 }
 
 void Frame::activate(long lifetime)
@@ -155,47 +151,23 @@ void Frame::activate(long lifetime)
         Serial.println(F("[Frame] Cannot activate, not prepared."));
     }
 
-    if(FRAME_DEBUG_MODE > 0) {
-        Serial.print(F("[Fame::activate] State::"));
-        Serial.print(getState());
-        Serial.print(", ");
-        Serial.println(this->dirtyLifetime);
-    }
 }
 
 void Frame::decrementLifeCycle()
 {
     if(this->state == Idle) {
-        if(FRAME_DEBUG_MODE > 0) {
-            Serial.println(F("[Frame::decrement] State::Idle"));
-        }
         return;
     }
 
     if(this->state != Prepare) {
         this->lifetime -= 1;
 
-        if(FRAME_DEBUG_MODE > 0) {
-            Serial.print(F("[Frame::decrement] decrement lifetime "));
-            Serial.println(this->lifetime);
-        }
-
         if(this->lifetime <= 0 && !this->ds->changed()) {
-            if(FRAME_DEBUG_MODE > 0) {
-                Serial.println(F("[Frame::decrement] reset datasource"));
-            }
-            // stop interrupt timer
-            //TCCR1B &= ~(1 << CS22);
             reset();
-            // restart interrupt timer
-            //TCCR1B = B00001011;
         }
     }
 
     if(this->state == Activate && this->lifetime <= 0) {
-        if(FRAME_DEBUG_MODE > 0) {
-            Serial.println(F("[Frame::decrement] synchronize datasource state"));
-        }
 #ifdef UNO_R3        
         // stop interrupt timer
         TCCR1B &= ~(1 << CS22);
@@ -208,10 +180,6 @@ void Frame::decrementLifeCycle()
         this->ds->synchronize();
         this->state = Active;
         this->dirtyLifetime = 0;
-        if(FRAME_DEBUG_MODE > 0) {
-            Serial.print(F("[Frame::decrement] activate with lifetime "));
-            Serial.println(this->lifetime);
-        }
 #ifdef UNO_R3        
         // restart interrupt timer
         TCCR1B = B00001011;
@@ -222,20 +190,9 @@ void Frame::decrementLifeCycle()
 
     }
 
-    if(FRAME_DEBUG_MODE > 0) {
-        Serial.print(F("[Frame::decrement] State::"));
-        Serial.println(getState());
-    }
 }
 
 void Frame::shiftLayerForTick(const int layerIndex, const int tick)
 {
-    switch (FRAME_DEBUG_MODE)
-    {
-    case 2:
-        this->ds->shiftLayerForTickToSerial(layerIndex, tick);
-    default:
-        this->ds->shiftLayerForTick(layerIndex, tick);
-        break;
-    }
+    this->ds->shiftLayerForTick(layerIndex, tick);
 }

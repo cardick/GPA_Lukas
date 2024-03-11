@@ -3,8 +3,6 @@
 #include "LightCube.h"
 #include "Frame.h"
 #include "MemoryFree.h"
-#include "VectorMath.h"
-#include "fpVector3.h"
 
 void Graphics::drawColumn(const int column, Coloring& coloring)
 {
@@ -156,48 +154,6 @@ void Graphics::drawRectangle(const Voxel *voxel, Direction a, Direction b, const
 
 void Graphics::fillRectangle(Voxel voxel, Direction a, Direction b, int lengthA, int lenghtB, Coloring *coloring)
 {
-}
-
-void Graphics::rotate(Direction direction, float degree, long frameTime)
-{
-    // Serial.println(F("Graphics start rotation"));
-    // max diameter of the 8x8x8 cube is 7 and therefore a radius of 3.5
-    // to move 360 degree the cube needs 28 steps at he outer ring
-    // the inner ring needs just 4 steps
-    int total = 28;
-    int steps = round(total * degree / 360);
-
-    fpVector3 k = fpVector3::getUnitVector(direction);
-    Frame *f = LightCube::getInstance().getFrame();
-
-    for (int i = 0; i < steps; i++)
-    {
-        f->setPrepare();
-        f->setAllOff();
-        // double start = millis();
-        for (int j = 0; j < 512; j++)
-        {
-            Voxel vox = f->voxel(j);
-            uint16_t rgbVal = f->get(j);
-            if (rgbVal != 0)
-            {
-                // vox.print();
-                Voxel vrot = VectorMath::axisAngleRotation(vox, k, i);
-                // vrot.print();
-                f->set(vrot.x, vrot.y, vrot.z, getColorValue(0, rgbVal), getColorValue(4, rgbVal), getColorValue(8, rgbVal));
-                // Serial.println();
-            }
-        }
-        // Serial.print(F("step time in ms "));
-        // Serial.println(millis() - start);
-        // activate each step
-        f->activate(toFrames(100));
-
-        while (LightCube::getInstance().isBusy())
-        { /* wait */
-        }
-    }
-
 }
 
 void Graphics::erase()

@@ -254,70 +254,6 @@ void DataStore::shiftLayerForTick(int layerIndex, int tick)
     }
 }
 
-void DataStore::shiftLayerForTickToSerial(int layerIndex, int tick)
-{
-    int bamIndex = getBAM(tick);
-    if (bamIndex == -1)
-    {
-        Serial.print(F("Invalid BAM index "));
-        Serial.print(bamIndex);
-        Serial.print(F(" for tick "));
-        Serial.println(tick);
-        return;
-    }
-    else
-    {
-        Serial.print(F("Shift BAM index "));
-        Serial.print(bamIndex);
-        Serial.print(F(" for tick "));
-        Serial.println(tick);
-    }
-
-    // shift cathode settings
-    for (int i = BYTES - 1; i >= 0; i--)
-    {
-        shiftToSerial(layeredStore[layerIndex][bamIndex][i]);
-        Serial.println();
-    }
-
-    // shift anode settings
-    switch (layerIndex)
-    {
-    case 0:
-        shiftToSerial(LAYER_1);
-        Serial.println();
-        break;
-    case 1:
-        shiftToSerial(LAYER_2);
-        Serial.println();
-        break;
-    case 2:
-        shiftToSerial(LAYER_3);
-        Serial.println();
-        break;
-    case 3:
-        shiftToSerial(LAYER_4);
-        Serial.println();
-        break;
-    case 4:
-        shiftToSerial(LAYER_5);
-        Serial.println();
-        break;
-    case 5:
-        shiftToSerial(LAYER_6);
-        Serial.println();
-        break;
-    case 6:
-        shiftToSerial(LAYER_7);
-        Serial.println();
-        break;
-    case 7:
-        shiftToSerial(LAYER_8);
-        Serial.println();
-        break;
-    }
-}
-
 bool DataStore::changed()
 {
     return this->isDirty;
@@ -357,12 +293,4 @@ int DataStore::getBAM(int tick)
         return 3;
     }
     return -1;
-}
-
-inline void DataStore::shiftToSerial(uint8_t value)
-{
-    for (int i = 7; i >= 0; i--)
-    {
-        Serial.print(bitRead(value, i));
-    }
 }

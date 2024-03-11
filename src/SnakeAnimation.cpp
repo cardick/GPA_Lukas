@@ -62,7 +62,6 @@ void SnakeAnimation::moveForward(Snake &snake, const Vector3D &v, const int step
             f->set(snake.get(i).x, snake.get(i).y, snake.get(i).z, Full, Medium, Low);
         }
         else {
-            snake.get(i).print();
             Serial.println(F("snake not in boundaries."));
         }
     }
