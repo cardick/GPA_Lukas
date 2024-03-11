@@ -104,15 +104,14 @@ void setup() {
   // set TCCR1A register to zero for CTC-Mode
   TCCR1A = B00000000;
 
-  // set TCCR1B register B00001XXX for CTC-Mode
-  // TCCR1B = B00001010; // Prescale 8 
-  // TCCR1B = B00001011; // Prescale 64
-  // TCCR1B = B00001100; // Prescale 256
+  // TCCR1B = B00001010 -> Prescale 8 
+  // TCCR1B = B00001011 -> Prescale 64
+  // TCCR1B = B00001100 -> Prescale 256
 
+  // set TCCR1B register B00001XXX for CTC-Mode
+  TCCR1B = B00001000;
   // set prescale 64
-  TCCR1B = B00000000;
-  // TCCR1B &= ~(1 << CS22);
-  TCCR1B |= (1 << CS11) | (1 << CS10) | (1 << WGM13);
+  TCCR1B |= (1 << CS11) | (1 << CS10) ;
   
   //Comparative value 
   OCR1A = 250;

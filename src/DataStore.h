@@ -30,15 +30,15 @@ public:
 
     /// @brief Get the size of the rows.
     /// @return
-    uint8_t getRows();
+    const uint8_t getRows() const;
 
     /// @brief Get the size of the columns.
     /// @return
-    uint8_t getCols();
+    const uint8_t getCols() const;
 
     /// @brief Get the size of layers.
     /// @return
-    uint8_t getLayers();
+    const uint8_t getLayers() const;
 
     /// @brief Make the complete cube on.
     /// @param force Force the changes to be directly synchronized with active state

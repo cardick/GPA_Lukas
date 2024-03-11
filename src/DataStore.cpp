@@ -7,17 +7,17 @@ DataStore::DataStore()
 {
 }
 
-uint8_t DataStore::getRows()
+const uint8_t DataStore::getRows() const
 {
     return ROWS;
 }
 
-uint8_t DataStore::getCols()
+const uint8_t DataStore::getCols() const
 {
     return COLS;
 }
 
-uint8_t DataStore::getLayers()
+const uint8_t DataStore::getLayers() const
 {
     return LAYERS;
 }
@@ -214,6 +214,7 @@ bool DataStore::changed()
 
 void DataStore::synchronize()
 {
+    Serial.println(F("[DS] synchronize"));
     for (uint8_t i = 0; i < LAYERS; i++)
     {
         for (uint8_t j = 0; j < BAM; j++)

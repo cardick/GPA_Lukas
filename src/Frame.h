@@ -5,15 +5,8 @@
 #ifndef Frame_h
 #define Frame_h
 
-#include <avr/pgmspace.h>
+// #include <avr/pgmspace.h>
 #include "DataStore.h"
-
-const char state_0[] PROGMEM = "Idle";
-const char state_1[] PROGMEM = "Prepare";
-const char state_2[] PROGMEM = "Activate";
-const char state_3[] PROGMEM = "Active";
-const char state_4[] PROGMEM = "Invalid";
-const char *const frame_states[] PROGMEM = {state_0, state_1, state_2, state_3, state_4};
 
 enum FrameState
 {
@@ -53,8 +46,6 @@ public:
 
     const uint8_t getLayers() const;
 
-    const String getState() const;
-
     void reset();
 
     const bool isIdle();
@@ -81,7 +72,7 @@ public:
 
 protected:
 private:
-    DataStore *ds;
+    DataStore ds;
     FrameState state;
     uint16_t dirtyLifetime;
     uint16_t lifetime;

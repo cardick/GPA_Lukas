@@ -4,14 +4,13 @@
 #include "DataStore.h"
 #include "MemoryFree.h"
 
-Frame::Frame() : ds(new DataStore()), state(Idle), dirtyLifetime(0), lifetime(0)
+Frame::Frame() : state(Idle), dirtyLifetime(0), lifetime(0)
 {
-    ds->setAllOff(true);
+    ds.setAllOff(true);
 }
 
 Frame::~Frame()
 {
-    delete ds;
 }
 
 const uint16_t Frame::size() const
@@ -21,27 +20,27 @@ const uint16_t Frame::size() const
 
 Voxel Frame::voxel(uint16_t index) const
 {
-    return ds->getVoxel(index);
+    return ds.getVoxel(index);
 }
 
 uint16_t Frame::get(uint16_t index) const
 {
-    return ds->get(index);
+    return ds.get(index);
 }
 
 void Frame::set(uint16_t index, uint8_t red, uint8_t green, uint8_t blue)
 {
-    ds->set(index, red, green, blue);
+    ds.set(index, red, green, blue);
 }
 
 void Frame::set(uint8_t x, uint8_t y, uint8_t z, uint8_t red, uint8_t green, uint8_t blue)
 {
-    ds->set(x, y, z, red, green, blue);
+    ds.set(x, y, z, red, green, blue);
 }
 
 int Frame::getIndex(uint8_t x, uint8_t y, uint8_t z)
 {
-    return ds->getIndex(x, y, z);
+    return ds.getIndex(x, y, z);
 }
 
 void Frame::setAllOn()
@@ -50,7 +49,7 @@ void Frame::setAllOn()
     {
         setPrepare();
     }
-    ds->setAllOn(false);
+    ds.setAllOn(false);
 }
 
 void Frame::setAllOff()
@@ -59,47 +58,22 @@ void Frame::setAllOff()
     {
         setPrepare();
     }
-    ds->setAllOff(false);
+    ds.setAllOff(false);
 }
 
 const uint8_t Frame::getRows() const
 {
-    return ds->getRows();
+    return ds.getRows();
 }
 
 const uint8_t Frame::getCols() const
 {
-    return ds->getCols();
+    return ds.getCols();
 }
 
 const uint8_t Frame::getLayers() const
 {
-    return ds->getLayers();
-}
-
-const String Frame::getState() const
-{
-    char buffer[10];
-    switch (state)
-    {
-        case Idle:
-            strcpy_P(buffer, (char *)pgm_read_word(&(frame_states[0])));
-            break;
-        case Prepare:
-            strcpy_P(buffer, (char *)pgm_read_word(&(frame_states[1])));
-            break;
-        case Activate:
-            strcpy_P(buffer, (char *)pgm_read_word(&(frame_states[2])));
-            break;
-        case Active:
-            strcpy_P(buffer, (char *)pgm_read_word(&(frame_states[3])));
-            break;
-        default:
-            strcpy_P(buffer, (char *)pgm_read_word(&(frame_states[4])));
-            break;
-    }
-    
-    return String(buffer);
+    return ds.getLayers();
 }
 
 void Frame::reset()
@@ -120,7 +94,7 @@ const bool Frame::isIdle()
 
 const bool Frame::canPrepare()
 {
-    return isIdle() || (isActive() && !ds->changed());
+    return isIdle() || (isActive() && !ds.changed());
 }
 
 const bool Frame::isPrepare()
@@ -161,6 +135,11 @@ void Frame::activate(uint16_t lifetime)
 
 void Frame::decrementLifeCycle()
 {
+    Serial.print(F("[Frame] lifeCycle-- state:"));
+    Serial.print(state);
+    Serial.print(F(", lifetime: "));
+    Serial.println(lifetime);
+
     if (state == Idle)
     {
         return;
@@ -173,7 +152,7 @@ void Frame::decrementLifeCycle()
             lifetime -= 1;
         }
 
-        if (lifetime <= 0 && !ds->changed())
+        if (lifetime <= 0 && !ds.changed())
         {
             reset();
         }
@@ -190,7 +169,7 @@ void Frame::decrementLifeCycle()
 #endif
 
         lifetime = dirtyLifetime;
-        ds->synchronize();
+        ds.synchronize();
         state = Active;
         dirtyLifetime = 0;
 #ifdef UNO_R3
@@ -205,12 +184,5 @@ void Frame::decrementLifeCycle()
 
 void Frame::shiftLayerForTick(const uint8_t layerIndex, const uint8_t tick)
 {
-    if (ds != nullptr)
-    {
-        ds->shiftLayerForTick(layerIndex, tick);
-    }
-    else
-    {
-        Serial.println(F("[Frame] error: data store is nullptr."));
-    }
+    ds.shiftLayerForTick(layerIndex, tick);
 }

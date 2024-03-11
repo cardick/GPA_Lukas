@@ -2,9 +2,8 @@
 #include "LightCube.h"
 #include "MemoryFree.h"
 
-LightCube::LightCube() : frameRate(0), frame(new Frame()), initialized(false)
+LightCube::LightCube() : frameRate(0), initialized(false)
 {
-    Serial.println(F("[Cube] init"));
 }
 
 bool LightCube::isInitialized()
@@ -24,72 +23,67 @@ void LightCube::init(float frameRate)
     {
         return;
     }
-    this->frameRate = frameRate;
+    frameRate = frameRate;
     initialized = true;
 }
 
 uint8_t LightCube::getRowSize()
 {
-    return isInitialized() ? this->frame->getRows() : 0;
+    return isInitialized() ? frame.getRows() : 0;
 }
 
 uint8_t LightCube::getColSize()
 {
-    return isInitialized() ? this->frame->getCols() : 0;
+    return isInitialized() ? frame.getCols() : 0;
 }
 
 uint8_t LightCube::getLayerSize()
 {
-    return isInitialized() ? this->frame->getLayers() : 0;
+    return isInitialized() ? frame.getLayers() : 0;
 }
 
 Frame *LightCube::getFrame()
 {
-    return isInitialized() ? this->frame : nullptr;
+    return isInitialized() ? &frame : nullptr;
 }
 
 const float LightCube::getFrameRate()
 {
-    return isInitialized() ? this->frameRate : 0;
+    return isInitialized() ? frameRate : 0;
 }
 
 bool LightCube::isIdle()
 {
-    return isInitialized() ? this->frame->isIdle() : false;
+    return isInitialized() ? frame.isIdle() : false;
 }
 
 bool LightCube::isBusy()
 {
-    return this->initialized ? !this->frame->canPrepare() : true;
+    return initialized ? !frame.canPrepare() : true;
 }
 
 void LightCube::reset()
 {
     if (isInitialized())
     {
-        this->frame->reset();
+        frame.reset();
     }
 }
 
-void LightCube::turnOn(long millis)
+void LightCube::turnOn(long lifetime)
 {
     if (isInitialized())
     {
-        long lifetime = round(this->getFrameRate() * millis / 1000);
-        this->frame->setAllOn();
-        this->frame->activate(lifetime);
+        frame.setAllOn();
+        frame.activate(static_cast<uint16_t>(max(round(getFrameRate() * lifetime / 1000), 1)));
     }
 }
 
 void LightCube::shiftLayerForTick(const uint8_t index, const uint8_t tick)
 {
-    if (isInitialized() && frame != nullptr)
+    if (isInitialized())
     {
-        frame->shiftLayerForTick(index, tick);
-    }
-    else
-    {
-        Serial.println(F("[cube] error: either unitialized or frame is nullptr"));
+        frame.shiftLayerForTick(index, tick);
     }
 }
 
@@ -98,6 +92,6 @@ void LightCube::prepareNextDutyCycle()
     // decrement the lifetime of current frame
     if (isInitialized())
     {
-        this->frame->decrementLifeCycle();
+        frame.decrementLifeCycle();
     }
 }

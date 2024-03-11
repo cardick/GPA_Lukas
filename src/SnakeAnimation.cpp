@@ -71,8 +71,6 @@ void SnakeAnimation::moveForward(Snake &snake, const Vector3D &v, const int step
         if (f->canPrepare() && !f->isPrepare())
         {
             f->setPrepare();
-        } else {
-            Serial.println(f->getState());
         }
 
         if (isInBoundary(snake.get()))
