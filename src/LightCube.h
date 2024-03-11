@@ -52,13 +52,15 @@ public:
      * @param index index of the layer
      * @param tick current BAM tick
      */
-    void shiftLayerForTick(const int index, const int tick);
+    void shiftLayerForTick(const uint8_t index, const uint8_t tick);
 
     /**
      * Let the cube prepare for the next duty cycle.
      */
     void prepareNextDutyCycle();
 
+    bool isInitialized();
+    
 private:
     float frameRate;
     Frame *frame;
@@ -69,7 +71,6 @@ private:
     LightCube(const LightCube &) = delete;
     LightCube &operator=(const LightCube &) = delete;
 
-    bool isInitialized();
 };
 
 #endif

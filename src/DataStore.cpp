@@ -1,4 +1,5 @@
 #include "DataStore.h"
+
 #include <SPI.h>
 #include "Voxel.h"
 
@@ -23,9 +24,9 @@ uint8_t DataStore::getLayers()
 
 void DataStore::setAllOn(bool force)
 {
-    if (!this->isDirty)
+    if (!isDirty)
     {
-        this->isDirty = true;
+        isDirty = true;
     }
 
     memset(layeredStoreDirty, pgm_read_byte(&ALL_ON), LAYERS * BAM * BYTES);
@@ -54,9 +55,9 @@ void DataStore::setAllOn(bool force)
 
 void DataStore::setAllOff(bool force)
 {
-    if (!this->isDirty)
+    if (!isDirty)
     {
-        this->isDirty = true;
+        isDirty = true;
     }
 
     memset(layeredStoreDirty, pgm_read_byte(&ALL_OFF), LAYERS * BAM * BYTES);
@@ -75,14 +76,14 @@ uint16_t DataStore::get(uint16_t index) const
     }
 
     // evaluate bit positions
-    int layer = index / (ROWS * COLS);
-    int startIndex = (index % (ROWS * COLS)) * 3 / 8;
-    int startPos = (index % (ROWS * COLS)) * 3 % 8;
-    int endPos = startPos + 2;
-    int endIndex = endPos < 8 ? startIndex : startIndex + 1;
+    uint8_t layer = index / (ROWS * COLS);
+    uint8_t startIndex = (index % (ROWS * COLS)) * 3 / 8;
+    uint8_t startPos = (index % (ROWS * COLS)) * 3 % 8;
+    uint8_t endPos = startPos + 2;
+    uint8_t endIndex = endPos < 8 ? startIndex : startIndex + 1;
     endPos = endPos < 8 ? endPos : endPos - 8;
-    int greenIndex = startPos == 7 ? endIndex : startIndex;
-    int greenPos = startPos == 7 ? endPos - 1 : startPos + 1;
+    uint8_t greenIndex = startPos == 7 ? endIndex : startIndex;
+    uint8_t greenPos = startPos == 7 ? endPos - 1 : startPos + 1;
 
     // write the cathode bits
     uint16_t tmp = 
@@ -114,9 +115,9 @@ void DataStore::set(uint16_t index, uint8_t red, uint8_t green, uint8_t blue)
         return;
     }
 
-    if (!this->isDirty)
+    if (!isDirty)
     {
-        this->isDirty = true;
+        isDirty = true;
     }
 
     int8_t layer = index / (ROWS * COLS);
@@ -154,7 +155,7 @@ void DataStore::set(uint8_t x, uint8_t y, uint8_t z, uint8_t red, uint8_t green,
     set(index, red, green, blue);
 }
 
-Voxel DataStore::getVoxel(int index) const
+Voxel DataStore::getVoxel(uint16_t index) const
 {
     if (index >= (ROWS * COLS * LAYERS))
     {
@@ -177,21 +178,22 @@ const uint16_t DataStore::getIndex(uint8_t x, uint8_t y, uint8_t z) const
     if (z >= LAYERS)
         return -1;
 
-    int index = z * ROWS * COLS;
+    uint16_t index = z * ROWS * COLS;
     index += x * ROWS;
     index += y;
     return index;
 }
 
-void DataStore::shiftLayerForTick(int layerIndex, int tick)
+void DataStore::shiftLayerForTick(uint8_t layerIndex, uint8_t tick)
 {
-    int bamIndex = getBAM(tick);
+    uint8_t bamIndex = getBAM(tick);
+
     if (bamIndex == -1)
     {
         return;
     }
 
-    for (int i = BYTES - 1; i >= 0; i--)
+    for (int8_t i = BYTES - 1; i >= 0; i--)
     {
         // correcture for red, since I used the same resistor size for every
         // cathode switch in the circuit
@@ -200,7 +202,6 @@ void DataStore::shiftLayerForTick(int layerIndex, int tick)
         // } else {
         //     SPI.transfer(layeredStore[layerIndex][bamIndex][i]);
         // }
-
         SPI.transfer(layeredStore[layerIndex][bamIndex][i]);
     }
     SPI.transfer(pgm_read_byte(&LAYER[layerIndex]));
@@ -208,23 +209,23 @@ void DataStore::shiftLayerForTick(int layerIndex, int tick)
 
 bool DataStore::changed()
 {
-    return this->isDirty;
+    return isDirty;
 }
 
 void DataStore::synchronize()
 {
-    for (int i = 0; i < LAYERS; i++)
+    for (uint8_t i = 0; i < LAYERS; i++)
     {
-        for (int j = 0; j < BAM; j++)
+        for (uint8_t j = 0; j < BAM; j++)
         {
             // Use memcpy to copy the entire block of memory
             memcpy(layeredStore[i][j], layeredStoreDirty[i][j], BYTES);
         }
     }
-    this->isDirty = false;
+    isDirty = false;
 }
 
-int DataStore::getBAM(int tick)
+uint8_t DataStore::getBAM(uint8_t tick)
 {
     if (0b0 <= tick && tick <= 0b1)
     {

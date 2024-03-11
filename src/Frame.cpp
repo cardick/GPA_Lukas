@@ -1,13 +1,12 @@
-#include <Arduino.h>
-
 #include "Frame.h"
-#include "MemoryFree.h"
-#include <avr/pgmspace.h>
 
-Frame::Frame()
+#include <avr/pgmspace.h>
+#include "DataStore.h"
+#include "MemoryFree.h"
+
+Frame::Frame() : ds(new DataStore()), state(Idle), dirtyLifetime(0), lifetime(0)
 {
-    this->ds = new DataStore();
-    this->reset();
+    ds->setAllOff(true);
 }
 
 Frame::~Frame()
@@ -15,71 +14,73 @@ Frame::~Frame()
     delete ds;
 }
 
-const uint16_t Frame::size()
+const uint16_t Frame::size() const
 {
     return (getRows() * getCols() * getLayers());
 }
 
-Voxel Frame::voxel(int index) const
+Voxel Frame::voxel(uint16_t index) const
 {
     return ds->getVoxel(index);
 }
 
-uint16_t Frame::get(int index) const
+uint16_t Frame::get(uint16_t index) const
 {
-    return this->ds->get(index);
+    return ds->get(index);
 }
 
-void Frame::set(int led, uint8_t red, uint8_t green, uint8_t blue)
+void Frame::set(uint16_t index, uint8_t red, uint8_t green, uint8_t blue)
 {
-    this->ds->set(led, red, green, blue);
+    ds->set(index, red, green, blue);
 }
 
 void Frame::set(uint8_t x, uint8_t y, uint8_t z, uint8_t red, uint8_t green, uint8_t blue)
 {
-    this->ds->set(x, y, z, red, green, blue);
+    ds->set(x, y, z, red, green, blue);
 }
 
 int Frame::getIndex(uint8_t x, uint8_t y, uint8_t z)
 {
-    return this->ds->getIndex(x, y, z);
+    return ds->getIndex(x, y, z);
 }
 
 void Frame::setAllOn()
 {
-    if(!this->isPrepare()) {
-        this->setPrepare();
+    if (!isPrepare())
+    {
+        setPrepare();
     }
-    this->ds->setAllOn(false);
+    ds->setAllOn(false);
 }
 
 void Frame::setAllOff()
 {
-    if(!this->isPrepare()) {
-        this->setPrepare();
+    if (!isPrepare())
+    {
+        setPrepare();
     }
-    this->ds->setAllOff(false);
+    ds->setAllOff(false);
 }
 
-const uint8_t Frame::getRows()
+const uint8_t Frame::getRows() const
 {
-    return this->ds->getRows();
+    return ds->getRows();
 }
 
-const uint8_t Frame::getCols()
+const uint8_t Frame::getCols() const
 {
-    return this->ds->getCols();
+    return ds->getCols();
 }
 
-const uint8_t Frame::getLayers()
+const uint8_t Frame::getLayers() const
 {
-    return this->ds->getLayers();
+    return ds->getLayers();
 }
 
-const String Frame::getState()
+const String Frame::getState() const
 {
     char buffer[10];
-    switch (this->state)
+    switch (state)
     {
         case Idle:
             strcpy_P(buffer, (char *)pgm_read_word(&(frame_states[0])));
@@ -103,96 +104,113 @@ const String Frame::getState()
 
 void Frame::reset()
 {
-    if(isActivate() || isPrepare() || this->lifetime > 0) { return; }
+    if (isActivate() || isPrepare() || lifetime > 0)
+    {
+        return;
+    }
 
-    // this->ds->setAllOff(true);
-    this->lifetime = 0;
-    this->state = Idle;
+    lifetime = 0;
+    state = Idle;
 }
 
 const bool Frame::isIdle()
 {
-    return (this->lifetime == 0) && (this->state == Idle);
+    return lifetime == 0 && state == Idle;
 }
 
 const bool Frame::canPrepare()
 {
-    return this->isIdle() || (this->isActive() && !this->ds->changed());
+    return isIdle() || (isActive() && !ds->changed());
 }
 
 const bool Frame::isPrepare()
 {
-    return this->state == Prepare; //(this->dirtyLifetime == 0) && (this->state == Prepare);
+    return state == Prepare; //(dirtyLifetime == 0) && (state == Prepare);
 }
 
 const bool Frame::isActivate()
 {
-    return (this->dirtyLifetime > 0) && (this->state == Activate);
+    return dirtyLifetime > 0 && state == Activate;
 }
 
 const bool Frame::isActive()
 {
-    return this->lifetime > 0 && (this->state == Active);
+    return lifetime > 0 && state == Active;
 }
 
 void Frame::setPrepare()
 {
-    if(canPrepare()) {
-        this->state = Prepare;
+    if (canPrepare())
+    {
+        state = Prepare;
     }
 }
 
-void Frame::activate(long lifetime)
+void Frame::activate(uint16_t lifetime)
 {
-    if(isPrepare()) {
-        this->dirtyLifetime = lifetime;
-        this->state = Activate;
-    } else {
+    if (isPrepare())
+    {
+        dirtyLifetime = lifetime;
+        state = Activate;
+    }
+    else
+    {
         Serial.println(F("[Frame] Cannot activate, not prepared."));
     }
-
 }
 
 void Frame::decrementLifeCycle()
 {
-    if(this->state == Idle) {
+    if (state == Idle)
+    {
         return;
     }
 
-    if(this->state != Prepare) {
-        this->lifetime -= 1;
+    if (state != Prepare)
+    {
+        if (lifetime > 0)
+        {
+            lifetime -= 1;
+        }
 
-        if(this->lifetime <= 0 && !this->ds->changed()) {
+        if (lifetime <= 0 && !ds->changed())
+        {
             reset();
         }
     }
 
-    if(this->state == Activate && this->lifetime <= 0) {
-#ifdef UNO_R3        
+    if (state == Activate && lifetime <= 0)
+    {
+#ifdef UNO_R3
         // stop interrupt timer
         TCCR1B &= ~(1 << CS22);
 #elif defined(UNO_WIFI_R2)
 #else
-  #error "Undefined target platform. Pleas select a correct target platform from platformio.ini."
+#error "Undefined target platform. Pleas select a correct target platform from platformio.ini."
 #endif
 
-        this->lifetime = this->dirtyLifetime;
-        this->ds->synchronize();
-        this->state = Active;
-        this->dirtyLifetime = 0;
-#ifdef UNO_R3        
+        lifetime = dirtyLifetime;
+        ds->synchronize();
+        state = Active;
+        dirtyLifetime = 0;
+#ifdef UNO_R3
         // restart interrupt timer
         TCCR1B = B00001011;
 #elif defined(UNO_WIFI_R2)
 #else
-  #error "Undefined target platform. Pleas select a correct target platform from platformio.ini."
+#error "Undefined target platform. Pleas select a correct target platform from platformio.ini."
 #endif
-
     }
-
 }
 
-void Frame::shiftLayerForTick(const int layerIndex, const int tick)
+void Frame::shiftLayerForTick(const uint8_t layerIndex, const uint8_t tick)
 {
-    this->ds->shiftLayerForTick(layerIndex, tick);
+    if (ds != nullptr)
+    {
+        ds->shiftLayerForTick(layerIndex, tick);
+    }
+    else
+    {
+        Serial.println(F("[Frame] error: data store is nullptr."));
+    }
 }

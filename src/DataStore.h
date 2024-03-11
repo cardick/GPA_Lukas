@@ -2,16 +2,15 @@
 #include <Arduino.h>
 #endif
 
-#include "Voxel.h"
-
 #ifndef DataStore_h
 #define DataStore_h
+
+#include "Voxel.h"
 
 #define ROWS 8
 #define COLS 8
 #define LAYERS 8
 #define BAM 4
-
 #define BYTES (((ROWS * COLS * 3) / 8) + ((ROWS * COLS * 3) % 8 > 0 ? 1 : 0))
 
 const uint8_t PROGMEM LAYER[] = {
@@ -80,7 +79,7 @@ public:
     /// @brief Get the voxel at position from the displayed frame.
     /// @param index the index [0 .. 511]
     /// @return the voxel
-    Voxel getVoxel(int index) const;
+    Voxel getVoxel(uint16_t index) const;
 
     /// @brief Evaluate the index of the voxel with the given coordinates in the cube.
     /// @param x X-Axis coordinate (row in cube). A value between 0 and ROWS-1.
@@ -92,7 +91,7 @@ public:
     /// @brief Shift the active state for a layer out to SPI, when layer and tick are within their ranges.
     /// @param layerIndex value between 0 .. LAYERS
     /// @param tick value between 0 .. 15
-    void shiftLayerForTick(int layerIndex, int tick);
+    void shiftLayerForTick(uint8_t layerIndex, uint8_t tick);
 
     /// @brief Indicates whether the data store is modified and out of sync with the active state.
     /// @return true if modifications are present, that are not already in sync; false otherwise
@@ -110,6 +109,6 @@ private:
     /// @brief Get the BAM index for tick in duty cycle.
     /// @param tick the tick count
     /// @return the BAM index
-    int getBAM(int tick);
+    uint8_t getBAM(uint8_t tick);
 };
 #endif

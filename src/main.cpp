@@ -106,11 +106,16 @@ void setup() {
 
   // set TCCR1B register B00001XXX for CTC-Mode
   // TCCR1B = B00001010; // Prescale 8 
-  TCCR1B = B00001011; // Prescale 64
-  // TCCR1B = B00001100; // Prescale 256 
+  // TCCR1B = B00001011; // Prescale 64
+  // TCCR1B = B00001100; // Prescale 256
+
+  // set prescale 64
+  TCCR1B = B00000000;
+  // TCCR1B &= ~(1 << CS22);
+  TCCR1B |= (1 << CS11) | (1 << CS10) | (1 << WGM13);
   
   //Comparative value 
-  OCR1A = 30;
+  OCR1A = 250;
 
   // TIMSK register is responsible for the usage of the timer in scope of the 
   // interrupts
@@ -160,14 +165,19 @@ void setup() {
 /// @brief Within the loop only the bytes should be manipulated that are written out in ISR method
 void loop() 
 {
-  AnimationOrchestration* anim = new AnimationOrchestration();
-  anim->run();
+  // Serial.println(F("loop"));
+  Serial.print(F("cube initialized with frame rate "));
+  Serial.println(LightCube::getInstance().getFrameRate());
+  // Serial.println(freeMemory());
+
+  // AnimationOrchestration* anim = new AnimationOrchestration();
+  // anim->run();
 
   // Animation *animation = new SnakeAnimation();
   // animation->run();
 
-  // Eraser erase = Eraser();
-  // erase.run(Eraser::DTU, new SolidColoring(new Color(Off, Off, Medium)), true, 90);
+  Eraser erase = Eraser();
+  erase.run(Eraser::DTU, new SolidColoring(new Color(Off, Off, Medium)), true, 90);
 
   // animation = new GpaAnimation();
   // animation->run();
@@ -197,7 +207,6 @@ void loop()
 #else
   #error "Undefined target platform. Pleas select a correct target platform from platformio.ini."
 #endif
-
   // shift current layer for current BAM tick to the shift registers
   LightCube::getInstance().shiftLayerForTick(currentLayer, currentTick);
 

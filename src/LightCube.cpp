@@ -2,18 +2,17 @@
 #include "LightCube.h"
 #include "MemoryFree.h"
 
-LightCube::LightCube()
+LightCube::LightCube() : frameRate(0), frame(new Frame()), initialized(false)
 {
-    this->frame = new Frame();
-    this->initialized = false;
+    Serial.println(F("[Cube] init"));
 }
 
 bool LightCube::isInitialized()
 {
-    return this->initialized;
+    return initialized;
 }
 
-LightCube& LightCube::getInstance()
+LightCube &LightCube::getInstance()
 {
     static LightCube instance;
     return instance;
@@ -21,7 +20,10 @@ LightCube& LightCube::getInstance()
 
 void LightCube::init(float frameRate)
 {
-    if(isInitialized()) { return; }
+    if (isInitialized())
+    {
+        return;
+    }
     this->frameRate = frameRate;
     initialized = true;
 }
@@ -41,7 +43,7 @@ uint8_t LightCube::getLayerSize()
     return isInitialized() ? this->frame->getLayers() : 0;
 }
 
-Frame* LightCube::getFrame()
+Frame *LightCube::getFrame()
 {
     return isInitialized() ? this->frame : nullptr;
 }
@@ -63,30 +65,39 @@ bool LightCube::isBusy()
 
 void LightCube::reset()
 {
-    if(isInitialized()) {
+    if (isInitialized())
+    {
         this->frame->reset();
     }
 }
 
 void LightCube::turnOn(long millis)
 {
-    if(isInitialized()) {
-        long lifetime = round(this->getFrameRate() * millis/1000);
+    if (isInitialized())
+    {
+        long lifetime = round(this->getFrameRate() * millis / 1000);
         this->frame->setAllOn();
         this->frame->activate(lifetime);
     }
 }
 
-void LightCube::shiftLayerForTick(const int index, const int tick)
+void LightCube::shiftLayerForTick(const uint8_t index, const uint8_t tick)
 {
-    if(isInitialized()) {
-        this->frame->shiftLayerForTick(index, tick);
+    if (isInitialized() && frame != nullptr)
+    {
+        frame->shiftLayerForTick(index, tick);
+    }
+    else
+    {
+        Serial.println(F("[cube] error: either unitialized or frame is nullptr"));
     }
 }
 
-void LightCube::prepareNextDutyCycle() {
-    // decrement the lifetime of current frame 
-    if(isInitialized()) {
+void LightCube::prepareNextDutyCycle()
+{
+    // decrement the lifetime of current frame
+    if (isInitialized())
+    {
         this->frame->decrementLifeCycle();
     }
 }
