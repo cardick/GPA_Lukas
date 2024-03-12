@@ -69,6 +69,8 @@ public:
     /// @return true if initializes; false otherwise
     bool isInitialized();
 
+    void delay(long milliseconds);
+
 private:
     float frameRate;
     Frame frame;

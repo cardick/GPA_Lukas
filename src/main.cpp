@@ -12,16 +12,15 @@
 // #include "app_api.h"
 
 #include "LightCube.h"
-// #include "Coloring.h"
-// #include "Color.h"
+#include "Coloring.h"
+#include "Color.h"
 #include "MemoryFree.h"
 #include "AnimationOrchestration.h"
 
 // includes for animations
-// #include "CubeCheck.h"
+#include "ColorSpectrum.h"
 #include "GpaAnimation.h"
 #include "SinusAnimation.h"
-#include "SnakeAnimation.h"
 #include "Eraser.h"
 
 
@@ -56,6 +55,8 @@
 uint8_t currentTick = 0;
 // the layer of the cube currently shifted - needed in ISR
 uint8_t currentLayer = 0;
+
+uint8_t loopCount = 0;
 
 void setup() {
   // debug_init();
@@ -164,26 +165,41 @@ void setup() {
 /// @brief Within the loop only the bytes should be manipulated that are written out in ISR method
 void loop() 
 {
-  // AnimationOrchestration* anim = new AnimationOrchestration();
-  // anim->run();
+  Serial.println(freeMemory());
 
-  // Animation *animation = new SnakeAnimation();
-  // animation->run();
+  switch (loopCount)
+  {
+  case 0:
+    AnimationOrchestration::colorSpace();
+    break;
+  case 1:
+    AnimationOrchestration::eraseScreenDTU();
+    break;
+  case 2:
+    AnimationOrchestration::tunnel();
+    break;
+  case 3:
+    AnimationOrchestration::sinusWave();
+    break;
+  case 4:
+    AnimationOrchestration::eraseScreenBTF();
+    break;
+  case 5:
+    AnimationOrchestration::coloredTunnel();
+    break;
+  case 6:
+    AnimationOrchestration::colorSpace();
+    break;
+  }
 
-  // Eraser erase = Eraser();
-  // erase.run(Eraser::DTU, new SolidColoring(new Color(Off, Off, Medium)), true, 90);
+  while(LightCube::getInstance().isBusy()) { /* wait for cube */ }
 
-  GpaAnimation animation = GpaAnimation();
-  animation.run();
+  while (loopCount > 6 ) { /* do not repeat */ }
+  
+  Serial.print(F("end loop #"));
+  Serial.println(loopCount+1);
 
-  // SinusAnimation sin = SinusAnimation();
-  // sin.run(0, 4000);
-
-  // erase.run(Eraser::BTF, new SolidColoring(new Color(Off, Off, Medium)), true, 90);
-
-  // gpa.run(10000, new ColorSpace());
-
-  while (true) { /* do not repeat */ }
+  loopCount++;
 }
 
 /// @brief ISR is the interrupt method executed by the arduino. Multiplexing and BAM is realized here.

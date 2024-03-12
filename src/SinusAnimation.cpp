@@ -2,99 +2,117 @@
 #include "Coloring.h"
 #include "MemoryFree.h"
 
+SinusAnimation::SinusAnimation() : poleDirX(0), poleDirY(0), poleDirZ(0), refDirX(0), refDirY(0), refDirZ(0)
+{
+}
+
 void SinusAnimation::run()
 {
     run(0, 25);
 }
 
-void SinusAnimation::run(int variant, long millis)
+void SinusAnimation::run(int variant, long runtime)
 {
     wait();
-    Vector3D pole;
-    Vector3D ref;
-    int offset = 4;
-    double amplitude = 3;
-    Frame * frame = LightCube::getInstance().getFrame();
-    int runs = 0;
+
     switch (variant)
     {
     case 1:
-        pole = Vector3D(0,0,1); // pole
-        ref = Vector3D(0,1,0); // ref
-        runs = millis/30;
+        runMultipleWaces(runtime);
         break;
     default:
-        pole = Vector3D(0,0,1); // pole
-        ref = Vector3D(1,0,0); // ref
-        runs = millis/40;
+        runSingleWave(runtime);
         break;
     }
+}
 
-    for (int i = 0; i < runs; i++)
+void SinusAnimation::runSingleWave(long runtime)
+{
+    uint8_t offset = 4;
+    uint8_t amplitude = 3;
+    poleDirX = 0;
+    poleDirY = 0;
+    poleDirZ = 1;
+    refDirX = 1;
+    refDirY = 0;
+    refDirZ = 0;
+    uint16_t runs = runtime/40;
+
+    for (uint16_t i = 0; i < runs; i++)
     {
-        frame->setPrepare();
-        switch (variant)
-        {
-        case 1:
-            calculate(frame, &ref, &pole, offset, amplitude, i+1);
-            break;
-        default:
-            calculateSingle(frame, &ref, &pole, offset, amplitude, i+1);
-            break;
-        }
-        frame->activate(getFrameCount(millis/runs));
+        LightCube::getInstance().getFrame()->setPrepare();
+        calculateSingleWaveFrame(offset, amplitude, i+1);
+        LightCube::getInstance().getFrame()->activate(getFrameCount(runtime/runs));
         wait();
     }
 }
 
-void SinusAnimation::calculateSingle(Frame * frame, const Vector3D * referenceDirection, const Vector3D * poleDirection, const int poleOffset, const double amplitude, const int shift)
+void SinusAnimation::runMultipleWaces(long runtime)
 {
-    if(!referenceDirection->isUnitVector() || !poleDirection->isUnitVector()) { return; }
-    frame->setAllOff();
+    Vector3D pole = Vector3D(0,0,1); // pole
+    Vector3D ref = Vector3D(0,1,0); // ref
+    int offset = 4;
+    double amplitude = 3;
+    Frame * frame = LightCube::getInstance().getFrame();
+    int runs = runtime/30;
+    for (int i = 0; i < runs; i++)
+    {
+        frame->setPrepare();
+        calculate(frame, &ref, &pole, offset, amplitude, i+1);
+        frame->activate(getFrameCount(runtime/runs));
+        wait();
+    }
+}
 
-    // eval the third direction
-    Vector3D plane = Vector3D(1,1,1) - *poleDirection;
-    plane -= *referenceDirection;
 
-    // prepare vectors to reset the specific coordinates 
-    Vector3D refReset = Vector3D(1,1,1) - *referenceDirection;
-    Vector3D poleReset = Vector3D(1,1,1) - *poleDirection;
+// all vectors can be replaced by int8_t x,y,z values - there are only operations on int values in a range of 0 .. 8
+void SinusAnimation::calculateSingleWaveFrame(const uint8_t poleOffset, const uint8_t amplitude, const uint16_t shift)
+{
+    // TODO: these must be standard base vector and not unit vector
 
-    Voxel p2 = Voxel();
+    LightCube::getInstance().getFrame()->setAllOff();
 
-    double radian = 0.0;
-    double curveCompress = 1;
-    int stepSize = 15;
-    double lastValue = 0;
+    uint8_t p2X=0, p2Y=0, p2Z=0;
 
-    for(int i = 0; i < 8; i++) {
+    double curveCompress = 0.5;
+    int8_t stepSize = 15;
+    int8_t lastValue = 0;
+
+    for(int8_t i = 0; i < 8; i++) {
         // set ref coordinate to zero
-        p2 = p2 * refReset;
-        for (int j = 7; j >= 0; j--)
+        resetReferenceDirectionValue(&p2X, &p2Y, &p2Z);
+
+        for (int8_t j = 7; j >= 0; j--)
         {
             // calc sinus value based on shift and current j value
-            radian = M_PI * (((shift + j) % stepSize) + 1) * stepSize / 180;
-            double compression = curveCompress + 1/M_PI_4;
-            int sinValue = round(amplitude * sin(compression * radian ));
+            uint16_t deg = (((shift + j) % (360/stepSize))) * stepSize;
+            int8_t sinus = sinValue(deg, curveCompress, amplitude);
 
             // set pole coordinate to zero
-            p2 = p2 * poleReset;
-            // set new pole coordinate
-            p2 += *poleDirection * (poleOffset + sinValue);
+            resetPoleDirectionValue(&p2X, &p2Y, &p2Z);
 
-            // get color for point depending on the reference direction
-            Color color = getColor(lastValue <= (poleDirection->x*p2.x)+(poleDirection->y*p2.y)+(poleDirection->z*p2.z));
-            lastValue = (poleDirection->x*p2.x)+(poleDirection->y*p2.y)+(poleDirection->z*p2.z);
+            // set new pole coordinate
+            uint8_t sinusOffset = poleOffset + sinus;
+            p2X += poleDirX * sinusOffset;
+            p2Y += poleDirY * sinusOffset;
+            p2Z += poleDirZ * sinusOffset;
+
+            // get color for point depending on the reference direction (claculated by dot product)
+            int8_t poleDotP2 = (poleDirX*p2X) + (poleDirY*p2Y) + (poleDirZ*p2Z);
+            Color color = getColor(lastValue <= poleDotP2);
+            lastValue = poleDotP2;
             
             // set point to frame
-            frame->set(p2.x, p2.y, p2.z, color.red, color.green, color.blue);
+            LightCube::getInstance().getFrame()->set(p2X, p2Y, p2Z, color.red, color.green, color.blue);
 
             // increment ref coordinate
-            p2 += *referenceDirection;
-        }
+            p2X += refDirX;
+            p2Y += refDirY;
+            p2Z += refDirZ;
 
+        }
         // increment plane coordinate
-        p2 += plane;
+        incrementByPlane(&p2X, &p2Y, &p2Z);
     }
 }
 
@@ -146,6 +164,15 @@ void SinusAnimation::calculate(Frame * frame, const Vector3D * referenceDirectio
         // increment plane coordinate
         p2 += plane;
     }
+}
+
+int8_t SinusAnimation::sinValue(int16_t degrees, float compress, float amplitude)
+{
+    // calc sinus value based on shift and current j value
+    double radian = static_cast<double>(M_PI * degrees / 180);
+    double compression = static_cast<double>(compress + 1.0 / M_PI_4);
+    double sinValue = amplitude * sin(compression * radian);
+    return static_cast<int8_t>(round(sinValue));
 }
 
 Color SinusAnimation::getColor(int i)
@@ -213,4 +240,25 @@ Color SinusAnimation::getColor(bool dropping)
         tmp.blue = Brightness::Full;
     }
     return tmp;
+}
+
+void SinusAnimation::resetReferenceDirectionValue(uint8_t *px, uint8_t *py, uint8_t *pz)
+{
+    *px *= (1 - refDirX);
+    *py *= (1 - refDirY);
+    *pz *= (1 - refDirZ);
+}
+
+void SinusAnimation::resetPoleDirectionValue(uint8_t *px, uint8_t *py, uint8_t *pz)
+{
+    *px *= (1 - poleDirX);
+    *py *= (1 - poleDirY);
+    *pz *= (1 - poleDirZ);
+}
+
+void SinusAnimation::incrementByPlane(uint8_t *px, uint8_t *py, uint8_t *pz)
+{
+    *px += (1 - poleDirX - refDirX);
+    *py += (1 - poleDirY - refDirY);
+    *pz += (1 - poleDirZ - refDirZ);
 }

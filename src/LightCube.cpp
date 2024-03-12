@@ -95,3 +95,9 @@ void LightCube::prepareNextDutyCycle()
         frame.decrementLifeCycle();
     }
 }
+
+void LightCube::delay(long milliseconds)
+{
+    frame.setPrepare();
+    frame.activate(milliseconds);
+}

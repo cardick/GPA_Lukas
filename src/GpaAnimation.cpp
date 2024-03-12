@@ -12,17 +12,11 @@ GpaAnimation::GpaAnimation() : coloring(new SolidColoring())
 GpaAnimation::~GpaAnimation()
 {
     delete coloring;
+    coloring = nullptr;
 }
 
 void GpaAnimation::run()
 {
-    Serial.print(F("Color red "));
-    Serial.print(coloring->getColor(0,0,0).red, BIN);
-    Serial.print(F(", green "));
-    Serial.print(coloring->getColor(0,0,0).green, BIN);
-    Serial.print(F(", blue "));
-    Serial.println(coloring->getColor(0,0,0).blue, BIN);
-    memFree();
     moveTunnel();
     moveTunnelBack();
 }
